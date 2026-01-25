@@ -10,6 +10,11 @@ const router = createRouter({
             component: HomeView,
         },
         {
+            path: '/tools',
+            name: 'tools',
+            component: () => import('../views/ToolsView.vue'),
+        },
+        {
             path: '/tools/csv-viewer',
             name: 'csv-viewer',
             component: () => import('../views/CsvViewer.vue'), // Lazy load

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { ChevronRight, Home } from 'lucide-vue-next';
+import { Home } from 'lucide-vue-next';
 
 const route = useRoute();
 
@@ -26,29 +26,31 @@ const breadcrumbs = computed(() => {
 </script>
 
 <template>
-  <nav v-if="breadcrumbs.length > 0" aria-label="Breadcrumb" class="hidden md:flex items-center text-sm text-muted-foreground ml-4 pl-4 border-l border-border/40 h-6">
-    <router-link 
-      to="/" 
-      class="flex items-center hover:text-foreground transition-colors"
-      title="Home"
-    >
-      <Home :size="14" />
-    </router-link>
-    
-    <template v-for="crumb in breadcrumbs" :key="crumb.to">
-      <ChevronRight :size="14" class="mx-2 opacity-50" />
-      
-      <span v-if="crumb.current" class="font-medium text-foreground">
-        {{ crumb.name }}
-      </span>
-      
+  <nav v-if="breadcrumbs.length > 0" aria-label="Breadcrumb" class="hidden md:flex items-center">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/50 dark:bg-black/20 border border-black/5 dark:border-white/10 backdrop-blur-md shadow-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-black/30 hover:border-black/10 text-xs font-medium">
       <router-link 
-        v-else 
-        :to="crumb.to" 
-        class="hover:text-foreground transition-colors"
+        to="/" 
+        class="flex items-center text-muted-foreground hover:text-primary transition-colors p-1 rounded-md hover:bg-primary/10"
+        title="Home"
       >
-        {{ crumb.name }}
+        <Home :size="12" />
       </router-link>
-    </template>
+      
+      <template v-for="crumb in breadcrumbs" :key="crumb.to">
+        <span class="text-muted-foreground/40">/</span>
+        
+        <span v-if="crumb.current" class="text-foreground px-1.5 py-0.5 bg-background shadow-sm rounded-md border border-black/5 dark:border-white/5 cursor-default select-none animate-in fade-in slide-in-from-left-1 duration-300">
+          {{ crumb.name }}
+        </span>
+        
+        <router-link 
+          v-else 
+          :to="crumb.to" 
+          class="text-muted-foreground hover:text-primary transition-colors px-1.5 py-0.5 rounded-md hover:bg-primary/5"
+        >
+          {{ crumb.name }}
+        </router-link>
+      </template>
+    </div>
   </nav>
 </template>

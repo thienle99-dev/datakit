@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Table, ArrowRightLeft, Sparkles, Zap, FileJson, Database, ArrowRight } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, FileJson, Database, ArrowRight } from 'lucide-vue-next';
 </script>
 
 <template>
@@ -7,8 +7,8 @@ import { Table, ArrowRightLeft, Sparkles, Zap, FileJson, Database, ArrowRight } 
     <div class="mb-10 flex justify-center">
       <div class="relative group">
         <div class="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
-        <div class="relative h-24 w-24 bg-card ring-1 ring-border rounded-2xl flex items-center justify-center text-foreground shadow-2xl">
-          <Zap :size="48" class="text-primary" fill="currentColor" fill-opacity="0.1" />
+        <div class="relative h-28 w-28 flex items-center justify-center transition-transform hover:scale-105 duration-300">
+          <img src="/logo.svg?v=2" alt="Data Tools Logo" class="w-full h-full object-contain shadow-2xl rounded-[2rem]" />
         </div>
       </div>
     </div>

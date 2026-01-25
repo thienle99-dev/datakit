@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="primaryGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Shape (Squircle) - Great for Favicons -->
+  <rect x="32" y="32" width="448" height="448" rx="128" fill="url(#primaryGrad)" />
+  
+  <!-- Content: Data Columns / Equalizer / Chart -->
+  <!-- White bars to contrast against the gradient -->
+  <rect x="128" y="280" width="64" height="120" rx="16" fill="white" fill-opacity="0.9" />
+  <rect x="224" y="180" width="64" height="220" rx="16" fill="white" fill-opacity="0.9" />
+  <rect x="320" y="112" width="64" height="288" rx="16" fill="white" fill-opacity="0.9" />
+  
+  <!-- A "Spark" or "Action" element at the top left to balance -->
+  <circle cx="160" cy="160" r="24" fill="white" fill-opacity="0.6" />
+</svg>
