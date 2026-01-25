@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -7,37 +6,37 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
-            component: HomeView,
-        },
-        {
-            path: '/tools',
-            name: 'tools',
             component: () => import('../views/ToolsView.vue'),
         },
         {
-            path: '/tools/csv-viewer',
+            path: '/universal-converter',
+            name: 'universal-converter',
+            component: () => import('../views/UniversalConverter.vue'),
+        },
+        {
+            path: '/csv-viewer',
             name: 'csv-viewer',
-            component: () => import('../views/CsvViewer.vue'), // Lazy load
+            component: () => import('../views/CsvViewer.vue'),
         },
         {
-            path: '/tools/csv-converter',
-            name: 'csv-converter',
-            component: () => import('../views/CsvConverter.vue'),
-        },
-        {
-            path: '/tools/csv-cleaner',
+            path: '/csv-cleaner',
             name: 'csv-cleaner',
             component: () => import('../views/CsvCleaner.vue'),
         },
         {
-            path: '/tools/json-converter',
-            name: 'json-converter',
-            component: () => import('../views/JsonConverter.vue'),
-        },
-        {
-            path: '/tools/sql-generator',
+            path: '/sql-generator',
             name: 'sql-generator',
             component: () => import('../views/SqlGenerator.vue'),
+        },
+        {
+            path: '/column-selector',
+            name: 'column-selector',
+            component: () => import('../views/ColumnSelector.vue'),
+        },
+        {
+            path: '/filter-sort',
+            name: 'filter-sort',
+            component: () => import('../views/FilterSort.vue'),
         },
         // Add other tool routes here
     ],

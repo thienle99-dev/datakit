@@ -11,9 +11,41 @@ export const parseFile = async (file: File): Promise<ParseResult> => {
         return parseCSV(file);
     } else if (file.name.match(/\.xls(x)?$/)) {
         return parseExcel(file);
+    } else if (file.name.endsWith('.json')) {
+        return parseJSON(file);
     } else {
-        throw new Error('Unsupported file format. Please upload .csv or .xlsx');
+        throw new Error('Unsupported file format. Please upload .csv, .xlsx, or .json');
     }
+};
+
+const parseJSON = async (file: File): Promise<ParseResult> => {
+    const text = await file.text();
+    let jsonData = JSON.parse(text);
+
+    if (!Array.isArray(jsonData)) {
+        if (typeof jsonData === 'object' && jsonData !== null) {
+            jsonData = [jsonData];
+        } else {
+            throw new Error('JSON data must be an array of objects or a single object');
+        }
+    }
+
+    if (jsonData.length === 0) {
+        return { headers: [], data: [] };
+    }
+
+    // Extract headers from all unique keys across all objects to be safe
+    const headerSet = new Set<string>();
+    jsonData.forEach((item: any) => {
+        if (typeof item === 'object' && item !== null) {
+            Object.keys(item).forEach(key => headerSet.add(key));
+        }
+    });
+
+    return {
+        headers: Array.from(headerSet),
+        data: jsonData
+    };
 };
 
 const parseCSV = (file: File): Promise<ParseResult> => {

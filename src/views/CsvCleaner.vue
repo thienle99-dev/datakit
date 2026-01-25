@@ -147,95 +147,145 @@ function reset() {
 </script>
 
 <template>
-  <div class="h-full flex flex-col">
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h2 class="text-2xl font-bold flex items-center gap-2">
-          <span class="text-primary"><Sparkles :size="32" /></span> CSV Cleaner
+  <div class="max-w-7xl mx-auto h-[calc(100vh-8rem)] flex flex-col p-4 md:p-6 lg:p-8">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+      <div class="space-y-1">
+        <router-link to="/" class="inline-flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider hover:gap-3 transition-all mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          All Tools
+        </router-link>
+        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-3">
+          <span class="p-2.5 bg-amber-500/10 text-amber-500 rounded-2xl shadow-inner"><Sparkles :size="32" /></span>
+          Data Cleaner
         </h2>
-        <p class="text-text-muted">Clean and normalize your data.</p>
+        <p class="text-muted-foreground text-lg max-w-xl">
+          Automated data normalization and formatting repair.
+        </p>
       </div>
-      
-      <div v-if="data.length > 0" class="flex gap-2">
-         <button 
+
+      <div v-if="data.length > 0" class="flex flex-wrap items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
+        <button 
           @click="downloadCleaned" 
-          class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          class="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 shadow-sm"
         >
-          <Download :size="18" /> Download CSV
+          <Download :size="18" />
+          <span>Export Cleaned CSV</span>
         </button>
 
         <button 
           @click="reset" 
-          class="text-sm text-text-muted hover:text-red-500 px-3 py-1 rounded hover:bg-red-50 transition-colors flex items-center gap-1"
+          class="flex items-center gap-2 px-5 py-2.5 bg-card hover:bg-muted text-foreground border border-border rounded-xl transition-all shadow-sm group font-semibold text-sm"
         >
-          <X :size="16" /> Close
+          <X :size="18" class="text-muted-foreground group-hover:text-red-500 transition-colors" />
+          <span>Clear</span>
         </button>
       </div>
     </div>
-    
-    <!-- Tools Panel -->
-    <div v-if="data.length > 0" class="mb-4 p-4 bg-surface border border-border rounded-xl flex flex-wrap gap-4 items-center">
-      <span class="font-semibold text-sm uppercase tracking-wide text-text-muted">Quick Actions:</span>
-      
-      <button 
-        @click="trimWhitespace"
-        :disabled="processing"
-        class="flex items-center gap-2 px-3 py-1.5 bg-secondary/10 text-secondary hover:bg-secondary/20 rounded-md text-sm transition-colors disabled:opacity-50"
-      >
-        <Scissors :size="16" /> Trim Whitespace
-      </button>
-      
-      <button 
-        @click="removeEmptyRows"
-        :disabled="processing"
-        class="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-md text-sm transition-colors disabled:opacity-50"
-      >
-        <Trash2 :size="16" /> Remove Empty Rows
-      </button>
 
-      <button 
-        @click="removeDuplicates"
-        :disabled="processing"
-        class="flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-md text-sm transition-colors disabled:opacity-50"
-      >
-        <CopyX :size="16" /> Remove Duplicates
-      </button>
+    <!-- Main Workspace -->
+    <div class="flex-1 min-h-0 flex flex-col relative">
+      <!-- Feedback Overlays -->
+      <transition name="slide-up">
+        <div v-if="error" class="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md p-4 bg-red-500 text-white rounded-2xl shadow-2xl flex items-center justify-between">
+          <p class="text-sm font-bold">{{ error }}</p>
+          <button @click="error = null" class="p-1 hover:bg-white/20 rounded-lg"><X :size="16" /></button>
+        </div>
+      </transition>
       
-      <div v-if="processing" class="text-sm text-primary animate-pulse ml-auto">
-        Processing...
+      <transition name="slide-up">
+        <div v-if="successMessage" class="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md p-4 bg-primary text-primary-foreground rounded-2xl shadow-2xl flex items-center justify-between">
+          <div class="flex items-center gap-3">
+             <Check :size="20" stroke-width="3" />
+             <p class="text-sm font-bold">{{ successMessage }}</p>
+          </div>
+          <button @click="successMessage = null" class="p-1 hover:bg-white/20 rounded-lg"><X :size="16" /></button>
+        </div>
+      </transition>
+
+      <!-- Content Area -->
+      <div class="flex-1 overflow-hidden">
+        <div v-if="loading" class="h-full flex flex-col items-center justify-center p-12 bg-card/60 backdrop-blur-md rounded-3xl border border-border/50">
+          <Loader2 class="animate-spin text-primary mb-4" :size="48" />
+          <p class="font-extrabold uppercase tracking-widest text-xs opacity-50">Sanitizing Environment...</p>
+        </div>
+
+        <div v-else-if="data.length === 0" class="h-full max-w-2xl mx-auto flex flex-col justify-center">
+          <FileUploader @files-selected="handleFile" class="min-h-[350px]" />
+        </div>
+
+        <!-- Tool Workspace -->
+        <div v-else class="h-full flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-500">
+          <!-- Quick Actions Panel (Sticky-like top of workspace) -->
+          <div class="glass-card border border-border/50 rounded-3xl p-4 bg-card shadow-lg shadow-primary/5 flex flex-wrap items-center gap-4">
+             <div class="px-4 py-2 border-r border-border hidden lg:block">
+                <span class="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground/50">Processing Engine</span>
+             </div>
+             
+             <div class="flex flex-wrap gap-2">
+                <button 
+                  @click="trimWhitespace"
+                  :disabled="processing"
+                  class="group flex items-center gap-2 px-4 py-2 bg-muted/50 hover:bg-primary/10 hover:border-primary/30 border border-border/50 text-foreground/80 hover:text-primary rounded-xl text-xs font-bold transition-all disabled:opacity-30"
+                >
+                  <Scissors :size="14" class="group-hover:rotate-12 transition-transform" /> 
+                  Trim All Spaces
+                </button>
+                
+                <button 
+                  @click="removeEmptyRows"
+                  :disabled="processing"
+                  class="group flex items-center gap-2 px-4 py-2 bg-muted/50 hover:bg-red-50 hover:border-red-200 border border-border/50 text-foreground/80 hover:text-red-600 rounded-xl text-xs font-bold transition-all disabled:opacity-30"
+                >
+                  <Trash2 :size="14" /> 
+                  Drop Empty Rows
+                </button>
+
+                <button 
+                  @click="removeDuplicates"
+                  :disabled="processing"
+                  class="group flex items-center gap-2 px-4 py-2 bg-muted/50 hover:bg-orange-50 hover:border-orange-200 border border-border/50 text-foreground/80 hover:text-orange-600 rounded-xl text-xs font-bold transition-all disabled:opacity-30"
+                >
+                  <CopyX :size="14" /> 
+                  Deduplicate
+                </button>
+             </div>
+             
+             <transition name="fade">
+               <div v-if="processing" class="flex items-center gap-2 text-[10px] font-bold text-primary ml-auto animate-pulse">
+                  <Loader2 :size="12" class="animate-spin" /> RUNNING HEURISTICS...
+               </div>
+             </transition>
+          </div>
+
+          <!-- Data Preview Table -->
+          <div class="flex-1 min-w-0 glass-card rounded-3xl border border-border/50 shadow-2xl shadow-primary/5 overflow-hidden flex flex-col">
+             <DataTable 
+               :headers="headers" 
+               :data="data" 
+             />
+          </div>
+        </div>
       </div>
-    </div>
-    
-    <!-- Success/Error Messages -->
-    <div v-if="error" class="mb-4 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
-      {{ error }}
-    </div>
-    <div v-if="successMessage" class="mb-4 p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 flex justify-between items-center">
-      <span>{{ successMessage }}</span>
-      <button @click="successMessage = null" class="text-green-700 hover:text-green-900"><X :size="16" /></button>
-    </div>
-
-    <!-- Main Content -->
-    <div class="flex-1 overflow-hidden">
-      <!-- Loading State -->
-      <div v-if="loading" class="h-full flex items-center justify-center text-primary">
-        <Loader2 class="animate-spin -ml-1 mr-3 h-8 w-8" />
-        <span>Parsing file...</span>
-      </div>
-
-      <!-- Upload State -->
-      <FileUploader 
-        v-else-if="data.length === 0" 
-        @files-selected="handleFile" 
-        class="h-[400px]"
-      />
-      
-      <!-- Data Table State -->
-      <DataTable 
-        v-else 
-        :headers="headers" 
-        :data="data" 
-      />
     </div>
   </div>
 </template>
+
+<style scoped>
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translate(-50%, 40px);
+  opacity: 0;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>

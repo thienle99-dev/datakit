@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Sun, Moon, Github, ChevronDown, Table, ArrowRightLeft, Sparkles, FileJson, Database, Command, Search, ExternalLink } from 'lucide-vue-next';
+import { Sun, Moon, Github, ChevronDown, Table, ArrowRightLeft, Sparkles, Command, Search, Columns } from 'lucide-vue-next';
 import AppBreadcrumb from './AppBreadcrumb.vue';
 
 const isDark = ref(false);
@@ -8,56 +8,48 @@ const showMegaMenu = ref(false);
 
 const tools = [
   { 
+    id: 'universal-converter', 
+    name: 'Universal Converter', 
+    description: 'Transform CSV/JSON/Excel/SQL', 
+    path: '/universal-converter', 
+    icon: ArrowRightLeft, 
+    fromColor: 'from-emerald-500', 
+    toColor: 'to-teal-400',
+    iconColor: 'group-hover:text-emerald-500' 
+  },
+  { 
     id: 'csv-viewer', 
-    name: 'CSV Viewer', 
-    description: 'Instant read & analyze', 
-    path: '/tools/csv-viewer', 
+    name: 'Data Viewer', 
+    description: 'Instant read & sorting', 
+    path: '/csv-viewer', 
     icon: Table, 
     fromColor: 'from-blue-500', 
     toColor: 'to-cyan-400',
     iconColor: 'group-hover:text-blue-500' 
   },
   { 
-    id: 'csv-converter', 
-    name: 'CSV Converter', 
-    description: 'XLSX <-> CSV transform', 
-    path: '/tools/csv-converter', 
-    icon: ArrowRightLeft, 
-    fromColor: 'from-green-500', 
-    toColor: 'to-emerald-400',
-    iconColor: 'group-hover:text-green-500'
-  },
-  { 
     id: 'csv-cleaner', 
     name: 'Data Cleaner', 
     description: 'Fix messy datasets', 
-    path: '/tools/csv-cleaner', 
+    path: '/csv-cleaner', 
     icon: Sparkles, 
     fromColor: 'from-amber-500', 
     toColor: 'to-orange-400',
     iconColor: 'group-hover:text-amber-500'
   },
   { 
-    id: 'json-converter', 
-    name: 'JSON Transform', 
-    description: 'Tabular to Object', 
-    path: '/tools/json-converter', 
-    icon: FileJson, 
-    fromColor: 'from-indigo-500', 
-    toColor: 'to-purple-400',
-    iconColor: 'group-hover:text-indigo-500'
-  },
-  { 
-    id: 'sql-generator', 
-    name: 'SQL Generator', 
-    description: 'Generate INSERTs', 
-    path: '/tools/sql-generator', 
-    icon: Database, 
-    fromColor: 'from-rose-500', 
-    toColor: 'to-pink-400',
-    iconColor: 'group-hover:text-rose-500'
-  },
+    id: 'column-selector', 
+    name: 'Column Manager', 
+    description: 'Reorder & pick columns', 
+    path: '/column-selector', 
+    icon: Columns, 
+    fromColor: 'from-pink-500', 
+    toColor: 'to-rose-400',
+    iconColor: 'group-hover:text-pink-500'
+  }
 ];
+
+const isScrolled = ref(false);
 
 function toggleTheme() {
   isDark.value = !isDark.value;
@@ -78,13 +70,23 @@ onMounted(() => {
     isDark.value = true;
     document.documentElement.classList.add('dark');
   }
+
+  window.addEventListener('scroll', () => {
+    isScrolled.value = window.scrollY > 20;
+  });
 });
 </script>
 
 <template>
-  <header class="h-20 flex items-center px-4 md:px-8 sticky top-0 z-[9999] transition-all duration-300">
+  <header 
+    class="h-20 flex items-center px-4 md:px-8 sticky top-0 z-[9999] transition-all duration-500"
+    :class="{ 'h-16': isScrolled }"
+  >
     <!-- Floating Glass Container -->
-    <div class="absolute inset-x-4 md:inset-x-8 top-2 bottom-2 rounded-2xl bg-background/60 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-300 hover:shadow-[0_12px_40px_-8px_rgba(0,0,0,0.15)] hover:border-white/30">
+    <div 
+      class="absolute inset-x-4 md:inset-x-8 rounded-2xl bg-background/60 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-500 hover:border-white/30"
+      :class="isScrolled ? 'top-1 bottom-1 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.2)]' : 'top-2 bottom-2'"
+    >
       
       <!-- Left: Logo & Nav -->
       <div class="flex items-center gap-6">
@@ -204,7 +206,7 @@ onMounted(() => {
         </button>
 
         <a 
-          href="https://github.com" 
+          href="https://github.com/thienle99-dev/datakit" 
           target="_blank" 
           class="hidden sm:flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-foreground bg-white dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/20 rounded-full border border-border/50 shadow-sm hover:shadow-md transition-all duration-300"
         >
