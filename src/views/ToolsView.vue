@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare } from 'lucide-vue-next';
 
 const searchQuery = ref('');
 
@@ -13,6 +13,42 @@ const tools = [
     icon: ArrowRightLeft,
     color: 'text-emerald-500',
     bgColor: 'bg-emerald-500/10'
+  },
+  { 
+    id: 'merge-data', 
+    name: 'Merge Data', 
+    description: 'Combine multiple CSV or Excel files into a single master document with automatic alignment.',
+    path: '/merge-data', 
+    icon: Layers,
+    color: 'text-indigo-500',
+    bgColor: 'bg-indigo-500/10'
+  },
+  { 
+    id: 'split-data', 
+    name: 'Data Splitter', 
+    description: 'Tear large datasets into smaller chunks or a specific number of files for easier handling.',
+    path: '/split-data', 
+    icon: Scissors,
+    color: 'text-rose-500',
+    bgColor: 'bg-rose-500/10'
+  },
+  { 
+    id: 'data-stats', 
+    name: 'Column Statistics', 
+    description: 'Detailed data profiling and automated insights: min/max, averages, and unique counts.',
+    path: '/data-stats', 
+    icon: BarChart3,
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-500/10'
+  },
+  { 
+    id: 'compare-data', 
+    name: 'Visual Diff', 
+    description: 'Compare two datasets side-by-side to track additions, deletions, and cell-level changes.',
+    path: '/compare-data', 
+    icon: GitCompare,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-500/10'
   },
   { 
     id: 'csv-viewer', 
@@ -114,7 +150,7 @@ const filteredTools = computed(() => {
               v-model="searchQuery"
               type="text" 
               placeholder="What are we building today?" 
-              class="w-full pl-16 pr-24 py-7 bg-card/60 backdrop-blur-3xl border border-border/50 rounded-[2rem] text-xl font-medium placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] group-hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all"
+              class="w-full pl-16 pr-24 py-7 bg-card/85 backdrop-blur-3xl border border-border/50 rounded-[2rem] text-xl font-medium placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] group-hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all"
             />
 
             <!-- Keystroke Hint -->

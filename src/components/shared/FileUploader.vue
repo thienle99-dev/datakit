@@ -2,8 +2,12 @@
 import { ref } from 'vue';
 import { Upload } from 'lucide-vue-next';
 
+const props = defineProps<{
+  multiple?: boolean
+}>();
+
 const emit = defineEmits(['files-selected']);
-// ... logic ...
+
 const isDragging = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -34,7 +38,12 @@ function onFileSelect(e: Event) {
 
 function handleFiles(fileList: FileList) {
   if (fileList.length > 0) {
-    emit('files-selected', fileList[0]); // MVP: Handle single file for now
+    const files = Array.from(fileList);
+    if (props.multiple) {
+      emit('files-selected', files);
+    } else {
+      emit('files-selected', files[0]);
+    }
   }
 }
 
@@ -60,6 +69,7 @@ function triggerBrowse() {
       type="file" 
       ref="fileInput" 
       class="hidden" 
+      :multiple="multiple"
       accept=".csv,.xlsx,.xls,.txt"
       @change="onFileSelect"
     />
@@ -72,9 +82,9 @@ function triggerBrowse() {
         <Upload :size="32" />
       </div>
       <h3 class="font-semibold text-lg">
-        {{ isDragging ? 'Drop file to upload' : 'Drop your file here' }}
+        {{ isDragging ? 'Drop files to upload' : 'Drop your files here' }}
       </h3>
-      <p class="text-text-muted mt-1">Supports .csv, .xlsx, .xls</p>
+      <p class="text-muted-foreground mt-1">Supports .csv, .xlsx, .xls</p>
       <button class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors pointer-events-none">
         Browse Files
       </button>

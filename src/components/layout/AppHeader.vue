@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Sun, Moon, Github, ChevronDown, Table, ArrowRightLeft, Sparkles, Command, Search, Columns } from 'lucide-vue-next';
+import { Sun, Moon, Github, ChevronDown, Table, ArrowRightLeft, Sparkles, Command, Search, Columns, Layers, Scissors, BarChart3, GitCompare } from 'lucide-vue-next';
 import AppBreadcrumb from './AppBreadcrumb.vue';
 
 const isDark = ref(false);
@@ -16,6 +16,46 @@ const tools = [
     fromColor: 'from-emerald-500', 
     toColor: 'to-teal-400',
     iconColor: 'group-hover:text-emerald-500' 
+  },
+  { 
+    id: 'merge-data', 
+    name: 'Merge Data', 
+    description: 'Combine multiple files', 
+    path: '/merge-data', 
+    icon: Layers, 
+    fromColor: 'from-indigo-500', 
+    toColor: 'to-purple-400',
+    iconColor: 'group-hover:text-indigo-500' 
+  },
+  { 
+    id: 'split-data', 
+    name: 'Data Splitter', 
+    description: 'Split large datasets', 
+    path: '/split-data', 
+    icon: Scissors, 
+    fromColor: 'from-rose-500', 
+    toColor: 'to-orange-400',
+    iconColor: 'group-hover:text-rose-500' 
+  },
+  { 
+    id: 'data-stats', 
+    name: 'Column Statistics', 
+    description: 'Automated data insights', 
+    path: '/data-stats', 
+    icon: BarChart3, 
+    fromColor: 'from-emerald-600', 
+    toColor: 'to-teal-500',
+    iconColor: 'group-hover:text-emerald-600' 
+  },
+  { 
+    id: 'compare-data', 
+    name: 'Visual Diff', 
+    description: 'Track dataset changes', 
+    path: '/compare-data', 
+    icon: GitCompare, 
+    fromColor: 'from-blue-600', 
+    toColor: 'to-indigo-500',
+    iconColor: 'group-hover:text-blue-600' 
   },
   { 
     id: 'csv-viewer', 
@@ -84,7 +124,7 @@ onMounted(() => {
   >
     <!-- Floating Glass Container -->
     <div 
-      class="absolute inset-x-4 md:inset-x-8 rounded-2xl bg-background/60 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-500 hover:border-white/30"
+      class="absolute inset-x-4 md:inset-x-8 rounded-2xl bg-background/85 backdrop-blur-3xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-500 hover:border-white/30"
       :class="isScrolled ? 'top-1 bottom-1 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.2)]' : 'top-2 bottom-2'"
     >
       

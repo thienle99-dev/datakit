@@ -89,9 +89,9 @@ function prevPage() {
 </script>
 
 <template>
-  <div class="flex flex-col h-full border border-border rounded-xl bg-card/60 backdrop-blur-sm shadow-sm overflow-hidden transition-all hover:shadow-md">
+  <div class="flex flex-col h-full border border-border rounded-xl bg-card/85 backdrop-blur-xl shadow-sm overflow-hidden transition-all hover:shadow-md">
     <!-- Toolbar -->
-    <div class="p-4 border-b border-border flex flex-wrap gap-4 justify-between items-center bg-card/40">
+    <div class="p-4 border-b border-border flex flex-wrap gap-4 justify-between items-center bg-card/70">
       <div class="relative max-w-sm w-full">
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60">
           <SearchIcon :size="16" />
@@ -112,7 +112,7 @@ function prevPage() {
     <!-- Table Container -->
     <div class="flex-1 overflow-auto relative scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
       <table class="w-full text-sm text-left border-collapse">
-        <thead class="text-xs font-semibold text-muted-foreground uppercase bg-muted/50 sticky top-0 z-10 shadow-sm backdrop-blur-md">
+        <thead class="text-xs font-semibold text-muted-foreground uppercase bg-muted/50 sticky top-0 z-10 shadow-sm backdrop-blur-xl">
           <tr>
             <th class="px-4 py-3 border-b border-border w-16 text-center font-medium">#</th>
             <th 
@@ -166,7 +166,7 @@ function prevPage() {
     </div>
 
     <!-- Footer / Pagination -->
-    <div class="p-3 border-t border-border flex justify-between items-center bg-card/80 text-sm backdrop-blur-sm">
+    <div class="p-3 border-t border-border flex justify-between items-center bg-card/90 text-sm backdrop-blur-xl">
       <div class="flex items-center gap-4">
         <span class="text-muted-foreground text-xs">
           Page <span class="font-medium text-foreground">{{ currentPage }}</span> of {{ totalPages || 1 }}

@@ -218,7 +218,7 @@ function resetTool() {
     <div class="flex-1 min-h-0 flex flex-col relative">
       <!-- Content Area -->
       <div class="flex-1 overflow-hidden">
-        <div v-if="loading" class="h-full flex flex-col items-center justify-center p-12 bg-card/60 backdrop-blur-md rounded-3xl border border-border/50">
+        <div v-if="loading" class="h-full flex flex-col items-center justify-center p-12 bg-card/85 backdrop-blur-xl rounded-3xl border border-border/50">
           <Loader2 class="animate-spin text-primary mb-4" :size="48" />
           <p class="font-bold">Converting data structure...</p>
         </div>

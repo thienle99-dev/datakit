@@ -24,11 +24,6 @@ const router = createRouter({
             component: () => import('../views/CsvCleaner.vue'),
         },
         {
-            path: '/sql-generator',
-            name: 'sql-generator',
-            component: () => import('../views/SqlGenerator.vue'),
-        },
-        {
             path: '/column-selector',
             name: 'column-selector',
             component: () => import('../views/ColumnSelector.vue'),
@@ -38,7 +33,26 @@ const router = createRouter({
             name: 'filter-sort',
             component: () => import('../views/FilterSort.vue'),
         },
-        // Add other tool routes here
+        {
+            path: '/merge-data',
+            name: 'merge-data',
+            component: () => import('../views/MergeTool.vue'),
+        },
+        {
+            path: '/split-data',
+            name: 'split-data',
+            component: () => import('../views/SplitTool.vue'),
+        },
+        {
+            path: '/data-stats',
+            name: 'data-stats',
+            component: () => import('../views/StatsTool.vue'),
+        },
+        {
+            path: '/compare-data',
+            name: 'compare-data',
+            component: () => import('../views/CompareTool.vue'),
+        },
     ],
 });
 
