@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, shallowRef } from 'vue';
 import Papa from 'papaparse';
+import { Sparkles, Loader2, X, Download, Scissors, Trash2, CopyX } from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
 import DataTable from '../components/shared/DataTable.vue';
 import { parseFile } from '../utils/fileParser';
 
+// ... logic ...
 const file = shallowRef<File | null>(null);
 const headers = ref<string[]>([]);
 const data = ref<any[]>([]);
@@ -37,7 +39,6 @@ function trimWhitespace() {
   if (!data.value.length) return;
   processing.value = true;
   
-  // Use a quick timeout to allow UI to update
   setTimeout(() => {
     try {
       let count = 0;
@@ -78,11 +79,38 @@ function removeEmptyRows() {
     try {
       const initialLen = data.value.length;
       data.value = data.value.filter(row => {
-        // Check if all values are empty/null/undefined
         return Object.values(row).some(val => val !== null && val !== undefined && String(val).trim() !== '');
       });
       const removed = initialLen - data.value.length;
       successMessage.value = `Removed ${removed} empty rows.`;
+    } catch (err: any) {
+      error.value = 'Operation failed: ' + err.message;
+    } finally {
+      processing.value = false;
+    }
+  }, 10);
+}
+
+function removeDuplicates() {
+  if (!data.value.length) return;
+  processing.value = true;
+  
+  setTimeout(() => {
+    try {
+      const initialLen = data.value.length;
+      const uniqueRows = new Set();
+      const newData = data.value.filter(row => {
+        const rowStr = JSON.stringify(row);
+        if (uniqueRows.has(rowStr)) {
+          return false;
+        }
+        uniqueRows.add(rowStr);
+        return true;
+      });
+      
+      data.value = newData;
+      const removed = initialLen - data.value.length;
+      successMessage.value = `Removed ${removed} duplicate rows.`;
     } catch (err: any) {
       error.value = 'Operation failed: ' + err.message;
     } finally {
@@ -123,7 +151,7 @@ function reset() {
     <div class="mb-6 flex items-center justify-between">
       <div>
         <h2 class="text-2xl font-bold flex items-center gap-2">
-          <span>✨</span> CSV Cleaner
+          <span class="text-primary"><Sparkles :size="32" /></span> CSV Cleaner
         </h2>
         <p class="text-text-muted">Clean and normalize your data.</p>
       </div>
@@ -131,16 +159,16 @@ function reset() {
       <div v-if="data.length > 0" class="flex gap-2">
          <button 
           @click="downloadCleaned" 
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
-          Download CSV
+          <Download :size="18" /> Download CSV
         </button>
 
         <button 
           @click="reset" 
-          class="text-sm text-text-muted hover:text-red-500 px-3 py-1 rounded hover:bg-red-50 transition-colors"
+          class="text-sm text-text-muted hover:text-red-500 px-3 py-1 rounded hover:bg-red-50 transition-colors flex items-center gap-1"
         >
-          Close
+          <X :size="16" /> Close
         </button>
       </div>
     </div>
@@ -154,7 +182,7 @@ function reset() {
         :disabled="processing"
         class="flex items-center gap-2 px-3 py-1.5 bg-secondary/10 text-secondary hover:bg-secondary/20 rounded-md text-sm transition-colors disabled:opacity-50"
       >
-        <span>✂️</span> Trim Whitespace
+        <Scissors :size="16" /> Trim Whitespace
       </button>
       
       <button 
@@ -162,7 +190,15 @@ function reset() {
         :disabled="processing"
         class="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-md text-sm transition-colors disabled:opacity-50"
       >
-        <span>🗑️</span> Remove Empty Rows
+        <Trash2 :size="16" /> Remove Empty Rows
+      </button>
+
+      <button 
+        @click="removeDuplicates"
+        :disabled="processing"
+        class="flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-md text-sm transition-colors disabled:opacity-50"
+      >
+        <CopyX :size="16" /> Remove Duplicates
       </button>
       
       <div v-if="processing" class="text-sm text-primary animate-pulse ml-auto">
@@ -176,17 +212,14 @@ function reset() {
     </div>
     <div v-if="successMessage" class="mb-4 p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 flex justify-between items-center">
       <span>{{ successMessage }}</span>
-      <button @click="successMessage = null" class="text-green-700 hover:text-green-900">&times;</button>
+      <button @click="successMessage = null" class="text-green-700 hover:text-green-900"><X :size="16" /></button>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 overflow-hidden">
       <!-- Loading State -->
       <div v-if="loading" class="h-full flex items-center justify-center text-primary">
-        <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
+        <Loader2 class="animate-spin -ml-1 mr-3 h-8 w-8" />
         <span>Parsing file...</span>
       </div>
 

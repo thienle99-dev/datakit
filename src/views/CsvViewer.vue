@@ -1,14 +1,40 @@
 <script setup lang="ts">
 import { ref, shallowRef } from 'vue';
-import { Table, Upload, Loader2, X } from 'lucide-vue-next';
+import { Table, Loader2, X } from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
 import DataTable from '../components/shared/DataTable.vue';
 import { parseFile } from '../utils/fileParser';
 
 const file = shallowRef<File | null>(null);
-// ... setup ...
-// Note: I need to preserve existing setup logic not shown here completely, 
-// so I will target imports and the template.
+const headers = ref<string[]>([]);
+const data = ref<any[]>([]);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+async function handleFile(selectedFile: File) {
+  file.value = selectedFile;
+  loading.value = true;
+  error.value = null;
+  headers.value = [];
+  data.value = [];
+
+  try {
+    const result = await parseFile(selectedFile);
+    headers.value = result.headers;
+    data.value = result.data;
+  } catch (err: any) {
+    console.error(err);
+    error.value = 'Failed to parse file: ' + (err.message || err);
+  } finally {
+    loading.value = false;
+  }
+}
+
+function reset() {
+  file.value = null;
+  data.value = [];
+  headers.value = [];
+}
 </script>
 
 <template>

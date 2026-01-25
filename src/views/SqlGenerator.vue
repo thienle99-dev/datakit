@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, shallowRef, computed } from 'vue';
+import { Database, Loader2, X, Download, Copy } from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
 import DataTable from '../components/shared/DataTable.vue';
 import { parseFile } from '../utils/fileParser';
@@ -64,8 +65,6 @@ function generateSql(rows: any[]) {
 function downloadSql() {
   if (!data.value.length) return;
   
-  // Chunking could be needed for massive files, but for client-side MVP we do all at once or in chunks
-  // For ~10k rows it's fine string manip.
   const sql = generateSql(data.value);
   
   const blob = new Blob([sql], { type: 'application/sql' });
@@ -76,8 +75,24 @@ function downloadSql() {
   link.setAttribute('download', `${tableName.value}.sql`);
   
   document.body.appendChild(link);
+  document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+async function copySql() {
+    if (!data.value.length) return;
+    const sql = generateSql(data.value);
+    try {
+        await navigator.clipboard.writeText(sql);
+        // We can reuse successMessage if we expose it, but SqlGenerator doesn't have it yet.
+        // Let's add simple feedback state
+        error.value = null;
+        alert('SQL copied to clipboard!'); // Simple fallback or use a toast if available.
+        // Better: add a temporary success message state like in CsvCleaner
+    } catch (err) {
+        console.error('Failed to copy', err);
+    }
 }
 
 function reset() {
@@ -93,7 +108,7 @@ function reset() {
     <div class="mb-6 flex items-center justify-between">
       <div>
         <h2 class="text-2xl font-bold flex items-center gap-2">
-          <span>🗄️</span> CSV → SQL
+          <span class="text-primary"><Database :size="32" /></span> CSV → SQL
         </h2>
         <p class="text-text-muted">Generate SQL INSERT statements from your data.</p>
       </div>
@@ -101,16 +116,16 @@ function reset() {
       <div v-if="data.length > 0" class="flex gap-2">
         <button 
           @click="downloadSql" 
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
-          Download SQL
+          <Download :size="18" /> Download SQL
         </button>
 
         <button 
           @click="reset" 
-          class="text-sm text-text-muted hover:text-red-500 px-3 py-1 rounded hover:bg-red-50 transition-colors"
+          class="text-sm text-text-muted hover:text-red-500 px-3 py-1 rounded hover:bg-red-50 transition-colors flex items-center gap-1"
         >
-          Close
+          <X :size="16" /> Close
         </button>
       </div>
     </div>
@@ -123,6 +138,13 @@ function reset() {
             class="px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:border-primary"
             placeholder="enter_table_name"
         />
+        
+        <button 
+          @click="copySql"
+          class="flex items-center gap-2 px-3 py-1.5 bg-secondary/10 text-secondary hover:bg-secondary/20 rounded-md text-sm transition-colors ml-auto"
+        >
+            <Copy :size="16" /> Copy to Clipboard
+        </button>
     </div>
 
     <!-- Success/Error Messages -->
@@ -133,10 +155,7 @@ function reset() {
     <!-- Main Content -->
     <div class="flex-1 overflow-hidden flex flex-col">
       <div v-if="loading" class="h-full flex items-center justify-center text-primary">
-        <svg class="animate-spin -ml-1 mr-3 h-8 w-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
+        <Loader2 class="animate-spin -ml-1 mr-3 h-8 w-8" />
         <span>Parsing file...</span>
       </div>
 

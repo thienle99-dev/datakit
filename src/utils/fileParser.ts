@@ -42,13 +42,19 @@ const parseExcel = (file: File): Promise<ParseResult> => {
                 const dataStr = e.target?.result;
                 const workbook = XLSX.read(dataStr, { type: 'binary' });
                 const firstSheetName = workbook.SheetNames[0];
+                if (!firstSheetName) {
+                    throw new Error('No sheets found in Excel file');
+                }
                 const worksheet = workbook.Sheets[firstSheetName];
+                if (!worksheet) {
+                    throw new Error('Sheet data not found');
+                }
 
                 // Convert to JSON
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
                 if (jsonData.length > 0) {
-                    const headers = (jsonData[0] as any[]).map(h => String(h || `Column${Math.random().toString(36).substr(2, 5)}`));
+                    const headers = (jsonData[0] as any[]).map((h, i) => String(h || `Column ${i + 1}`));
                     const rawRows = jsonData.slice(1) as any[];
 
                     const data = rawRows.map(row => {

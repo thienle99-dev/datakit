@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Upload } from 'lucide-vue-next';
 
 const emit = defineEmits(['files-selected']);
+// ... logic ...
 const isDragging = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -43,9 +45,11 @@ function triggerBrowse() {
 
 <template>
   <div 
-    class="border-2 border-dashed rounded-xl flex items-center justify-center transition-colors cursor-pointer p-12 text-center"
+    class="border-2 border-dashed rounded-xl flex items-center justify-center transition-all duration-300 cursor-pointer p-12 text-center relative overflow-hidden group"
     :class="[
-      isDragging ? 'border-primary bg-primary/5' : 'border-border bg-surface hover:bg-background'
+      isDragging 
+        ? 'border-primary bg-primary/5 scale-[1.02]' 
+        : 'border-border/50 hover:border-primary/50 bg-card hover:bg-primary/5'
     ]"
     @dragover="onDragOver"
     @dragleave="onDragLeave"
@@ -65,7 +69,7 @@ function triggerBrowse() {
         class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-transform duration-300"
         :class="[isDragging ? 'scale-110 bg-primary/20 text-primary' : 'bg-primary/10 text-primary']"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        <Upload :size="32" />
       </div>
       <h3 class="font-semibold text-lg">
         {{ isDragging ? 'Drop file to upload' : 'Drop your file here' }}
@@ -75,5 +79,8 @@ function triggerBrowse() {
         Browse Files
       </button>
     </div>
+    
+    <!-- Background Decoration -->
+    <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
   </div>
 </template>
