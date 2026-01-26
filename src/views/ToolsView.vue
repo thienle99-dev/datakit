@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare, Sigma } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database } from 'lucide-vue-next';
 
 const searchQuery = ref('');
 
@@ -130,6 +130,51 @@ const tools = [
     icon: Sigma,
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10'
+  },
+  {
+    id: 'mock-generator',
+    name: 'Mock Generator',
+    description: 'Generate millions of rows of fake data for testing and development with Faker.js logic.',
+    path: '/mock-generator',
+    icon: Database,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-500/10'
+  },
+  {
+    id: 'skip-rows',
+    name: 'Skip Rows & Header',
+    description: 'Set which row is the header and skip rows above it. CSV and Excel.',
+    path: '/skip-rows',
+    icon: ListOrdered,
+    color: 'text-sky-500',
+    bgColor: 'bg-sky-500/10'
+  },
+  {
+    id: 'random-sample',
+    name: 'Random Sample',
+    description: 'Take first N, last N, or a random sample. Ideal for train/test splits.',
+    path: '/random-sample',
+    icon: Shuffle,
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10'
+  },
+  {
+    id: 'mask-data',
+    name: 'Mask Sensitive Data',
+    description: 'Mask emails, phones, or custom regex in chosen columns before sharing.',
+    path: '/mask-data',
+    icon: EyeOff,
+    color: 'text-rose-500',
+    bgColor: 'bg-rose-500/10'
+  },
+  {
+    id: 'templates',
+    name: 'Download Templates',
+    description: 'Start from a ready-made CSV or Excel template. No upload required.',
+    path: '/templates',
+    icon: FileDown,
+    color: 'text-slate-500',
+    bgColor: 'bg-slate-500/10'
   }
 ];
 

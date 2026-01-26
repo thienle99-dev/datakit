@@ -47,8 +47,8 @@ function maskValue(val: unknown): string {
   const s = val == null ? '' : String(val);
   let re: RegExp;
   try {
-    if (pattern.value === 'email') re = EMAIL_REG;
-    else if (pattern.value === 'phone') re = PHONE_REG;
+    if (pattern.value === 'email') re = new RegExp(EMAIL_REG.source, 'g');
+    else if (pattern.value === 'phone') re = new RegExp(PHONE_REG.source, 'g');
     else re = new RegExp(customRegex.value, 'g');
   } catch {
     return s;

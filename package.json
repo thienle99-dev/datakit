@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.2.0",
     "@types/papaparse": "^5.5.2",
     "jszip": "^3.10.1",
     "lucide-vue-next": "^0.563.0",

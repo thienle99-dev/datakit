@@ -16,6 +16,8 @@
 
 **Backlog (chưa làm):** XML/YAML, Excel→PDF, CSV→Chart, Format phone/address, Excel formula→values, Group by nâng cao, v.v. — xem mục 5.1 và 5.
 
+📋 **Checklist theo dõi tiến độ:** [CHECKLIST.md](./CHECKLIST.md) — danh sách tools & deliverables dạng `- [ ]` / `- [x]` để tick khi xong.
+
 ---
 
 ## 1. Mục tiêu & Đối tượng

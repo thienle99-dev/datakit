@@ -78,6 +78,31 @@ const router = createRouter({
             name: 'find-replace',
             component: () => import('../views/FindReplace.vue'),
         },
+        {
+            path: '/mock-generator',
+            name: 'mock-generator',
+            component: () => import('../views/MockGenerator.vue'),
+        },
+        {
+            path: '/skip-rows',
+            name: 'skip-rows',
+            component: () => import('../views/SkipRowsTool.vue'),
+        },
+        {
+            path: '/random-sample',
+            name: 'random-sample',
+            component: () => import('../views/SampleTool.vue'),
+        },
+        {
+            path: '/mask-data',
+            name: 'mask-data',
+            component: () => import('../views/MaskDataTool.vue'),
+        },
+        {
+            path: '/templates',
+            name: 'templates',
+            component: () => import('../views/TemplateTool.vue'),
+        },
     ],
 });
 

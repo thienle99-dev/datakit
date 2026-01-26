@@ -34,7 +34,10 @@ async function handleFile(selectedFile: File) {
     } else if (ext === 'xlsx' || ext === 'xls') {
       const buf = await selectedFile.arrayBuffer();
       const wb = XLSX.read(buf, { type: 'array' });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const firstSheet = wb.SheetNames[0];
+      if (!firstSheet) throw new Error('No sheets in workbook');
+      const sheet = wb.Sheets[firstSheet];
+      if (!sheet) throw new Error('Sheet not found');
       const arr = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
       rawRows.value = arr.map(row => Array.isArray(row) ? row : [row]);
     } else {

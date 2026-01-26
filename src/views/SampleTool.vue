@@ -59,7 +59,10 @@ function applySample() {
     indices = Array.from({ length: n }, (_, i) => i);
     for (let i = n - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [indices[i], indices[j]] = [indices[j], indices[i]];
+      const a = indices[i]!;
+      const b = indices[j]!;
+      indices[i] = b;
+      indices[j] = a;
     }
     indices = indices.slice(0, k);
   } else {
@@ -67,7 +70,10 @@ function applySample() {
     const pool = Array.from({ length: n }, (_, i) => i);
     for (let i = n - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
+      const a = pool[i]!;
+      const b = pool[j]!;
+      pool[i] = b;
+      pool[j] = a;
     }
     indices = pool.slice(0, k).sort((a, b) => a - b);
   }
