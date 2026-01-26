@@ -23,7 +23,7 @@ import VueApexCharts from 'vue3-apexcharts';
 
 // Types
 type InputMethod = 'upload' | 'paste' | 'manual';
-type ChartType = 'line' | 'bar' | 'pie' | 'donut' | 'area';
+type ChartType = 'line' | 'bar' | 'pie' | 'donut' | 'area' | 'scatter' | 'radar';
 
 interface ChartConfig {
   title: string;
@@ -68,6 +68,7 @@ const palettes = [
 // Computed
 const chartOptions = computed(() => {
   const isPie = config.value.type === 'pie' || config.value.type === 'donut';
+  const isRadar = config.value.type === 'radar';
   
   const options: any = {
     chart: {
@@ -88,7 +89,7 @@ const chartOptions = computed(() => {
     colors: config.value.colors,
     stroke: {
       curve: 'smooth',
-      width: config.value.type === 'line' || config.value.type === 'area' ? 3 : 0
+      width: config.value.type === 'line' || config.value.type === 'area' || config.value.type === 'radar' ? 3 : 0
     },
     title: {
       text: config.value.title,
@@ -101,10 +102,10 @@ const chartOptions = computed(() => {
       }
     },
     markers: {
-      size: config.value.type === 'line' || config.value.type === 'area' ? 4 : 0,
+      size: ['line', 'area', 'scatter', 'radar'].includes(config.value.type) ? (config.value.type === 'scatter' ? 6 : 4) : 0,
       strokeWidth: 2,
       strokeColors: '#fff',
-      hover: { size: 6 }
+      hover: { size: 8 }
     },
     dataLabels: {
       enabled: config.value.showLabels,
@@ -130,6 +131,24 @@ const chartOptions = computed(() => {
 
   if (isPie) {
     options.labels = parsedData.value.map(row => (config.value.xAxis ? row[config.value.xAxis] : 'N/A') || 'N/A');
+  } else if (isRadar) {
+    options.xaxis = {
+        categories: parsedData.value.map(row => (config.value.xAxis ? row[config.value.xAxis] : '') || ''),
+        labels: {
+            style: {
+                fontWeight: 700,
+                fontSize: '10px'
+            }
+        }
+    };
+  } else if (config.value.type === 'scatter') {
+     options.xaxis = {
+        type: 'numeric',
+        tickAmount: 10,
+        labels: {
+            formatter: (val: number) => val.toFixed(1)
+        }
+     };
   } else {
     options.xaxis = {
       categories: parsedData.value.map(row => (config.value.xAxis ? row[config.value.xAxis] : '') || ''),
@@ -166,6 +185,21 @@ const chartSeries = computed(() => {
       const val = yKey ? parseFloat(row[yKey]) : 0;
       return isNaN(val) ? 0 : val;
     });
+  }
+
+  if (config.value.type === 'scatter') {
+      const xKey = config.value.xAxis;
+      // Scatter needs [x, y] pairs
+      // If xAxis is numeric, we use it. If not, we might fail or map index.
+      // Re-map simple [x, y]
+      return config.value.yAxis.map(yKey => ({
+          name: yKey,
+          data: parsedData.value.map((row, idx) => {
+             const xVal = parseFloat(row[xKey]);
+             const yVal = parseFloat(row[yKey]);
+             return [isNaN(xVal) ? idx : xVal, isNaN(yVal) ? 0 : yVal];
+          })
+      }));
   }
 
   return config.value.yAxis.map(col => ({
@@ -406,6 +440,8 @@ onMounted(() => {
                     <button @click="rawDataString = 'Category,Value\nA,40\nB,20\nC,60\nD,30'; handlePaste()" class="px-3 py-1 bg-muted rounded-lg text-[9px] font-black uppercase hover:bg-primary/20 hover:text-primary transition-colors">Bar</button>
                     <button @click="rawDataString = 'Date,Value\n2024-01-01,100\n2024-01-02,150\n2024-01-03,130\n2024-01-04,180'; handlePaste()" class="px-3 py-1 bg-muted rounded-lg text-[9px] font-black uppercase hover:bg-primary/20 hover:text-primary transition-colors">Line</button>
                     <button @click="rawDataString = 'Segment,Share\nDirect,40\nSocial,30\nReferral,20\nEmail,10'; handlePaste()" class="px-3 py-1 bg-muted rounded-lg text-[9px] font-black uppercase hover:bg-primary/20 hover:text-primary transition-colors">Pie</button>
+                    <button @click="rawDataString = 'Height,Weight\n160,50\n170,60\n180,75\n165,55\n175,70'; handlePaste()" class="px-3 py-1 bg-muted rounded-lg text-[9px] font-black uppercase hover:bg-primary/20 hover:text-primary transition-colors">Scatter</button>
+                    <button @click="rawDataString = 'Attribute,Score\nSpeed,90\nPower,80\nAgility,85\nTechnique,95\nStamina,70'; handlePaste()" class="px-3 py-1 bg-muted rounded-lg text-[9px] font-black uppercase hover:bg-primary/20 hover:text-primary transition-colors">Radar</button>
                 </div>
             </div>
             
@@ -437,7 +473,9 @@ onMounted(() => {
                         { id: 'line', icon: LineChart },
                         { id: 'area', icon: AreaChart },
                         { id: 'pie', icon: PieChart },
-                        { id: 'donut', icon: Layout }
+                        { id: 'donut', icon: Layout },
+                        { id: 'scatter', icon: ScatterChart },
+                        { id: 'radar', icon: Radar }
                       ]"
                       :key="t.id"
                       @click="config.type = t.id as ChartType"
