@@ -137,7 +137,7 @@ onUnmounted(() => {
 
 <template>
   <Transition name="launchpad">
-    <div v-if="isVisible" class="fixed inset-0 z-[9999] flex flex-col items-center justify-start pt-16 md:pt-24 px-6 md:px-12 backdrop-blur-3xl bg-background/80 overflow-hidden">
+    <div v-if="isVisible" class="fixed inset-0 z-[9999] flex flex-col items-center justify-start pt-12 md:pt-16 px-6 md:px-12 backdrop-blur-3xl bg-background/80 overflow-hidden">
       <!-- Background Abstract Decor -->
       <div class="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
@@ -167,24 +167,23 @@ onUnmounted(() => {
       <div class="flex-1 overflow-y-auto custom-scrollbar p-2 md:p-4">
         <div class="max-w-7xl mx-auto">
           <div v-for="category in categories" :key="category.name" class="mb-6 animate-in slide-in-from-bottom-2 duration-500">
-            <h3 class="text-[11px] font-black uppercase tracking-widest text-muted-foreground/50 mb-3 px-1">{{ category.name }}</h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2 px-1">{{ category.name }}</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
               <button 
                 v-for="tool in category.tools" 
                 :key="tool.id"
                 @click="navigateTo(tool.path)"
-                class="group flex flex-col items-start p-3 bg-card hover:bg-muted/50 border border-border/50 hover:border-primary/50 rounded-xl transition-all duration-300 hover:shadow-md text-left relative overflow-hidden active:scale-[0.98]"
+                class="group flex flex-col items-start p-2.5 bg-card hover:bg-muted/50 border border-border/50 hover:border-primary/50 rounded-lg transition-all duration-300 hover:shadow-sm text-left relative overflow-hidden active:scale-[0.98]"
               >
-                <div class="flex items-center gap-3 w-full mb-2">
-                  <div :class="`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${tool.bgColor} ${tool.color}`">
-                    <component :is="tool.icon" :size="18" stroke-width="2.5" />
+                <div class="flex items-center gap-2.5 w-full mb-1.5">
+                  <div :class="`w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${tool.bgColor} ${tool.color}`">
+                    <component :is="tool.icon" :size="16" stroke-width="2.5" />
                   </div>
                   <div class="min-w-0">
-                    <div class="font-bold text-xs text-foreground truncate leading-tight group-hover:text-primary transition-colors">{{ tool.name }}</div>
+                    <div class="font-bold text-[11px] text-foreground truncate leading-tight group-hover:text-primary transition-colors">{{ tool.name }}</div>
                   </div>
                 </div>
-                <!-- Description moved outside flex row, correct closing tag for button -->
-                <div class="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed opacity-80 group-hover:opacity-100">{{ tool.description }}</div>
+                <div class="text-[9px] text-muted-foreground line-clamp-2 leading-relaxed opacity-80 group-hover:opacity-100">{{ tool.description }}</div>
                 
                 <!-- Hover Effect -->
                 <div class="absolute inset-0 bg-gradient-to-tr from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>

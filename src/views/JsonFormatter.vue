@@ -140,7 +140,7 @@ watch(indentSize, () => {
             <Braces :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+            <h2 class="text-lg md:text-xl font-black tracking-tight text-foreground">
               JSON <span class="text-amber-500">Beautifier</span>
             </h2>
           </div>
@@ -202,7 +202,7 @@ watch(indentSize, () => {
     <!-- Main Editor Area -->
     <div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-4 relative">
         <!-- Input -->
-        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-3xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <div class="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <FileJson :size="12" /> Input
@@ -212,7 +212,7 @@ watch(indentSize, () => {
             <div class="flex-1 relative">
                 <textarea 
                     v-model="input"
-                    class="absolute inset-0 w-full h-full bg-transparent p-5 font-mono text-xs leading-relaxed outline-none resize-none"
+                    class="absolute inset-0 w-full h-full bg-transparent p-4 font-mono text-xs leading-relaxed outline-none resize-none"
                     placeholder='Paste JSON here, e.g. { "key": "value" }'
                     spellcheck="false"
                 ></textarea>
@@ -220,7 +220,7 @@ watch(indentSize, () => {
         </div>
 
         <!-- Output -->
-        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-3xl overflow-hidden shadow-lg relative">
+        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-xl overflow-hidden shadow-lg relative">
             <div class="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <Check :size="12" /> Result

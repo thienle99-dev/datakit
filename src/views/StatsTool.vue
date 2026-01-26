@@ -119,7 +119,7 @@ const totalNullCells = computed(() => {
             <BarChart3 :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+            <h2 class="text-lg md:text-xl font-black tracking-tight text-foreground">
               Column <span class="text-emerald-500">Statistics</span>
             </h2>
           </div>
@@ -146,7 +146,7 @@ const totalNullCells = computed(() => {
       
       <div v-if="!file" class="flex-1 flex flex-col items-center justify-center py-4 w-full">
          <div class="text-center space-y-2 mb-6">
-            <h3 class="text-3xl font-black tracking-tight">Decode your data.</h3>
+            <h3 class="text-2xl font-black tracking-tight">Decode your data.</h3>
             <p class="text-muted-foreground text-xs font-medium max-w-sm mx-auto leading-relaxed opacity-60">
               Drop your file to instantly see distribution, types, and trends across every column.
             </p>
@@ -157,7 +157,7 @@ const totalNullCells = computed(() => {
       <div v-else class="h-full flex flex-col gap-10 animate-in fade-in duration-700 overflow-hidden">
         
         <!-- Search & Global Metrics Bar -->
-        <div class="flex flex-col lg:flex-row gap-6 items-center bg-card border border-border/50 rounded-3xl p-4 shadow-2xl relative overflow-hidden group">
+        <div class="flex flex-col lg:flex-row gap-6 items-center bg-card border border-border/50 rounded-2xl p-4 shadow-2xl relative overflow-hidden group">
           <div class="relative flex-1 w-full group/search">
              <Search :size="16" class="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within/search:text-emerald-500 transition-colors" />
              <input 
@@ -186,9 +186,9 @@ const totalNullCells = computed(() => {
             <div 
               v-for="stat in filteredStats" 
               :key="stat.header"
-              class="bg-card rounded-[2rem] border border-border/50 overflow-hidden group hover:border-emerald-500/30 transition-all duration-300 hover:shadow-xl flex flex-col"
+              class="bg-card rounded-2xl border border-border/50 overflow-hidden group hover:border-emerald-500/30 transition-all duration-300 hover:shadow-xl flex flex-col"
             >
-              <div class="p-6 border-b border-border/30 bg-muted/20 flex flex-col gap-3">
+              <div class="p-5 border-b border-border/30 bg-muted/20 flex flex-col gap-3">
                  <div class="flex items-center justify-between">
                     <div 
                       class="px-2.5 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ring-1"
@@ -202,10 +202,10 @@ const totalNullCells = computed(() => {
                     </div>
                     <div class="text-[8px] font-black text-muted-foreground/30 font-mono">#{{ headers.indexOf(stat.header) }}</div>
                  </div>
-                 <h3 class="font-black text-base tracking-tight leading-tight group-hover:text-primary transition-colors pr-2 break-all">{{ stat.header }}</h3>
+                 <h3 class="font-black text-sm tracking-tight leading-tight group-hover:text-primary transition-colors pr-2 break-all">{{ stat.header }}</h3>
               </div>
 
-              <div class="p-6 space-y-6 flex-1">
+              <div class="p-5 space-y-6 flex-1">
                 <!-- Data Density Section -->
                 <div class="space-y-3">
                    <div class="flex items-center justify-between">
@@ -267,7 +267,7 @@ const totalNullCells = computed(() => {
             </div>
             
             <!-- Future Placeholder Card -->
-            <div class="bg-muted/10 border-2 border-dashed border-border/30 rounded-[2.5rem] flex flex-col items-center justify-center p-12 text-center opacity-40 hover:opacity-100 transition-opacity">
+            <div class="bg-muted/10 border-2 border-dashed border-border/30 rounded-2xl flex flex-col items-center justify-center p-12 text-center opacity-40 hover:opacity-100 transition-opacity">
                <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-6">
                  <Sparkles :size="24" />
                </div>
@@ -279,8 +279,8 @@ const totalNullCells = computed(() => {
 
         <!-- Empty Result -->
         <div v-if="filteredStats.length === 0" class="flex-1 flex flex-col items-center justify-center">
-           <div class="w-24 h-24 rounded-[3rem] bg-muted/40 flex items-center justify-center mb-8 shadow-inner ring-1 ring-border/50">
-             <Search :size="32" class="opacity-20" />
+           <div class="w-16 h-16 rounded-2xl bg-muted/40 flex items-center justify-center mb-6 shadow-inner ring-1 ring-border/50">
+             <Search :size="24" class="opacity-20" />
            </div>
            <h3 class="text-2xl font-black tracking-tight">Column not found</h3>
            <p class="text-muted-foreground font-medium mt-2">We couldn't find a column named "{{ searchQuery }}".</p>

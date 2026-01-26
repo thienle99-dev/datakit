@@ -111,7 +111,7 @@ const clear = () => {
             <GitCompare :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+            <h2 class="text-lg md:text-xl font-black tracking-tight text-foreground">
               JSON <span class="text-blue-500">Diff</span>
             </h2>
           </div>
@@ -130,7 +130,7 @@ const clear = () => {
         <div class="flex-1 flex flex-col gap-4 min-h-0">
              
              <!-- Left Input -->
-             <div class="flex-1 flex flex-col bg-card border border-border rounded-3xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
+             <div class="flex-1 flex flex-col bg-card border border-border rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
                  <div class="px-4 py-2 bg-muted/30 border-b border-border flex items-center justify-between">
                      <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Original (A)</span>
                      <button @click="formatLeft" class="text-[10px] font-bold text-primary hover:underline">Prettier</button>
@@ -147,7 +147,7 @@ const clear = () => {
              </div>
 
              <!-- Right Input -->
-             <div class="flex-1 flex flex-col bg-card border border-border rounded-3xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
+             <div class="flex-1 flex flex-col bg-card border border-border rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
                  <div class="px-4 py-2 bg-muted/30 border-b border-border flex items-center justify-between">
                      <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Modified (B)</span>
                      <button @click="formatRight" class="text-[10px] font-bold text-primary hover:underline">Prettier</button>
@@ -170,7 +170,7 @@ const clear = () => {
         </div>
 
         <!-- Visual Diff Result -->
-        <div class="flex-[1.5] w-full bg-card border border-border rounded-3xl shadow-xl overflow-hidden flex flex-col">
+        <div class="flex-[1.5] w-full bg-card border border-border rounded-xl shadow-xl overflow-hidden flex flex-col">
              <div class="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <GitCompare :size="12" /> Diff View (Sorted Keys)

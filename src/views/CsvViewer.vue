@@ -71,7 +71,7 @@ function reset() {
             <Table :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+            <h2 class="text-lg md:text-xl font-black tracking-tight text-foreground">
               Data <span class="text-blue-500">Viewer</span>
             </h2>
           </div>
@@ -120,7 +120,7 @@ function reset() {
       </transition>
 
       <!-- Content Area -->
-      <div class="flex-1 h-full bg-card border border-border/50 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col relative">
+      <div class="flex-1 h-full bg-card border border-border/50 rounded-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col relative">
         
         <!-- Premium Loading -->
         <div v-if="loading" class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-card">
@@ -143,8 +143,8 @@ function reset() {
                <div class="inline-flex px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 text-[9px] font-black uppercase tracking-[0.2em] mb-2">
                  Ready for processing
                </div>
-               <h3 class="text-3xl font-black tracking-tight">Your data sandbox.</h3>
-               <p class="text-muted-foreground text-base font-medium max-w-md mx-auto opacity-60">
+               <h3 class="text-2xl font-black tracking-tight">Your data sandbox.</h3>
+               <p class="text-muted-foreground text-xs font-medium max-w-md mx-auto opacity-60">
                  Drop any file to get a high-performance interactive view.
                </p>
             </div>
@@ -155,7 +155,7 @@ function reset() {
             />
             
             <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-10">
-              <div class="p-8 rounded-3xl bg-muted/20 border border-border/50 space-y-4 hover:bg-muted/30 transition-colors">
+              <div class="p-6 rounded-2xl bg-muted/20 border border-border/50 space-y-4 hover:bg-muted/30 transition-colors">
                 <div class="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
                   <Shield :size="24" />
                 </div>
@@ -163,7 +163,7 @@ function reset() {
                 <p class="text-sm text-muted-foreground leading-relaxed">Files never leave your hardware. Everything happens 100% locally in memory.</p>
               </div>
               
-              <div class="p-8 rounded-3xl bg-muted/20 border border-border/50 space-y-4 hover:bg-muted/30 transition-colors">
+              <div class="p-6 rounded-2xl bg-muted/20 border border-border/50 space-y-4 hover:bg-muted/30 transition-colors">
                 <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
                   <Cpu :size="24" />
                 </div>
@@ -171,7 +171,7 @@ function reset() {
                 <p class="text-sm text-muted-foreground leading-relaxed">Optimized JavaScript engine processing for smooth scrolling on 1M+ rows.</p>
               </div>
               
-              <div class="p-8 rounded-3xl bg-muted/20 border border-border/50 space-y-4 hover:bg-muted/30 transition-colors">
+              <div class="p-6 rounded-2xl bg-muted/20 border border-border/50 space-y-4 hover:bg-muted/30 transition-colors">
                 <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20">
                   <Zap :size="24" />
                 </div>

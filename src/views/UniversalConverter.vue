@@ -201,7 +201,7 @@ const formats = [
             <ArrowRightLeft :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+            <h2 class="text-lg md:text-xl font-black tracking-tight text-foreground">
               Universal <span class="text-emerald-500">Converter</span>
             </h2>
           </div>
@@ -250,8 +250,8 @@ const formats = [
                <div class="inline-flex px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-[0.2em] mb-2">
                  Schema Agnostic
                </div>
-               <h3 class="text-3xl font-black tracking-tight">Bridge your datasets.</h3>
-               <p class="text-muted-foreground text-base font-medium max-w-md mx-auto leading-relaxed">
+               <h3 class="text-2xl font-black tracking-tight">Bridge your datasets.</h3>
+               <p class="text-muted-foreground text-xs font-medium max-w-md mx-auto leading-relaxed">
                  The most versatile data converter. Optimized for modern pipelines.
                </p>
             </div>
@@ -273,7 +273,7 @@ const formats = [
           
           <!-- Sidebar: Target Configuration -->
           <div class="w-full lg:w-80 flex flex-col gap-5 shrink-0">
-            <div class="flex-1 bg-card border border-border/50 rounded-[2rem] p-6 shadow-2xl flex flex-col overflow-hidden">
+            <div class="flex-1 bg-card border border-border/50 rounded-2xl p-5 shadow-2xl flex flex-col overflow-hidden">
               <div class="mb-6">
                  <h3 class="font-black text-xs uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2 mb-4">
                     <Sparkles :size="12" class="text-emerald-500" />
@@ -317,7 +317,7 @@ const formats = [
                       <span class="text-[9px] font-black uppercase tracking-widest">{{ copied ? 'Copied' : 'Copy' }}</span>
                     </button>
                  </div>
-                 <div class="flex-1 bg-muted/40 rounded-3xl p-6 font-mono text-[11px] border border-border/50 overflow-hidden relative group/preview shadow-inner">
+                 <div class="flex-1 bg-muted/40 rounded-2xl p-4 font-mono text-xs border border-border/50 overflow-hidden relative group/preview shadow-inner">
                     <pre class="h-full overflow-auto whitespace-pre-wrap break-all opacity-70 leading-relaxed scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">{{ 
                       outputFormat === 'json' ? jsonOutput : 
                       outputFormat === 'sql' ? sqlOutput : 
@@ -331,7 +331,7 @@ const formats = [
           </div>
 
           <!-- Table Area -->
-          <div class="flex-1 min-w-0 bg-card border border-border/50 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col p-2">
+          <div class="flex-1 min-w-0 bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col p-2">
              <DataTable 
                :headers="headers" 
                :data="data" 

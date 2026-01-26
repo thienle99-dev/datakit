@@ -116,7 +116,7 @@ const setMode = (m: Mode) => {
             <Shield v-else-if="mode === 'hash'" :size="20" />
           </div>
           <div>
-            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+            <h2 class="text-lg md:text-xl font-black tracking-tight text-foreground">
               Encoder <span class="text-indigo-500">Suite</span>
             </h2>
           </div>
@@ -141,7 +141,7 @@ const setMode = (m: Mode) => {
     <div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-6">
         
         <!-- Input Column -->
-        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-3xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <div class="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Input</span>
                 <button @click="clear" class="flex items-center gap-1 text-[10px] uppercase font-bold text-muted-foreground hover:text-rose-500">
@@ -181,7 +181,7 @@ const setMode = (m: Mode) => {
         </div>
 
         <!-- Output Column -->
-        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-3xl overflow-hidden shadow-lg relative">
+        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-xl overflow-hidden shadow-lg relative">
             <div class="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     Result

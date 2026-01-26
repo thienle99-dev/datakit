@@ -357,7 +357,7 @@ onMounted(() => {
             <BarChart3 :size="24" class="text-white" />
           </div>
           <div>
-            <h1 class="text-2xl font-black tracking-tight text-foreground leading-tight">
+            <h1 class="text-lg font-black tracking-tight text-foreground leading-tight">
               Data <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-pink-500">Visualization</span>
             </h1>
             <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
@@ -399,25 +399,25 @@ onMounted(() => {
     <div class="flex-1 flex flex-col lg:flex-row gap-8 min-h-0 relative">
       
       <!-- Side Controls -->
-      <aside class="w-full lg:w-[400px] flex flex-col gap-6 shrink-0 h-full">
+      <aside class="w-full lg:w-80 flex flex-col gap-4 shrink-0 h-full">
         
         <!-- Input Panel -->
-        <div v-if="inputMethod === 'upload'" class="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group">
+        <div v-if="inputMethod === 'upload'" class="bg-card border border-border rounded-2xl p-6 shadow-xl relative overflow-hidden group">
             <div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
             <div class="relative z-10 flex flex-col items-center text-center py-4">
-                <div class="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-6 ring-4 ring-primary/5 group-hover:scale-110 transition-transform duration-500">
-                    <Upload :size="32" class="text-primary" />
+                <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4 ring-4 ring-primary/5 group-hover:scale-110 transition-transform duration-500">
+                    <Upload :size="24" class="text-primary" />
                 </div>
                 <h3 class="text-sm font-black uppercase tracking-widest mb-2">Drop your file</h3>
-                <p class="text-[11px] font-medium text-muted-foreground mb-6">CSV, Excel, or JSON are welcome</p>
-                <label class="px-8 py-3 bg-background border border-border rounded-2xl text-[11px] font-black uppercase tracking-widest cursor-pointer hover:border-primary/50 transition-all shadow-sm">
+                <p class="text-[11px] font-medium text-muted-foreground mb-4">CSV, Excel, or JSON are welcome</p>
+                <label class="px-6 py-2.5 bg-background border border-border rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-primary/50 transition-all shadow-sm">
                    Choose File
                    <input type="file" @change="handleFileUpload" class="hidden" accept=".csv,.xlsx,.xls,.json" />
                 </label>
             </div>
         </div>
 
-        <div v-if="inputMethod === 'paste'" class="flex-1 flex flex-col bg-card border border-border rounded-[2.5rem] p-6 shadow-xl overflow-hidden min-h-[300px]">
+        <div v-if="inputMethod === 'paste'" class="flex-1 flex flex-col bg-card border border-border rounded-2xl p-5 shadow-xl overflow-hidden min-h-[300px]">
             <div class="flex items-center justify-between mb-4 px-2">
                 <h3 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <Clipboard :size="12" /> Paste Data
@@ -427,11 +427,11 @@ onMounted(() => {
             <textarea 
               v-model="rawDataString"
               placeholder="Paste columns from Excel or stringified JSON here..."
-              class="flex-1 w-full bg-background/50 border border-border rounded-3xl p-5 text-[11px] font-bold outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all resize-none custom-scrollbar"
+              class="flex-1 w-full bg-background/50 border border-border rounded-xl p-4 text-[11px] font-bold outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all resize-none custom-scrollbar"
             ></textarea>
         </div>
 
-        <div v-if="inputMethod === 'manual'" class="flex-1 flex flex-col bg-card border border-border rounded-[2.5rem] p-6 shadow-xl overflow-hidden min-h-[300px]">
+        <div v-if="inputMethod === 'manual'" class="flex-1 flex flex-col bg-card border border-border rounded-2xl p-5 shadow-xl overflow-hidden min-h-[300px]">
             <div class="flex items-center justify-between mb-4 px-2">
                 <h3 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <Table :size="12" /> Templates
@@ -448,7 +448,7 @@ onMounted(() => {
             <textarea 
               v-model="rawDataString"
               placeholder="Select a template or type your data..."
-              class="flex-1 w-full bg-background/50 border border-border rounded-3xl p-5 text-[11px] font-bold outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all resize-none custom-scrollbar font-mono leading-relaxed"
+              class="flex-1 w-full bg-background/50 border border-border rounded-xl p-4 text-[11px] font-bold outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all resize-none custom-scrollbar font-mono leading-relaxed"
             ></textarea>
             
             <div class="mt-4 flex justify-end">
@@ -457,7 +457,7 @@ onMounted(() => {
         </div>
 
         <!-- Chart Settings -->
-        <div v-if="parsedData.length > 0" class="flex-1 flex flex-col bg-card border border-border rounded-[3rem] p-7 shadow-xl overflow-hidden min-h-0">
+        <div v-if="parsedData.length > 0" class="flex-1 flex flex-col bg-card border border-border rounded-2xl p-5 shadow-xl overflow-hidden min-h-0">
           <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-6 flex items-center gap-2">
             <Settings2 :size="14" class="text-primary" /> Configuration
           </h3>
@@ -579,25 +579,25 @@ onMounted(() => {
       </aside>
 
       <!-- Preview Engine -->
-      <main class="flex-1 flex flex-col bg-card border border-border rounded-[3rem] shadow-2xl overflow-hidden relative group/engine">
+      <main class="flex-1 flex flex-col bg-card border border-border rounded-2xl shadow-2xl overflow-hidden relative group/engine">
           
           <!-- Gloss Effect -->
           <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-primary/2 to-transparent opacity-0 group-hover/engine:opacity-100 transition-opacity pointer-events-none"></div>
 
           <div v-if="parsedData.length === 0" class="h-full flex flex-col items-center justify-center p-12 opacity-50 text-center">
-              <div class="w-32 h-32 bg-primary/5 rounded-[4rem] flex items-center justify-center mb-10 ring-1 ring-primary/10 animate-bounce-slow">
-                  <BarChart3 :size="56" class="text-primary/30" />
+              <div class="w-24 h-24 bg-primary/5 rounded-[2rem] flex items-center justify-center mb-6 ring-1 ring-primary/10 animate-bounce-slow">
+                  <BarChart3 :size="40" class="text-primary/30" />
               </div>
-              <h2 class="text-3xl font-black mb-4">Feed the engine</h2>
-              <p class="text-sm font-medium text-muted-foreground max-w-sm">Upload your dataset to unlock professional data visualization tools instantly.</p>
+              <h2 class="text-xl font-black mb-2">Feed the engine</h2>
+              <p class="text-xs font-medium text-muted-foreground max-w-sm">Upload your dataset to unlock professional data visualization tools instantly.</p>
           </div>
 
-          <div v-else class="h-full flex flex-col p-8 animate-in fade-in zoom-in-95 duration-1000">
+          <div v-else class="h-full flex flex-col p-5 animate-in fade-in zoom-in-95 duration-1000">
              <div class="flex items-center justify-between mb-10 shrink-0">
                 <input 
                   v-model="config.title"
                   type="text"
-                  class="text-2xl font-black tracking-tight bg-transparent border-none p-0 focus:ring-0 outline-none w-full"
+                  class="text-xl font-black tracking-tight bg-transparent border-none p-0 focus:ring-0 outline-none w-full"
                   placeholder="Chart Title..."
                 />
                 <div class="flex items-center gap-3">
@@ -607,7 +607,7 @@ onMounted(() => {
                 </div>
              </div>
 
-             <div class="flex-1 min-h-0 bg-white/5 dark:bg-black/20 rounded-[2.5rem] p-6 border border-white/5 shadow-inner backdrop-blur-sm relative flex items-center justify-center">
+             <div class="flex-1 min-h-0 bg-white/5 dark:bg-black/20 rounded-xl p-4 border border-white/5 shadow-inner backdrop-blur-sm relative flex items-center justify-center">
                 <VueApexCharts 
                   ref="chartRef"
                   width="100%" 

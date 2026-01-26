@@ -79,7 +79,7 @@ const copyPayload = () => {
             <ShieldCheck :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+            <h2 class="text-lg md:text-xl font-black tracking-tight text-foreground">
               JWT <span class="text-pink-500">Debugger</span>
             </h2>
           </div>
@@ -90,7 +90,7 @@ const copyPayload = () => {
     <div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-6">
         <!-- Input Column -->
         <div class="flex-1 flex flex-col min-h-0 gap-4">
-            <div class="flex-1 flex flex-col bg-card border border-border rounded-3xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
+            <div class="flex-1 flex flex-col bg-card border border-border rounded-xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all relative">
                 <div class="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                     <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Encoded Token</span>
                     <button @click="token = ''; handleInput()" class="text-[10px] uppercase font-bold text-muted-foreground hover:text-rose-500">Clear</button>
@@ -116,7 +116,7 @@ const copyPayload = () => {
         <!-- Output Column -->
         <div class="flex-1 flex flex-col min-h-0 gap-4 overflow-y-auto">
              <!-- Header -->
-             <div class="bg-card border border-border rounded-3xl overflow-hidden shadow-sm shrink-0">
+             <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm shrink-0">
                  <div class="px-4 py-2 border-b border-border bg-muted/30">
                      <span class="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Header</span>
                  </div>
@@ -126,7 +126,7 @@ const copyPayload = () => {
              </div>
 
              <!-- Payload -->
-             <div class="flex-1 bg-card border border-border rounded-3xl overflow-hidden shadow-sm flex flex-col">
+             <div class="flex-1 bg-card border border-border rounded-xl overflow-hidden shadow-sm flex flex-col">
                  <div class="px-4 py-2 border-b border-border bg-muted/30 flex justify-between items-center">
                      <span class="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Payload</span>
                      <button @click="copyPayload" class="text-primary hover:text-primary/70"><Copy :size="12" /></button>
@@ -137,7 +137,7 @@ const copyPayload = () => {
              </div>
 
              <!-- Signature -->
-             <div class="bg-card border border-border rounded-3xl overflow-hidden shadow-sm shrink-0 opacity-70">
+             <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm shrink-0 opacity-70">
                  <div class="px-4 py-2 border-b border-border bg-muted/30 flex items-center gap-2">
                      <Lock :size="10" />
                      <span class="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Signature</span>

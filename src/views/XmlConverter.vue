@@ -177,7 +177,7 @@ const copyXml = () => {
             <ArrowRightLeft :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+            <h2 class="text-lg md:text-xl font-black tracking-tight text-foreground">
               JSON <span class="text-muted-foreground/40 mx-1">↔</span> <span class="text-cyan-500">XML</span>
             </h2>
           </div>
@@ -189,7 +189,7 @@ const copyXml = () => {
     <div class="flex-1 min-h-0 flex flex-col lg:flex-row gap-4 relative">
         
         <!-- JSON Edit -->
-        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-3xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <div class="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <FileJson :size="12" /> JSON
@@ -204,7 +204,7 @@ const copyXml = () => {
             <div class="flex-1 relative">
                 <textarea 
                     v-model="jsonInput"
-                    class="absolute inset-0 w-full h-full bg-transparent p-5 font-mono text-xs leading-relaxed outline-none resize-none"
+                    class="absolute inset-0 w-full h-full bg-transparent p-4 font-mono text-xs leading-relaxed outline-none resize-none"
                     placeholder="{ ... }"
                     spellcheck="false"
                 ></textarea>
@@ -212,7 +212,7 @@ const copyXml = () => {
         </div>
 
         <!-- XML Edit -->
-        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-3xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+        <div class="flex-1 flex flex-col min-h-0 bg-card border border-border rounded-xl overflow-hidden shadow-lg group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <div class="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
                 <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <FileCode :size="12" /> XML
@@ -227,7 +227,7 @@ const copyXml = () => {
             <div class="flex-1 relative">
                 <textarea 
                     v-model="xmlInput"
-                    class="absolute inset-0 w-full h-full bg-transparent p-5 font-mono text-xs leading-relaxed outline-none resize-none"
+                    class="absolute inset-0 w-full h-full bg-transparent p-4 font-mono text-xs leading-relaxed outline-none resize-none"
                     placeholder="<root>...</root>"
                     spellcheck="false"
                 ></textarea>
