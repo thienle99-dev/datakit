@@ -38,42 +38,39 @@ function reset() {
 </script>
 
 <template>
-  <div class="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col p-4 md:p-6 lg:p-10">
+  <div class="w-full flex flex-col h-[calc(100vh-5rem)]">
     <!-- Premium Header Section -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
-      <div class="space-y-4 max-w-2xl">
-        <router-link to="/" class="group inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/80 transition-all mb-2">
-          <ArrowLeft :size="14" class="group-hover:-translate-x-1 transition-transform" />
-          Back to Toolkit
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 shrink-0 relative z-20">
+      <div class="flex items-center gap-4">
+        <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
+          <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />
         </router-link>
         
-        <div class="flex items-center gap-6">
-          <div class="p-4 bg-blue-500/10 text-blue-500 rounded-[2rem] shadow-inner ring-1 ring-blue-500/20">
-            <Table :size="40" stroke-width="2.5" />
+        <div class="h-10 w-px bg-border/30 hidden lg:block"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center ring-1 ring-blue-500/20">
+            <Table :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-foreground mb-2">
+            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
               Data <span class="text-blue-500">Viewer</span>
             </h2>
-            <p class="text-muted-foreground text-lg font-medium leading-relaxed">
-              Industrial-grade CSV processing. 100% Client-side. Zero latency.
-            </p>
           </div>
         </div>
       </div>
 
-      <div v-if="data.length > 0" class="flex items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
-        <div class="flex flex-col items-end px-6 py-3 bg-card border border-border/50 rounded-2xl shadow-sm">
-          <span class="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Mounted Records</span>
-          <span class="text-xl font-black text-foreground">{{ data.length.toLocaleString() }}</span>
+      <div v-if="data.length > 0" class="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-700">
+        <div class="flex items-baseline gap-2 px-4 py-2 bg-blue-500/5 border border-blue-500/10 rounded-xl">
+          <span class="text-xl font-black text-blue-500">{{ data.length.toLocaleString() }}</span>
+          <span class="text-[9px] font-black uppercase tracking-widest text-blue-500/40">Records</span>
         </div>
         
         <button 
           @click="reset" 
-          class="flex items-center gap-3 px-8 py-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 rounded-2xl transition-all duration-300 font-bold shadow-sm active:scale-95 group"
+          class="p-3 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 rounded-xl transition-all duration-300 active:scale-95 group"
         >
-          <X :size="20" class="group-hover:rotate-90 transition-transform duration-500" />
-          <span>Eject File</span>
+          <X :size="18" class="group-hover:rotate-90 transition-transform duration-500" />
         </button>
       </div>
     </div>
@@ -111,15 +108,15 @@ function reset() {
         </div>
 
         <!-- Hero Search / File Uploader -->
-        <div v-else-if="data.length === 0" class="h-full overflow-y-auto overflow-x-hidden">
-          <div class="max-w-4xl mx-auto py-20 px-8 flex flex-col h-full">
-            <div class="text-center space-y-4 mb-12">
-               <div class="inline-flex px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+        <div v-else-if="data.length === 0" class="h-full flex flex-col items-center justify-center p-4">
+          <div class="max-w-3xl w-full">
+            <div class="text-center space-y-3 mb-8">
+               <div class="inline-flex px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 text-[9px] font-black uppercase tracking-[0.2em] mb-2">
                  Ready for processing
                </div>
-               <h3 class="text-5xl font-black tracking-tighter">Your data sandbox.</h3>
-               <p class="text-muted-foreground text-xl font-medium max-w-lg mx-auto">
-                 Drop any CSV or Excel file to get a high-performance interactive view.
+               <h3 class="text-3xl font-black tracking-tight">Your data sandbox.</h3>
+               <p class="text-muted-foreground text-base font-medium max-w-md mx-auto opacity-60">
+                 Drop any file to get a high-performance interactive view.
                </p>
             </div>
 

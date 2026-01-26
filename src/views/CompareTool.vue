@@ -94,37 +94,35 @@ function reset() {
 </script>
 
 <template>
-  <div class="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col p-4 md:p-6 lg:p-10">
+  <div class="w-full h-[calc(100vh-6rem)] flex flex-col p-2 md:p-4">
     <!-- Premium Header Section -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
-      <div class="space-y-4 max-w-2xl">
-        <router-link to="/" class="group inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/80 transition-all mb-2">
-          <ArrowLeft :size="14" class="group-hover:-translate-x-1 transition-transform" />
-          Back to Toolkit
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 shrink-0 relative z-20">
+      <div class="flex items-center gap-4">
+        <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
+          <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />
         </router-link>
         
-        <div class="flex items-center gap-6">
-          <div class="p-4 bg-blue-500/10 text-blue-500 rounded-[2rem] shadow-inner ring-1 ring-blue-500/20">
-            <GitCompare :size="40" stroke-width="2.5" />
+        <div class="h-10 w-px bg-border/30 hidden lg:block"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center ring-1 ring-blue-500/20">
+            <GitCompare :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-foreground mb-2">
+            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
               Visual <span class="text-blue-500">Diff</span>
             </h2>
-            <p class="text-muted-foreground text-lg font-medium leading-relaxed">
-              Side-by-side reconciliation of divergent datasets.
-            </p>
           </div>
         </div>
       </div>
 
-      <div v-if="file1 && file2" class="animate-in fade-in slide-in-from-right-8 duration-700">
+      <div v-if="file1 && file2" class="animate-in fade-in slide-in-from-right-4 duration-700">
         <button 
           @click="reset" 
-          class="flex items-center gap-3 px-6 py-4 bg-card hover:bg-muted text-foreground border border-border/50 rounded-2xl transition-all duration-300 font-bold active:scale-95 group"
+          class="flex items-center gap-2 px-5 py-3 bg-card hover:bg-muted text-foreground border border-border/50 rounded-xl transition-all duration-300 font-bold active:scale-95 group"
         >
-          <X :size="20" class="group-hover:rotate-90 transition-transform duration-500" />
-          <span>Reset Comparison</span>
+          <X :size="18" class="group-hover:rotate-90 transition-transform duration-500" />
+          <span class="text-[11px] uppercase tracking-widest">Reset</span>
         </button>
       </div>
     </div>
@@ -133,63 +131,63 @@ function reset() {
     <div class="flex-1 min-h-0 flex flex-col relative overflow-hidden">
         <!-- Initial Upload State -->
         <div v-if="!file1 || !file2" class="h-full grid grid-cols-1 lg:grid-cols-2 gap-10 animate-in fade-in zoom-in-95 duration-1000">
-           <div class="flex flex-col gap-6">
-              <div class="flex items-center justify-between px-4">
-                 <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                    <Database :size="14" class="text-blue-500" /> Source Logic (V1)
-                 </h3>
-                 <div v-if="file1" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Loaded ✓</div>
-              </div>
-              <div v-if="!file1" class="flex-1">
-                 <FileUploader @files-selected="handleFile1Selected" class="h-full !min-h-[300px]" />
-              </div>
-              <div v-else class="flex-1 bg-card border border-border/50 rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden group">
-                 <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                 <div class="w-20 h-20 rounded-3xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner">
-                    <FileText :size="32" />
-                 </div>
-                 <h4 class="font-black text-2xl tracking-tighter mb-2">{{ file1.name }}</h4>
-                 <p class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{{ data1.length.toLocaleString() }} Entries detected</p>
-                 <button @click="file1 = null; data1 = []" class="mt-8 px-5 py-2.5 bg-rose-500/10 text-rose-500 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">Drop Origin</button>
-              </div>
-           </div>
+            <div class="flex flex-col gap-4">
+               <div class="flex items-center justify-between px-4">
+                  <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                     <Database :size="14" class="text-blue-500" /> Source Logic (V1)
+                  </h3>
+                  <div v-if="file1" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Loaded ✓</div>
+               </div>
+               <div v-if="!file1" class="flex-1">
+                  <FileUploader @files-selected="handleFile1Selected" class="h-full !min-h-[250px]" />
+               </div>
+               <div v-else class="flex-1 bg-card border border-border/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden group">
+                  <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-3 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                     <FileText :size="20" />
+                  </div>
+                  <h4 class="font-black text-lg tracking-tighter mb-1">{{ file1.name }}</h4>
+                  <p class="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{{ data1.length.toLocaleString() }} Entries detected</p>
+                  <button @click="file1 = null; data1 = []" class="mt-4 px-3 py-1.5 bg-rose-500/10 text-rose-500 rounded-lg font-black text-[8px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">Drop Origin</button>
+               </div>
+            </div>
 
-           <div class="flex flex-col gap-6">
-              <div class="flex items-center justify-between px-4">
-                 <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                    <Zap :size="14" class="text-purple-500" /> Target Manifest (V2)
-                 </h3>
-                 <div v-if="file2" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Loaded ✓</div>
-              </div>
-              <div v-if="!file2" class="flex-1">
-                 <FileUploader @files-selected="handleFile2Selected" class="h-full !min-h-[300px]" />
-              </div>
-              <div v-else class="flex-1 bg-card border border-border/50 rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden group">
-                 <div class="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                 <div class="w-20 h-20 rounded-3xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner">
-                    <FileText :size="32" />
-                 </div>
-                 <h4 class="font-black text-2xl tracking-tighter mb-2">{{ file2.name }}</h4>
-                 <p class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{{ data2.length.toLocaleString() }} Entries detected</p>
-                 <button @click="file2 = null; data2 = []" class="mt-8 px-5 py-2.5 bg-rose-500/10 text-rose-500 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">Drop Target</button>
-              </div>
-           </div>
+            <div class="flex flex-col gap-4">
+               <div class="flex items-center justify-between px-4">
+                  <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                     <Zap :size="14" class="text-purple-500" /> Target Manifest (V2)
+                  </h3>
+                  <div v-if="file2" class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Loaded ✓</div>
+               </div>
+               <div v-if="!file2" class="flex-1">
+                  <FileUploader @files-selected="handleFile2Selected" class="h-full !min-h-[250px]" />
+               </div>
+               <div v-else class="flex-1 bg-card border border-border/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden group">
+                  <div class="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-3 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                     <FileText :size="20" />
+                  </div>
+                  <h4 class="font-black text-lg tracking-tighter mb-1">{{ file2.name }}</h4>
+                  <p class="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">{{ data2.length.toLocaleString() }} Entries detected</p>
+                  <button @click="file2 = null; data2 = []" class="mt-4 px-3 py-1.5 bg-rose-500/10 text-rose-500 rounded-lg font-black text-[8px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">Drop Target</button>
+               </div>
+            </div>
         </div>
 
         <!-- Diff Workspace -->
         <div v-else class="h-full flex flex-col gap-8 animate-in slide-in-from-bottom-12 duration-1000 overflow-hidden">
            <!-- Premium Stats Bar -->
-           <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 shrink-0">
-              <div v-for="(val, key) in stats" :key="key" class="bg-card border border-border/50 p-6 rounded-[2rem] shadow-xl relative overflow-hidden group">
-                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 group-hover:opacity-100 transition-opacity" :class="{
+           <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 shrink-0">
+              <div v-for="(val, key) in stats" :key="key" class="bg-card border border-border/50 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+                 <div class="flex items-center justify-between mb-4">
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 group-hover:opacity-100 transition-opacity" :class="{
                        'text-emerald-500': key === 'unchanged',
                        'text-blue-500': key === 'modified',
                        'text-amber-500': key === 'added',
                        'text-rose-500': key === 'removed'
                     }">{{ key }}</span>
                     <component :is="key === 'added' ? PlusCircle : key === 'removed' ? MinusCircle : key === 'modified' ? Edit3 : Check" 
-                      :size="14" 
+                      :size="18" 
                       :class="{
                         'text-emerald-500': key === 'unchanged',
                         'text-blue-500': key === 'modified',
@@ -198,9 +196,9 @@ function reset() {
                       }"
                     />
                  </div>
-                 <div class="text-4xl font-black tracking-tighter">{{ val }}</div>
-                 <div class="absolute -right-2 -bottom-2 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-                    <Activity :size="64" />
+                 <div class="text-5xl font-black tracking-tighter">{{ val.toLocaleString() }}</div>
+                 <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:opacity-[0.06] transition-opacity rotate-12">
+                    <Activity :size="80" />
                  </div>
               </div>
            </div>

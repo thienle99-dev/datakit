@@ -145,46 +145,44 @@ function closeTool() {
 </script>
 
 <template>
-  <div class="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col p-4 md:p-6 lg:p-10">
+  <div class="w-full h-[calc(100vh-6rem)] flex flex-col p-2 md:p-4">
     <!-- Premium Header Section -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
-      <div class="space-y-4 max-w-2xl">
-        <router-link to="/" class="group inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/80 transition-all mb-2">
-          <ArrowLeft :size="14" class="group-hover:-translate-x-1 transition-transform" />
-          Back to Toolkit
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 shrink-0 relative z-20">
+      <div class="flex items-center gap-4">
+        <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
+          <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />
         </router-link>
         
-        <div class="flex items-center gap-6">
-          <div class="p-4 bg-pink-500/10 text-pink-500 rounded-[2rem] shadow-inner ring-1 ring-pink-500/20">
-            <Layout :size="40" stroke-width="2.5" />
+        <div class="h-10 w-px bg-border/30 hidden lg:block"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-pink-500/10 text-pink-500 rounded-xl flex items-center justify-center ring-1 ring-pink-500/20">
+            <Layout :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-foreground mb-2">
+            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
               Column <span class="text-pink-500">Selector</span>
             </h2>
-            <p class="text-muted-foreground text-lg font-medium leading-relaxed">
-              Curate and reorder your dataset schema with atomic precision.
-            </p>
           </div>
         </div>
       </div>
 
-      <div v-if="rawData.length > 0" class="flex flex-wrap items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
+      <div v-if="rawData.length > 0" class="flex flex-wrap items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-700">
         <button 
           @click="downloadNewCsv" 
           :disabled="processing || activeHeaders.length === 0"
-          class="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-[11px] hover:shadow-[0_20px_40px_-12px_rgba(var(--primary),0.3)] transition-all active:scale-95 disabled:opacity-50 group"
+          class="flex items-center gap-2.5 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-black uppercase tracking-widest text-[10px] hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 group"
         >
-          <Loader2 v-if="processing" :size="18" class="animate-spin" />
-          <Download v-else :size="18" class="group-hover:translate-y-0.5 transition-transform" />
+          <Loader2 v-if="processing" :size="16" class="animate-spin" />
+          <Download v-else :size="16" class="group-hover:translate-y-0.5 transition-transform" />
           <span>Export Schema</span>
         </button>
 
         <button 
           @click="closeTool" 
-          class="flex items-center gap-3 px-6 py-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 rounded-2xl transition-all duration-300 font-bold active:scale-95 group"
+          class="p-3 bg-card hover:bg-muted text-foreground border border-border/50 rounded-xl transition-all duration-300 active:scale-95 group"
         >
-          <X :size="20" class="group-hover:rotate-90 transition-transform duration-500" />
+          <X :size="18" class="group-hover:rotate-90 transition-transform duration-500" />
         </button>
       </div>
     </div>
@@ -206,17 +204,14 @@ function closeTool() {
           </div>
         </div>
 
-        <div v-else-if="!file" class="h-full max-w-[1000px] mx-auto flex flex-col justify-center">
-            <div class="text-center space-y-4 mb-12">
-               <div class="inline-flex px-4 py-1.5 rounded-full bg-pink-500/10 text-pink-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                 Surgical precision
-               </div>
-               <h3 class="text-5xl font-black tracking-tighter">Your data, your rules.</h3>
-               <p class="text-muted-foreground text-xl font-medium max-w-lg mx-auto leading-relaxed">
-                 Drop any table-based file to surgically include, exclude, or rearrange columns for the perfect output.
+        <div v-else-if="!file" class="h-full flex flex-col items-center justify-center py-4">
+            <div class="text-center space-y-2 mb-6">
+               <h3 class="text-3xl font-black tracking-tight">Your data, your rules.</h3>
+               <p class="text-muted-foreground text-sm font-medium max-w-sm mx-auto leading-relaxed opacity-60">
+                 Include, exclude, or rearrange columns for the perfect output.
                </p>
             </div>
-            <FileUploader @files-selected="handleFile" class="min-h-[400px]" />
+            <FileUploader @files-selected="handleFile" class="w-full max-w-2xl" />
         </div>
 
         <!-- Tool UI -->
@@ -245,34 +240,34 @@ function closeTool() {
                 <div 
                   v-for="(col, index) in columnStates" 
                   :key="col.id"
-                  class="group flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300"
+                  class="group flex items-center gap-3 p-3 rounded-2xl border-2 transition-all duration-300"
                   :class="[
                     col.visible ? 'bg-primary/5 border-primary shadow-inner scale-[1.01]' : 'bg-background border-border/50 opacity-40 hover:opacity-100 grayscale hover:grayscale-0'
                   ]"
                 >
                   <div class="cursor-grab text-muted-foreground/30 group-hover:text-primary/40 transition-colors">
-                    <Grip :size="14" />
+                    <Grip :size="12" />
                   </div>
                   
                   <button 
                     @click="toggleColumn(index)"
-                    class="flex-1 text-left flex items-center gap-4 overflow-hidden"
+                    class="flex-1 text-left flex items-center gap-3 overflow-hidden"
                   >
                     <div 
-                      class="shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300"
+                      class="shrink-0 w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300"
                       :class="col.visible ? 'bg-primary border-primary text-primary-foreground shadow-sm' : 'border-muted-foreground/20'"
                     >
-                      <Check v-if="col.visible" :size="12" stroke-width="4" />
+                      <Check v-if="col.visible" :size="10" stroke-width="4" />
                     </div>
-                    <div class="flex flex-col min-w-0">
-                       <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mb-0.5">Index {{ index.toString().padStart(2, '0') }}</span>
-                       <span class="font-black text-sm truncate uppercase tracking-tight" :class="col.visible ? 'text-foreground' : 'text-muted-foreground'">{{ col.label }}</span>
+                    <div class="flex flex-col min-w-0 translate-y-0.5">
+                       <span class="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mb-0.5">Index {{ index.toString().padStart(2, '0') }}</span>
+                       <span class="font-black text-xs truncate uppercase tracking-tight" :class="col.visible ? 'text-foreground' : 'text-muted-foreground'">{{ col.label }}</span>
                     </div>
                   </button>
 
-                  <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-1 group-hover:translate-x-0">
-                    <button @click="moveColumn(index, 'up')" :disabled="index === 0" class="p-1.5 hover:bg-background border border-border/50 rounded-lg shadow-sm disabled:opacity-30 bg-card"><ArrowUp :size="10" /></button>
-                    <button @click="moveColumn(index, 'down')" :disabled="index === columnStates.length - 1" class="p-1.5 hover:bg-background border border-border/50 rounded-lg shadow-sm disabled:opacity-30 bg-card"><ArrowDown :size="10" /></button>
+                  <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <button @click="moveColumn(index, 'up')" :disabled="index === 0" class="p-1 hover:bg-background border border-border/50 rounded-lg shadow-sm disabled:opacity-30 bg-card"><ArrowUp :size="8" /></button>
+                    <button @click="moveColumn(index, 'down')" :disabled="index === columnStates.length - 1" class="p-1 hover:bg-background border border-border/50 rounded-lg shadow-sm disabled:opacity-30 bg-card"><ArrowDown :size="8" /></button>
                   </div>
                 </div>
               </div>

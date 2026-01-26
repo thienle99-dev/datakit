@@ -113,39 +113,37 @@ const uniqueHeadersCount = computed(() => {
 </script>
 
 <template>
-  <div class="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col p-4 md:p-6 lg:p-10">
+  <div class="w-full h-[calc(100vh-6rem)] flex flex-col p-2 md:p-4">
     <!-- Premium Header Section -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
-      <div class="space-y-4 max-w-2xl">
-        <router-link to="/" class="group inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/80 transition-all mb-2">
-          <ArrowLeft :size="14" class="group-hover:-translate-x-1 transition-transform" />
-          Back to Toolkit
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 shrink-0 relative z-20">
+      <div class="flex items-center gap-4">
+        <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
+          <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />
         </router-link>
         
-        <div class="flex items-center gap-6">
-          <div class="p-4 bg-indigo-500/10 text-indigo-500 rounded-[2rem] shadow-inner ring-1 ring-indigo-500/20">
-            <Layers :size="40" stroke-width="2.5" />
+        <div class="h-10 w-px bg-border/30 hidden lg:block"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-indigo-500/10 text-indigo-500 rounded-xl flex items-center justify-center ring-1 ring-indigo-500/20">
+            <Layers :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-foreground mb-2">
+            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
               Merge <span class="text-indigo-500">Datasets</span>
             </h2>
-            <p class="text-muted-foreground text-lg font-medium leading-relaxed">
-              Synthesize disparate files into a unified master document.
-            </p>
           </div>
         </div>
       </div>
 
-      <div v-if="files.length >= 2" class="flex items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
+      <div v-if="files.length >= 2" class="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-700">
         <button 
           @click="mergeFiles"
           :disabled="processing"
-          class="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:shadow-[0_20px_40px_-12px_rgba(79,70,229,0.3)] transition-all active:scale-95 group"
+          class="flex items-center gap-2.5 px-6 py-3 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:shadow-lg hover:shadow-indigo-500/20 transition-all active:scale-95 group"
         >
-          <Loader2 v-if="processing" class="animate-spin text-white" :size="20" />
-          <Download v-else :size="20" class="group-hover:translate-y-0.5 transition-transform" />
-          <span>Synthesize & Export</span>
+          <Loader2 v-if="processing" class="animate-spin text-white" :size="16" />
+          <Download v-else :size="16" class="group-hover:translate-y-0.5 transition-transform" />
+          <span>Export Merge</span>
         </button>
       </div>
     </div>
@@ -180,17 +178,14 @@ const uniqueHeadersCount = computed(() => {
       <div class="h-full grid grid-cols-1 lg:grid-cols-12 gap-10 overflow-hidden">
         <!-- Left: Orchestration Queue -->
         <div class="lg:col-span-8 flex flex-col gap-6 overflow-hidden">
-          <div v-if="files.length === 0" class="flex-1 flex flex-col justify-center max-w-[800px] mx-auto w-full">
-            <div class="text-center space-y-4 mb-12">
-               <div class="inline-flex px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                 Unified architecture
-               </div>
-               <h3 class="text-5xl font-black tracking-tighter">Merge your logic.</h3>
-               <p class="text-muted-foreground text-xl font-medium max-w-lg mx-auto leading-relaxed">
-                 Select multiple files to synthesize. We'll handle column alignment, type resolution, and deduplication.
+          <div v-if="files.length === 0" class="flex-1 flex flex-col items-center justify-center py-4 w-full">
+            <div class="text-center space-y-2 mb-6">
+               <h3 class="text-3xl font-black tracking-tight">Merge your logic.</h3>
+               <p class="text-muted-foreground text-xs font-medium max-w-sm mx-auto leading-relaxed opacity-60">
+                 Synthesize multiple files. We'll handle column alignment and resolution.
                </p>
             </div>
-            <FileUploader :multiple="true" @files-selected="handleFilesSelected" class="min-h-[400px]" />
+            <FileUploader :multiple="true" @files-selected="handleFilesSelected" class="w-full max-w-2xl" />
           </div>
 
           <div v-else class="flex-1 bg-card border border-border/50 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in fade-in duration-700">
@@ -212,36 +207,38 @@ const uniqueHeadersCount = computed(() => {
                </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+            <div class="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
               <div 
                 v-for="(f, index) in files" 
                 :key="f.id"
-                class="bg-card border border-border/50 p-6 rounded-[2rem] flex items-center gap-6 group hover:border-indigo-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5"
+                class="bg-card border border-border/80 p-8 rounded-[2.5rem] flex items-center gap-8 group hover:border-indigo-500/50 transition-all duration-500 hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.12)] relative overflow-hidden"
               >
-                <div class="cursor-grab text-muted-foreground/20 group-hover:text-indigo-500/40 transition-colors shrink-0">
-                  <Grip :size="16" />
+                <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div class="cursor-grab text-muted-foreground/10 group-hover:text-indigo-500/30 transition-colors shrink-0">
+                  <Grip :size="20" />
                 </div>
                 
-                <div class="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-indigo-500/5 group-hover:text-indigo-500 transition-colors shrink-0">
-                   <Database :size="24" />
+                <div class="w-16 h-16 rounded-[1.5rem] bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-indigo-500/10 group-hover:text-indigo-500 transition-all duration-500 group-hover:scale-110 shadow-inner shrink-0">
+                   <Database :size="28" stroke-width="2" />
                 </div>
 
-                <div class="flex-1 min-w-0">
-                  <div class="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest mb-1 flex items-center gap-2">
-                     Source {{ (index + 1).toString().padStart(2, '0') }} <ChevronRight :size="10" /> {{ f.headers.length }} Fields
+                <div class="flex-1 min-w-0 relative z-10">
+                  <div class="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] mb-2 flex items-center gap-3">
+                     Source {{ (index + 1).toString().padStart(2, '0') }} <ChevronRight :size="10" /> {{ f.headers.length }} Dimensions
                   </div>
-                  <div class="font-black text-base truncate">{{ f.name }}</div>
-                  <div class="flex items-center gap-4 mt-2">
-                     <span class="px-2 py-0.5 rounded-lg bg-muted text-[10px] font-bold text-muted-foreground">{{ formatSize(f.size) }}</span>
-                     <span class="px-2 py-0.5 rounded-lg bg-emerald-500/5 text-[10px] font-bold text-emerald-600">{{ f.data.length.toLocaleString() }} Entries</span>
+                  <div class="font-black text-xl tracking-tight truncate">{{ f.name }}</div>
+                  <div class="flex items-center gap-5 mt-3">
+                     <div class="flex items-center gap-2 px-3 py-1 bg-muted rounded-xl text-[10px] font-black text-muted-foreground uppercase tracking-widest">{{ formatSize(f.size) }}</div>
+                     <div class="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-xl text-[10px] font-black text-emerald-600 uppercase tracking-widest">{{ f.data.length.toLocaleString() }} Entries</div>
                   </div>
                 </div>
 
                 <button 
                   @click="removeFile(f.id)"
-                  class="p-4 bg-muted/20 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 rounded-2xl transition-all opacity-0 group-hover:opacity-100"
+                  class="p-4 bg-muted text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 rounded-2xl transition-all opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-4"
                 >
-                  <X :size="18" />
+                  <X :size="20" />
                 </button>
               </div>
 

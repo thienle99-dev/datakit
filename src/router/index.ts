@@ -53,6 +53,11 @@ const router = createRouter({
             name: 'compare-data',
             component: () => import('../views/CompareTool.vue'),
         },
+        {
+            path: '/transpose-data',
+            name: 'transpose-data',
+            component: () => import('../views/TransposeTool.vue'),
+        },
     ],
 });
 

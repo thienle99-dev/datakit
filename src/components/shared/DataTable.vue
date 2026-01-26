@@ -126,44 +126,44 @@ function prevPage() {
 
     <!-- Table Container -->
     <div class="flex-1 overflow-auto relative scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-      <table class="w-full text-sm text-left border-separate border-spacing-0">
+      <table class="w-full text-sm text-left border-separate border-spacing-0 table-fixed">
         <thead class="sticky top-0 z-20">
           <tr>
-            <th class="px-5 py-4 bg-muted border-b border-r border-border/50 w-16 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">#</th>
+            <th class="px-4 py-3 bg-muted border-b border-r border-border/50 w-12 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground/50">#</th>
             <th 
               v-for="(header, index) in headers" 
               :key="index"
               @click="handleSort(header)"
-              class="px-5 py-4 bg-muted border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground cursor-pointer hover:bg-muted/100 transition-all group/header first:rounded-tl-2xl relative"
+              class="px-4 py-3 bg-muted border-b border-border/50 text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground cursor-pointer hover:bg-muted/100 transition-all group/header first:rounded-tl-2xl relative min-w-[150px]"
             >
-              <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center justify-between gap-1.5">
                 <span class="truncate" :class="{ 'text-primary': sortColumn === header }">{{ header }}</span>
                 <span class="transition-all duration-300 transform" :class="{ 'text-primary scale-110': sortColumn === header, 'opacity-0 group-hover/header:opacity-40': sortColumn !== header }">
-                  <ChevronUp v-if="sortColumn === header && sortDirection === 'asc'" :size="14" stroke-width="3" />
-                  <ChevronDown v-else-if="sortColumn === header && sortDirection === 'desc'" :size="14" stroke-width="3" />
-                  <ArrowUpDown v-else :size="12" />
+                  <ChevronUp v-if="sortColumn === header && sortDirection === 'asc'" :size="12" stroke-width="3" />
+                  <ChevronDown v-else-if="sortColumn === header && sortDirection === 'desc'" :size="12" stroke-width="3" />
+                  <ArrowUpDown v-else :size="10" />
                 </span>
               </div>
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-border/30">
+        <tbody class="divide-y divide-border/25">
           <tr 
             v-for="(row, rowIndex) in paginatedData" 
             :key="rowIndex"
             class="group hover:bg-primary/5 transition-colors duration-200"
           >
-            <td class="px-5 py-3.5 text-center text-muted-foreground/40 border-r border-border/20 text-[10px] font-mono font-bold bg-muted/5 group-hover:bg-primary/5 group-hover:text-primary transition-all">
+            <td class="px-4 py-2 border-r border-border/10 text-[9px] text-center font-mono font-bold text-muted-foreground/30 bg-muted/[0.02] group-hover:bg-primary/5 group-hover:text-primary transition-all">
               {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
             </td>
             <td 
               v-for="(header, colIndex) in headers" 
               :key="colIndex"
-              class="px-5 py-3.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-xs text-foreground/70 group-hover:text-foreground font-medium transition-colors"
+              class="px-4 py-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px] text-[10px] font-medium text-foreground/70 group-hover:text-foreground transition-colors"
               :title="String(row[header] || '')"
             >
               <div class="flex items-center">
-                 <span v-if="!row[header]" class="text-[10px] italic opacity-20">null</span>
+                 <span v-if="!row[header]" class="text-[9px] italic opacity-10">null</span>
                  <span v-else>{{ row[header] }}</span>
               </div>
             </td>

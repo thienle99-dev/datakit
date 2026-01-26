@@ -186,46 +186,44 @@ const formats = [
 </script>
 
 <template>
-  <div class="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col p-4 md:p-6 lg:p-10">
+  <div class="w-full h-[calc(100vh-6rem)] flex flex-col p-2 md:p-4">
     <!-- Premium Header Section -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
-      <div class="space-y-4 max-w-2xl">
-        <router-link to="/" class="group inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/80 transition-all mb-2">
-          <ArrowLeft :size="14" class="group-hover:-translate-x-1 transition-transform" />
-          Back to Toolkit
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-3 shrink-0 relative z-20">
+      <div class="flex items-center gap-4">
+        <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
+          <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />
         </router-link>
         
-        <div class="flex items-center gap-6">
-          <div class="p-4 bg-emerald-500/10 text-emerald-500 rounded-[2rem] shadow-inner ring-1 ring-emerald-500/20">
-            <ArrowRightLeft :size="40" stroke-width="2.5" />
+        <div class="h-10 w-px bg-border/30 hidden lg:block"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center ring-1 ring-emerald-500/20">
+            <ArrowRightLeft :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-5xl md:text-6xl font-black tracking-tighter text-foreground mb-4">
+            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
               Universal <span class="text-emerald-500">Converter</span>
             </h2>
-            <p class="text-muted-foreground text-lg font-medium leading-relaxed">
-              Seamlessly bridge formats. CSV, JSON, Excel, SQL, and Markdown.
-            </p>
           </div>
         </div>
       </div>
 
-      <div v-if="data.length > 0" class="flex flex-wrap items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
+      <div v-if="data.length > 0" class="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-700">
         <button 
           @click="downloadFile" 
           :disabled="processing"
-          class="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-[11px] hover:shadow-[0_20px_40px_-12px_rgba(var(--primary),0.3)] transition-all active:scale-95 disabled:opacity-50 group"
+          class="flex items-center gap-2.5 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-black uppercase tracking-widest text-[10px] hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 group"
         >
-          <Loader2 v-if="processing" :size="18" class="animate-spin" />
-          <Download v-else :size="18" class="group-hover:translate-y-0.5 transition-transform" />
+          <Loader2 v-if="processing" :size="16" class="animate-spin" />
+          <Download v-else :size="16" class="group-hover:translate-y-0.5 transition-transform" />
           <span>Export {{ outputFormat }}</span>
         </button>
 
         <button 
           @click="resetTool" 
-          class="flex items-center gap-3 px-6 py-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 rounded-2xl transition-all duration-300 font-bold active:scale-95 group"
+          class="p-3 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 rounded-xl transition-all duration-300 active:scale-95 group"
         >
-          <X :size="20" class="group-hover:rotate-90 transition-transform duration-500" />
+          <X :size="18" class="group-hover:rotate-90 transition-transform duration-500" />
         </button>
       </div>
     </div>
@@ -247,21 +245,20 @@ const formats = [
           </div>
         </div>
 
-        <div v-else-if="!file" class="h-full max-w-[1000px] mx-auto flex flex-col">
-          <div class="flex-1 flex flex-col justify-center">
-            <div class="text-center space-y-4 mb-12">
-               <div class="inline-flex px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+        <div v-else-if="!file" class="h-full flex flex-col items-center justify-center py-4">
+            <div class="text-center space-y-3 mb-8">
+               <div class="inline-flex px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-[0.2em] mb-2">
                  Schema Agnostic
                </div>
-               <h3 class="text-5xl font-black tracking-tighter">Bridge your datasets.</h3>
-               <p class="text-muted-foreground text-xl font-medium max-w-lg mx-auto leading-relaxed">
-                 The most versatile data converter in your pocket. Optimized for modern pipelines.
+               <h3 class="text-3xl font-black tracking-tight">Bridge your datasets.</h3>
+               <p class="text-muted-foreground text-base font-medium max-w-md mx-auto leading-relaxed">
+                 The most versatile data converter. Optimized for modern pipelines.
                </p>
             </div>
 
             <FileUploader @files-selected="handleFile" class="min-h-[400px]" />
             
-            <div class="mt-20 grid grid-cols-5 gap-6 justify-center opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
+            <div class="mt-12 grid grid-cols-5 gap-6 justify-center opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
                <div v-for="fmt in formats" :key="fmt.id" class="flex flex-col items-center gap-3">
                   <div class="p-4 bg-muted rounded-2xl border border-border/50">
                      <component :is="fmt.icon" :size="24" :class="fmt.color" />
@@ -270,40 +267,39 @@ const formats = [
                </div>
             </div>
           </div>
-        </div>
 
         <!-- Converter UI -->
         <div v-else class="h-full flex flex-col lg:flex-row gap-8 animate-in fade-in duration-700">
           
           <!-- Sidebar: Target Configuration -->
-          <div class="w-full lg:w-96 flex flex-col gap-6">
-            <div class="flex-1 bg-card border border-border/50 rounded-[2.5rem] p-8 shadow-2xl flex flex-col">
-              <div class="mb-8">
-                 <h3 class="font-black text-xs uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2 mb-6">
-                    <Sparkles :size="14" class="text-emerald-500" />
+          <div class="w-full lg:w-80 flex flex-col gap-5 shrink-0">
+            <div class="flex-1 bg-card border border-border/50 rounded-[2rem] p-6 shadow-2xl flex flex-col overflow-hidden">
+              <div class="mb-6">
+                 <h3 class="font-black text-xs uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2 mb-4">
+                    <Sparkles :size="12" class="text-emerald-500" />
                     Target Output
                  </h3>
-                 <div class="grid grid-cols-1 gap-2.5">
+                 <div class="grid grid-cols-1 gap-2">
                     <button 
                       v-for="fmt in formats" 
                       :key="fmt.id"
                       @click="outputFormat = fmt.id as any"
-                      class="flex items-center justify-between p-5 rounded-[2rem] border-2 transition-all duration-500 group/btn"
-                      :class="outputFormat === fmt.id ? 'bg-primary/5 border-primary text-primary shadow-xl scale-[1.02]' : 'bg-background border-border/50 hover:border-primary/30 text-muted-foreground hover:text-foreground'"
+                      class="flex items-center justify-between p-3.5 rounded-xl border-2 transition-all duration-300 group/btn"
+                      :class="outputFormat === fmt.id ? 'bg-primary/5 border-primary text-primary shadow-lg scale-[1.01]' : 'bg-background border-border/50 hover:border-primary/30 text-muted-foreground hover:text-foreground'"
                     >
-                      <div class="flex items-center gap-5">
-                         <div class="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center group-hover/btn:bg-background transition-all duration-500 shadow-sm" :class="outputFormat === fmt.id ? 'bg-primary/10 shadow-lg shadow-primary/10' : ''">
-                            <component :is="fmt.icon" :size="24" :class="outputFormat === fmt.id ? 'text-primary' : 'opacity-40'" />
+                      <div class="flex items-center gap-3">
+                         <div class="w-9 h-9 rounded-lg bg-muted flex items-center justify-center group-hover/btn:bg-background transition-all duration-500 shadow-sm" :class="outputFormat === fmt.id ? 'bg-primary/10' : ''">
+                            <component :is="fmt.icon" :size="16" :class="outputFormat === fmt.id ? 'text-primary' : 'opacity-40'" />
                          </div>
                          <div class="flex flex-col items-start translate-y-0.5">
-                           <span class="font-black uppercase tracking-[0.2em] text-[10px]">{{ fmt.id }}</span>
-                           <span class="text-sm font-bold opacity-60 group-hover/btn:opacity-100 transition-opacity">
-                             {{ fmt.label.split(' ')[0] }} <span class="opacity-50 font-medium">{{ fmt.label.split(' ')[1] }}</span>
+                           <span class="font-black uppercase tracking-[0.1em] text-[9px]">{{ fmt.id }}</span>
+                           <span class="text-xs font-bold opacity-60 group-hover/btn:opacity-100 transition-opacity">
+                             {{ fmt.label.split(' ')[0] }}
                            </span>
                          </div>
                       </div>
-                      <div v-if="outputFormat === fmt.id" class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20 animate-in zoom-in duration-300">
-                        <Check :size="14" stroke-width="4" />
+                      <div v-if="outputFormat === fmt.id" class="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md animate-in zoom-in duration-300">
+                        <Check :size="10" stroke-width="4" />
                       </div>
                     </button>
                  </div>

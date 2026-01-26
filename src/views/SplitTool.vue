@@ -103,46 +103,44 @@ const splitData = async () => {
 </script>
 
 <template>
-  <div class="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col p-4 md:p-6 lg:p-10">
+  <div class="w-full h-[calc(100vh-6rem)] flex flex-col p-2 md:p-4">
     <!-- Premium Header Section -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
-      <div class="space-y-4 max-w-2xl">
-        <router-link to="/" class="group inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-primary/80 transition-all mb-2">
-          <ArrowLeft :size="14" class="group-hover:-translate-x-1 transition-transform" />
-          Back to Toolkit
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 shrink-0 relative z-20">
+      <div class="flex items-center gap-4">
+        <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
+          <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />
         </router-link>
         
-        <div class="flex items-center gap-6">
-          <div class="p-4 bg-rose-500/10 text-rose-500 rounded-[2rem] shadow-inner ring-1 ring-rose-500/20">
-            <Scissors :size="40" stroke-width="2.5" />
+        <div class="h-10 w-px bg-border/30 hidden lg:block"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center ring-1 ring-rose-500/20">
+            <Scissors :size="20" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-5xl md:text-6xl font-black tracking-tighter text-foreground mb-4">
+            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
               Data <span class="text-rose-500">Splitter</span>
             </h2>
-            <p class="text-muted-foreground text-lg font-medium leading-relaxed">
-              Tear massive datasets into atomic, precision-sized chunks.
-            </p>
           </div>
         </div>
       </div>
 
-      <div v-if="fileData.length > 0" class="flex items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
+      <div v-if="fileData.length > 0" class="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-700">
         <button 
           @click="splitData" 
           :disabled="processing"
-          class="flex items-center gap-3 px-8 py-4 bg-rose-600 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:shadow-[0_20px_40px_-12px_rgba(244,63,94,0.3)] transition-all active:scale-95 group"
+          class="flex items-center gap-2.5 px-6 py-3 bg-rose-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:shadow-lg hover:shadow-rose-500/20 transition-all active:scale-95 group"
         >
-          <Loader2 v-if="processing" :size="18" class="animate-spin" />
-          <Download v-else :size="18" class="group-hover:translate-y-0.5 transition-transform" />
-          <span>Generate {{ estimatedFiles }} Chunks</span>
+          <Loader2 v-if="processing" :size="16" class="animate-spin" />
+          <Download v-else :size="16" class="group-hover:translate-y-0.5 transition-transform" />
+          <span>Split {{ estimatedFiles }} Chunks</span>
         </button>
 
         <button 
           @click="file = null; fileData = []" 
-          class="flex items-center gap-3 px-6 py-4 bg-card hover:bg-muted text-foreground border border-border/50 rounded-2xl transition-all duration-300 font-bold active:scale-95 group"
+          class="p-3 bg-card hover:bg-muted text-foreground border border-border/50 rounded-xl transition-all duration-300 active:scale-95 group"
         >
-          <X :size="20" class="group-hover:rotate-90 transition-transform duration-500" />
+          <X :size="18" class="group-hover:rotate-90 transition-transform duration-500" />
         </button>
       </div>
     </div>
@@ -158,67 +156,64 @@ const splitData = async () => {
           <h4 class="text-2xl font-black uppercase tracking-tight">Deconstructing...</h4>
         </div>
 
-        <div v-else-if="!file" class="h-full max-w-[1000px] mx-auto flex flex-col justify-center">
-            <div class="text-center space-y-4 mb-12">
-               <div class="inline-flex px-4 py-1.5 rounded-full bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                 Atomic subdivision
-               </div>
-               <h3 class="text-5xl font-black tracking-tighter">Small chunks, big insight.</h3>
-               <p class="text-muted-foreground text-xl font-medium max-w-lg mx-auto leading-relaxed">
-                 Partition your heavy data files into light, manageable units tailored for any processing pipeline.
+        <div v-else-if="!file" class="h-full flex flex-col items-center justify-center py-4 w-full">
+            <div class="text-center space-y-2 mb-6">
+               <h3 class="text-3xl font-black tracking-tight">Small chunks, big insight.</h3>
+               <p class="text-muted-foreground text-xs font-medium max-w-sm mx-auto leading-relaxed opacity-60">
+                 Partition massive files into light, manageable units for any pipeline.
                </p>
             </div>
-            <FileUploader @files-selected="handleFileSelected" class="min-h-[400px]" />
+            <FileUploader @files-selected="handleFileSelected" class="w-full max-w-2xl" />
         </div>
 
         <!-- Tool UI -->
         <div v-else class="h-full flex flex-col lg:flex-row gap-8 animate-in fade-in duration-700 overflow-hidden">
           <!-- Left: Configuration Logic -->
-          <div class="w-full lg:w-[600px] flex flex-col gap-6 shrink-0 h-full overflow-hidden">
-            <div class="flex-1 bg-card border border-border/50 rounded-[2.5rem] p-10 shadow-2xl flex flex-col overflow-hidden">
-              <div class="mb-12">
-                 <div class="flex items-center justify-between mb-8">
-                    <h3 class="font-black text-xs uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
-                       <Settings2 :size="14" class="text-rose-500" />
+          <div class="w-full lg:w-[480px] flex flex-col gap-5 shrink-0 h-full overflow-hidden">
+            <div class="flex-1 bg-card border border-border/50 rounded-[2rem] p-6 shadow-2xl flex flex-col overflow-hidden">
+              <div class="mb-6">
+                 <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                       <Settings2 :size="12" class="text-rose-500" />
                        Partition Logic
                     </h3>
-                    <div class="px-3 py-1 bg-rose-500/10 text-rose-500 rounded-full text-[10px] font-black tracking-widest uppercase">
+                    <div class="px-2.5 py-1 bg-rose-500/10 text-rose-500 rounded-full text-[9px] font-black tracking-widest uppercase">
                        Mode: {{ splitMode }}
                     </div>
                  </div>
 
-                 <div class="grid grid-cols-2 gap-4">
+                 <div class="grid grid-cols-2 gap-3">
                      <button 
                       @click="splitMode = 'rows'"
-                      class="flex flex-col gap-6 p-10 rounded-[2.5rem] border-2 transition-all duration-500 text-left relative overflow-hidden group/opt h-full"
-                      :class="splitMode === 'rows' ? 'border-rose-500 bg-rose-500/5 shadow-[0_20px_50px_-20px_rgba(244,63,94,0.15)] scale-[1.02]' : 'border-border/50 bg-background hover:border-rose-500/30'"
+                      class="flex flex-col gap-4 p-6 rounded-2xl border-2 transition-all duration-300 text-left relative overflow-hidden group/opt"
+                      :class="splitMode === 'rows' ? 'border-rose-500 bg-rose-500/5 shadow-lg scale-[1.01]' : 'border-border/50 bg-background hover:border-rose-500/30'"
                     >
-                      <div class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm" :class="splitMode === 'rows' ? 'bg-rose-500 text-white shadow-xl shadow-rose-500/20' : 'bg-muted text-muted-foreground group-hover/opt:bg-rose-500/10 group-hover/opt:text-rose-500'">
-                         <Layers :size="28" stroke-width="2.5" />
+                      <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm" :class="splitMode === 'rows' ? 'bg-rose-500 text-white' : 'bg-muted text-muted-foreground'">
+                         <Layers :size="18" stroke-width="2.5" />
                       </div>
-                      <div class="translate-y-1">
-                        <div class="font-black text-xl uppercase tracking-tighter">By Row Limit</div>
-                        <div class="text-[10px] uppercase font-black text-muted-foreground mt-2 tracking-[0.2em] opacity-40">Fixed-size fragments</div>
+                      <div class="translate-y-0.5">
+                        <div class="font-black text-sm uppercase tracking-tight">By Row Limit</div>
+                        <div class="text-[8px] uppercase font-black text-muted-foreground mt-1 tracking-widest opacity-40">Fixed size</div>
                       </div>
-                      <div v-if="splitMode === 'rows'" class="absolute right-6 top-6 animate-in zoom-in duration-300">
-                         <div class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.8)]"></div>
+                      <div v-if="splitMode === 'rows'" class="absolute right-4 top-4 animate-in zoom-in duration-300">
+                         <div class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.6)]"></div>
                       </div>
                     </button>
 
                     <button 
                       @click="splitMode = 'parts'"
-                      class="flex flex-col gap-6 p-10 rounded-[2.5rem] border-2 transition-all duration-500 text-left relative overflow-hidden group/opt h-full"
-                      :class="splitMode === 'parts' ? 'border-rose-500 bg-rose-500/5 shadow-[0_20px_50px_-20px_rgba(244,63,94,0.15)] scale-[1.02]' : 'border-border/50 bg-background hover:border-rose-500/30'"
+                      class="flex flex-col gap-4 p-6 rounded-2xl border-2 transition-all duration-300 text-left relative overflow-hidden group/opt"
+                      :class="splitMode === 'parts' ? 'border-rose-500 bg-rose-500/5 shadow-lg scale-[1.01]' : 'border-border/50 bg-background hover:border-rose-500/30'"
                     >
-                      <div class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm" :class="splitMode === 'parts' ? 'bg-rose-500 text-white shadow-xl shadow-rose-500/20' : 'bg-muted text-muted-foreground group-hover/opt:bg-rose-500/10 group-hover/opt:text-rose-500'">
-                         <Split :size="28" stroke-width="2.5" />
+                      <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm" :class="splitMode === 'parts' ? 'bg-rose-500 text-white' : 'bg-muted text-muted-foreground'">
+                         <Split :size="18" stroke-width="2.5" />
                       </div>
-                      <div class="translate-y-1">
-                        <div class="font-black text-xl uppercase tracking-tighter">By File Count</div>
-                        <div class="text-[10px] uppercase font-black text-muted-foreground mt-2 tracking-[0.2em] opacity-40">Equal distribution</div>
+                      <div class="translate-y-0.5">
+                        <div class="font-black text-sm uppercase tracking-tight">By File Count</div>
+                        <div class="text-[8px] uppercase font-black text-muted-foreground mt-1 tracking-widest opacity-40">Equal parts</div>
                       </div>
-                      <div v-if="splitMode === 'parts'" class="absolute right-6 top-6 animate-in zoom-in duration-300">
-                         <div class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.8)]"></div>
+                      <div v-if="splitMode === 'parts'" class="absolute right-4 top-4 animate-in zoom-in duration-300">
+                         <div class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.6)]"></div>
                       </div>
                     </button>
                  </div>

@@ -178,40 +178,44 @@ function resetTool() {
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto h-[calc(100vh-8rem)] flex flex-col p-4 md:p-6 lg:p-8">
+  <div class="w-full h-[calc(100vh-6rem)] flex flex-col p-2 md:p-4">
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-      <div class="space-y-1">
-        <router-link to="/" class="inline-flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider hover:gap-3 transition-all mb-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          All Tools
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 shrink-0 relative z-20">
+      <div class="flex items-center gap-4">
+        <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
+          <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />
         </router-link>
-        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-3">
-          <span class="p-2.5 bg-orange-500/10 text-orange-500 rounded-2xl shadow-inner"><ListFilter :size="32" /></span>
-          Filter & Sort
-        </h2>
-        <p class="text-muted-foreground text-lg max-w-xl">
-          Apply powerful conditions and sorting to refine your datasets.
-        </p>
+        
+        <div class="h-10 w-px bg-border/30 hidden lg:block"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-orange-500/10 text-orange-500 rounded-xl flex items-center justify-center ring-1 ring-orange-500/20">
+            <ListFilter :size="20" stroke-width="2.5" />
+          </div>
+          <div>
+            <h2 class="text-xl md:text-2xl font-black tracking-tight text-foreground">
+              Filter <span class="text-orange-500">& Sort</span>
+            </h2>
+          </div>
+        </div>
       </div>
 
-      <div v-if="rawData.length > 0" class="flex flex-wrap items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
+      <div v-if="rawData.length > 0" class="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-700">
         <button 
           @click="downloadProcessed" 
           :disabled="processing || processedData.length === 0"
-          class="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50"
+          class="flex items-center gap-2.5 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-black uppercase tracking-widest text-[10px] hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 group"
         >
-          <Loader2 v-if="processing" :size="18" class="animate-spin" />
-          <Download v-else :size="18" />
+          <Loader2 v-if="processing" :size="16" class="animate-spin" />
+          <Download v-else :size="16" class="group-hover:translate-y-0.5 transition-transform" />
           <span>Export Result</span>
         </button>
 
         <button 
           @click="resetTool" 
-          class="flex items-center gap-2 px-5 py-2.5 bg-card hover:bg-muted text-foreground border border-border rounded-xl transition-all shadow-sm group"
+          class="p-3 bg-card hover:bg-muted text-foreground border border-border/50 rounded-xl transition-all duration-300 active:scale-95 group"
         >
-          <X :size="18" class="text-muted-foreground group-hover:text-red-500" />
-          <span class="font-semibold text-sm">Clear</span>
+          <X :size="18" class="group-hover:rotate-90 transition-transform duration-500" />
         </button>
       </div>
     </div>
@@ -233,52 +237,57 @@ function resetTool() {
           <p class="font-bold">Analyzing document...</p>
         </div>
 
-        <div v-else-if="!file" class="h-full max-w-2xl mx-auto flex flex-col justify-center">
-          <FileUploader @files-selected="handleFile" class="min-h-[350px]" />
-          <p class="mt-6 text-center text-xs text-muted-foreground uppercase tracking-[0.2em] font-bold opacity-40">Your data stays safe in your browser</p>
+        <div v-else-if="!file" class="h-full flex flex-col items-center justify-center py-4 w-full">
+          <div class="text-center space-y-2 mb-6">
+             <h3 class="text-3xl font-black tracking-tight">Your data sandbox.</h3>
+             <p class="text-muted-foreground text-xs font-medium max-w-sm mx-auto leading-relaxed opacity-60">
+               Apply conditions and sorting to discover insights.
+             </p>
+          </div>
+          <FileUploader @files-selected="handleFile" class="w-full max-w-2xl" />
         </div>
 
         <!-- Tool UI -->
         <div v-else class="h-full flex flex-col md:flex-row gap-6 animate-in fade-in zoom-in-95 duration-500">
           
           <!-- Controls Sidebar -->
-          <div class="w-full md:w-80 flex flex-col glass-card border border-border/50 rounded-3xl bg-card overflow-hidden shadow-xl shadow-primary/5">
+          <div class="w-full md:w-80 flex flex-col glass-card border border-border/50 rounded-[2rem] bg-card overflow-hidden shadow-2xl shrink-0">
             <!-- Sort Section -->
-            <div class="p-5 border-b border-border bg-muted/20">
-               <h3 class="font-bold text-sm tracking-tight flex items-center gap-2 mb-4">
-                  <ArrowUpDown :size="16" class="text-primary"/> Sorting
+            <div class="p-6 border-b border-border/50 bg-muted/20">
+               <h3 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2 mb-4">
+                  <ArrowUpDown :size="12" class="text-orange-500"/> Sorting
                </h3>
-               <div class="space-y-3">
-                 <select v-model="sortRule.column" class="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm">
+               <div class="space-y-2.5">
+                 <select v-model="sortRule.column" class="w-full bg-background border border-border/50 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-orange-500/50 transition-all shadow-sm">
                    <option v-for="h in headers" :key="h" :value="h">{{ h }}</option>
                  </select>
                  
-                 <div class="flex items-center gap-1.5 p-1 bg-muted/50 rounded-xl border border-border/50">
+                 <div class="flex items-center gap-1.5 p-1 bg-muted/50 rounded-xl border border-border/10">
                     <button 
                       @click="sortRule.direction = 'asc'"
-                      class="flex-1 text-[10px] font-bold uppercase tracking-wider py-2 rounded-lg transition-all"
-                      :class="sortRule.direction === 'asc' ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20' : 'hover:bg-muted text-muted-foreground'"
+                      class="flex-1 text-[9px] font-black uppercase tracking-widest py-2 rounded-lg transition-all"
+                      :class="sortRule.direction === 'asc' ? 'bg-orange-500 text-white shadow-md' : 'hover:bg-muted text-muted-foreground'"
                     >
-                      Ascending
+                      Asc
                     </button>
                     <button 
                       @click="sortRule.direction = 'desc'"
-                      class="flex-1 text-[10px] font-bold uppercase tracking-wider py-2 rounded-lg transition-all"
-                      :class="sortRule.direction === 'desc' ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20' : 'hover:bg-muted text-muted-foreground'"
+                      class="flex-1 text-[9px] font-black uppercase tracking-widest py-2 rounded-lg transition-all"
+                      :class="sortRule.direction === 'desc' ? 'bg-orange-500 text-white shadow-md' : 'hover:bg-muted text-muted-foreground'"
                     >
-                      Descending
+                      Desc
                     </button>
                  </div>
                </div>
             </div>
 
             <!-- Filter Section Header -->
-            <div class="p-5 border-b border-border bg-muted/10 flex justify-between items-center">
-               <h3 class="font-bold text-sm tracking-tight flex items-center gap-2">
-                  <ListFilter :size="16" class="text-primary"/> Filters
-                  <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold ml-1">{{ filters.length }}</span>
+            <div class="p-6 border-b border-border/50 bg-muted/10 flex justify-between items-center shrink-0">
+               <h3 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2">
+                  <ListFilter :size="12" class="text-orange-500"/> Filters
+                  <span class="text-[9px] bg-orange-500/10 text-orange-500 px-2 py-0.5 rounded-full font-black ml-1">{{ filters.length }}</span>
                </h3>
-               <button @click="addFilter" class="p-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-all shadow-sm shadow-primary/20 active:scale-90">
+               <button @click="addFilter" class="w-8 h-8 flex items-center justify-center bg-orange-500 text-white hover:bg-orange-600 rounded-lg transition-all shadow-sm active:scale-90 shrink-0">
                   <Plus :size="14" stroke-width="3" />
                </button>
             </div>
@@ -323,13 +332,13 @@ function resetTool() {
             </div>
             
             <!-- Summary Footer -->
-            <div class="p-4 border-t border-border bg-muted/10">
-               <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <div class="p-6 border-t border-border/50 bg-muted/10 mt-auto shrink-0">
+               <div class="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
                   <span>Matched Records</span>
-                  <span class="text-foreground">{{ processedData.length.toLocaleString() }} / {{ rawData.length.toLocaleString() }}</span>
+                  <span class="text-foreground font-mono">{{ processedData.length.toLocaleString() }} / {{ rawData.length.toLocaleString() }}</span>
                </div>
-               <div class="mt-2 w-full bg-muted rounded-full h-1 overflow-hidden">
-                 <div class="bg-primary h-full transition-all duration-700" :style="{ width: `${(processedData.length / rawData.length) * 100}%` }"></div>
+               <div class="mt-3 w-full bg-muted rounded-full h-1 overflow-hidden">
+                 <div class="bg-orange-500 h-full transition-all duration-700" :style="{ width: `${(processedData.length / rawData.length) * 100}%` }"></div>
                </div>
             </div>
           </div>
