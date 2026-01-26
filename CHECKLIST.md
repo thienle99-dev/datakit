@@ -36,7 +36,7 @@
 ### JSON & text — đã có / chưa có
 
 - [x] JSON trong Universal Converter (CSV↔JSON, xuất pretty khi export)
-- [ ] **JSON Format / Beautify** — paste hoặc upload JSON → pretty-print (indent) hoặc minify
+- [x] **JSON Format / Beautify** — paste hoặc upload JSON → pretty-print (indent) hoặc minify
 - [ ] **JSON Diff** — so sánh 2 JSON (file hoặc paste), highlight khác biệt theo key/value, tree view
 - [ ] **JSON Validate** — kiểm tra cú pháp, báo lỗi dòng/cột, optional schema (JSON Schema)
 - [ ] **JSON sort keys** — sắp xếp keys object theo alphabet (ổn định khi diff)
@@ -94,7 +94,7 @@
 - [x] **Area** — tương tự Line, có fill (stacked hoặc overlap)
 
 **Loại biểu đồ — phase 2**
-- [ ] **Scatter** — tương quan 2 biến (X, Y), optional size = cột thứ 3
+- [x] **Scatter** — tương quan 2 biến (X, Y), optional size = cột thứ 3
 - [x] **Horizontal Bar** — bar nằm ngang (tên dài, ranking)
 - [x] **Stacked Bar / Stacked Area** — nhiều series chồng lên nhau
 - [ ] **Combo** — line + bar trên cùng trục (vd. doanh thu + %)
@@ -115,7 +115,7 @@
 **Mở rộng (sau)**
 - [ ] **Trend line** đơn giản (linear) trên Line/Scatter
 - [ ] **Heatmap** — matrix màu theo giá trị (cột + hàng + value)
-- [ ] **Radar chart** — so sánh nhiều chỉ số (multi-variable)
+- [x] **Radar chart** — so sánh nhiều chỉ số (multi-variable)
 - [ ] Tùy chọn **palette màu** (theme sáng/tối, colorblind-safe)
 
 ### Backlog — ý tưởng làm thêm

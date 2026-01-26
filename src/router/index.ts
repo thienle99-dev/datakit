@@ -108,6 +108,11 @@ const router = createRouter({
             name: 'templates',
             component: () => import('../views/TemplateTool.vue'),
         },
+        {
+            path: '/json-formatter',
+            name: 'json-formatter',
+            component: () => import('../views/JsonFormatter.vue'),
+        },
     ],
 });
 
