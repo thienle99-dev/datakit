@@ -27,7 +27,7 @@ const breadcrumbs = computed(() => {
 
 <template>
   <nav v-if="breadcrumbs.length > 0" aria-label="Breadcrumb" class="hidden md:flex items-center">
-    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/50 dark:bg-black/20 border border-black/5 dark:border-white/10 backdrop-blur-md shadow-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-black/30 hover:border-black/10 text-xs font-medium">
+    <div class="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-muted-foreground/60">
       <router-link 
         to="/" 
         class="flex items-center text-muted-foreground hover:text-primary transition-colors p-1 rounded-md hover:bg-primary/10"

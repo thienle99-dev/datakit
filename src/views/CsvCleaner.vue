@@ -189,7 +189,7 @@ function reset() {
       <transition name="slide-up">
         <div v-if="error" class="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md p-4 bg-red-500 text-white rounded-2xl shadow-2xl flex items-center justify-between">
           <p class="text-sm font-bold">{{ error }}</p>
-          <button @click="error = null" class="p-1 hover:bg-white/20 rounded-lg"><X :size="16" /></button>
+          <button @click="error = null" class="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg"><X :size="16" /></button>
         </div>
       </transition>
       
@@ -199,7 +199,7 @@ function reset() {
              <Check :size="20" stroke-width="3" />
              <p class="text-sm font-bold">{{ successMessage }}</p>
           </div>
-          <button @click="successMessage = null" class="p-1 hover:bg-white/20 rounded-lg"><X :size="16" /></button>
+          <button @click="successMessage = null" class="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg"><X :size="16" /></button>
         </div>
       </transition>
 

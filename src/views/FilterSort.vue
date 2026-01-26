@@ -223,7 +223,7 @@ function resetTool() {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <p class="text-sm font-medium">{{ error }}</p>
         </div>
-        <button @click="error = null" class="p-1 hover:bg-white/20 rounded-lg"><X :size="16" /></button>
+        <button @click="error = null" class="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg"><X :size="16" /></button>
       </div>
 
       <!-- Content Area -->

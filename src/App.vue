@@ -12,8 +12,8 @@ import AppHeader from './components/layout/AppHeader.vue';
     
     <AppHeader />
     
-    <div class="flex flex-1 relative">
-      <main class="flex-1 bg-background/50 md:p-6 w-full relative z-0">
+    <div class="flex flex-1 relative mt-4 md:mt-8">
+      <main class="flex-1 bg-background/50 p-4 md:p-8 lg:p-12 w-full relative z-0">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
             <component :is="Component" />

@@ -118,6 +118,60 @@
 
 ---
 
+## 5.1 Tổng hợp: tools còn thiếu & có thể làm thêm
+
+### A. Còn thiếu (nên có để bộ công cụ “đủ dùng”)
+
+Những tool hợp với data workflow nhưng **chưa nằm trong MVP**, nên ưu tiên sau phase 1:
+
+| Tool | Mô tả | Lý do nên có |
+|------|--------|----------------|
+| **JSON → CSV** | Chuyển array of objects → bảng | Cặp với CSV → JSON, dev/API hay cần |
+| **Merge CSV/Excel** | Gộp nhiều file (theo hàng/cột) | Nhu cầu gộp báo cáo, nhiều nguồn |
+| **Split CSV** | Tách theo số dòng hoặc theo giá trị cột | Chia file lớn, tách theo nhóm |
+| **Validate CSV** | Kiểm tra encoding, delimiter, quoting, số cột | Debug file lỗi, trước khi import |
+| **Compare two CSVs** | Diff hàng/cột, highlight khác biệt | So bản cũ/mới, QA data |
+| **Transpose** | Hàng ↔ cột | Chuẩn hóa dạng bảng trước khi xử lý |
+| **TSV support** | Đọc/ghi .tsv (tab-separated) | TSV phổ biến trong data/export |
+| **Excel multi-sheet** | Chọn sheet, gộp nhiều sheet thành một | File Excel thường nhiều sheet |
+
+### B. Có thể làm thêm (ý tưởng mở rộng)
+
+Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roadmap:
+
+**Định dạng & tích hợp**
+- **XML ↔ CSV/Excel** — import/export XML
+- **YAML ↔ CSV/JSON** — config / data nhẹ
+- **Excel → PDF** — in/xuất bảng ra PDF
+- **CSV → Chart** — vẽ biểu đồ đơn giản từ cột (client-side, e.g. Chart.js)
+
+**Làm sạch & chuẩn hóa nâng cao**
+- **Format phone/address** — chuẩn hóa theo quốc gia
+- **Mask sensitive data** — che/mask email, SĐT, theo regex
+- **Excel formula → values** — chỉ giữ giá trị, bỏ công thức
+- **Header từ dòng N / Skip rows** — chọn dòng làm header, bỏ N dòng đầu
+
+**Thao tác dữ liệu nâng cao**
+- **Group by + Aggregate** — sum/count/avg theo nhóm (client-side)
+- **Add computed column** — cột mới từ công thức đơn giản (ví dụ `A+B`, `UPPER(C)`)
+- **Random sample / Split %** — lấy mẫu ngẫu nhiên, chia train/test
+- **Unpivot / Pivot** — chuyển wide ↔ long
+
+**Tiện ích & trải nghiệm**
+- **CSV/Excel template** — tải file mẫu (template) theo mục đích
+- **Column reorder (drag)** — đổi thứ tự cột bằng kéo thả (bổ sung cho Column Selector)
+- **Preview N rows / Schema** — xem nhanh vài dòng + kiểu cột trước khi chọn tool
+
+### C. Bảng ưu tiên gợi ý (sau MVP)
+
+| Ưu tiên | Nhóm | Tools |
+|---------|------|------|
+| Cao | Còn thiếu | JSON→CSV, Merge, Split, Validate CSV, Compare, Transpose, TSV, Excel multi-sheet |
+| Trung bình | Mở rộng đã liệt kê | JSON→CSV, Merge, Split, Pivot/Unpivot, Find&Replace, Column stats, Schema infer |
+| Thấp | Làm thêm | XML/YAML, Chart, Mask sensitive, Group by, Template download |
+
+---
+
 ## 6. UI / UX
 
 - Drag & drop upload, hỗ trợ multi-file khi tool cần (vd. Merge).

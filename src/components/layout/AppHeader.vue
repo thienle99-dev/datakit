@@ -122,25 +122,34 @@ onMounted(() => {
     class="h-20 flex items-center px-4 md:px-8 sticky top-0 z-[9999] transition-all duration-500"
     :class="{ 'h-16': isScrolled }"
   >
+    <!-- Backdrop Overlay -->
+    <Transition name="fade">
+      <div 
+        v-if="showMegaMenu" 
+        class="fixed inset-0 bg-background/60 backdrop-blur-sm z-[9998]"
+        @mouseenter="showMegaMenu = false"
+      ></div>
+    </Transition>
+
     <!-- Floating Glass Container -->
     <div 
-      class="absolute inset-x-4 md:inset-x-8 rounded-2xl bg-background/85 backdrop-blur-3xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-500 hover:border-white/30"
+      class="absolute inset-x-4 md:inset-x-8 rounded-2xl bg-background/95 border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-500 z-[9999] hover:border-white/30"
       :class="isScrolled ? 'top-1 bottom-1 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.2)]' : 'top-2 bottom-2'"
     >
       
       <!-- Left: Logo & Nav -->
-      <div class="flex items-center gap-6">
-        <router-link to="/" class="flex items-center gap-3 group">
-          <div class="relative w-10 h-10 flex items-center justify-center bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl overflow-hidden group-hover:scale-105 transition-transform duration-300 ring-1 ring-white/20 dark:ring-white/10">
+      <div class="flex items-center gap-4 md:gap-8">
+        <router-link to="/" class="flex items-center gap-3 group shrink-0">
+          <div class="relative w-10 h-10 flex items-center justify-center bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl overflow-hidden group-hover:scale-105 transition-all duration-300 ring-1 ring-white/20 dark:ring-white/10">
              <img src="/logo.svg?v=2" alt="Logo" class="w-6 h-6 object-contain z-10" />
              <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <span class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 group-hover:to-primary transition-all duration-300 tracking-tight hidden sm:block">
-            Data Tools
+          <span class="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 group-hover:to-primary transition-all duration-300 tracking-tight hidden lg:block">
+            Data Kit
           </span>
         </router-link>
         
-        <div class="h-6 w-px bg-border/40 hidden md:block"></div>
+        <div class="h-6 w-px bg-border/40 hidden xl:block"></div>
 
         <!-- Mega Menu Trigger -->
         <div 
@@ -161,7 +170,7 @@ onMounted(() => {
           <Transition name="menu-slide">
             <div 
               v-if="showMegaMenu" 
-              class="absolute top-14 left-0 w-[800px] bg-white/95 backdrop-blur-3xl border border-white/20 dark:border-white/10 rounded-2xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] z-[100] overflow-hidden"
+              class="absolute top-[calc(100%+12px)] left-0 w-[800px] bg-card/98 backdrop-blur-[64px] border border-border rounded-3xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] z-[10000] overflow-hidden"
             >
               <div class="flex">
                 <!-- Main Tools Section -->
@@ -174,7 +183,7 @@ onMounted(() => {
                       v-for="tool in tools" 
                       :key="tool.id" 
                       :to="tool.path"
-                      class="group/card relative flex items-start gap-4 p-3 rounded-xl hover:bg-secondary/40 border border-transparent hover:border-white/10 transition-all duration-300"
+                      class="group/card relative flex items-start gap-4 p-3 rounded-xl hover:bg-primary/5 border border-transparent hover:border-primary/10 transition-all duration-300"
                     >
                       <div class="relative w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover/card:shadow-md transition-all duration-300">
                         <div class="absolute inset-0 bg-gradient-to-br opacity-10 group-hover/card:opacity-20 transition-opacity duration-300" :class="[tool.fromColor, tool.toColor]"></div>
@@ -248,7 +257,7 @@ onMounted(() => {
         <a 
           href="https://github.com/thienle99-dev/datakit" 
           target="_blank" 
-          class="hidden sm:flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-foreground bg-white dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/20 rounded-full border border-border/50 shadow-sm hover:shadow-md transition-all duration-300"
+          class="hidden sm:flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-foreground bg-secondary hover:bg-secondary/80 rounded-full border border-border/50 shadow-sm hover:shadow-md transition-all duration-300"
         >
           <Github :size="14" />
           <span>Star</span>
