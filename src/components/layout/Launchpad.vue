@@ -66,6 +66,7 @@ const tools: Tool[] = [
   { id: 'mask-data', name: 'Masking', description: 'Hide sensitive data', path: '/mask-data', icon: EyeOff, color: 'text-rose-500', bgColor: 'bg-rose-500/10' },
   { id: 'data-to-chart', name: 'Charts', description: 'Visualize data', path: '/data-to-chart', icon: BarChart3, color: 'text-purple-600', bgColor: 'bg-purple-500/10' },
   { id: 'json-formatter', name: 'JSON Beautify', description: 'Format & Minify JSON', path: '/json-formatter', icon: Braces, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
+  { id: 'json-diff', name: 'JSON Diff', description: 'Compare two JSONs', path: '/json-diff', icon: GitCompare, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
   { id: 'templates', name: 'Templates', description: 'Download CSV/Excel templates', path: '/templates', icon: FileDown, color: 'text-slate-500', bgColor: 'bg-slate-500/10' }
 ];
 

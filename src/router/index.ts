@@ -113,6 +113,11 @@ const router = createRouter({
             name: 'json-formatter',
             component: () => import('../views/JsonFormatter.vue'),
         },
+        {
+            path: '/json-diff',
+            name: 'json-diff',
+            component: () => import('../views/JsonDiff.vue'),
+        },
     ],
 });
 

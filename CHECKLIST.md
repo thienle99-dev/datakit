@@ -37,7 +37,7 @@
 
 - [x] JSON trong Universal Converter (CSV↔JSON, xuất pretty khi export)
 - [x] **JSON Format / Beautify** — paste hoặc upload JSON → pretty-print (indent) hoặc minify
-- [ ] **JSON Diff** — so sánh 2 JSON (file hoặc paste), highlight khác biệt theo key/value, tree view
+- [x] **JSON Diff** — so sánh 2 JSON (file hoặc paste), highlight khác biệt theo key/value, tree view
 - [ ] **JSON Validate** — kiểm tra cú pháp, báo lỗi dòng/cột, optional schema (JSON Schema)
 - [ ] **JSON sort keys** — sắp xếp keys object theo alphabet (ổn định khi diff)
 - [ ] **JSON escape/unescape** — escape chuỗi JSON hoặc unescape để paste vào code
