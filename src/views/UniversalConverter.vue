@@ -17,7 +17,8 @@ import {
   Sparkles,
   FileText,
   Database,
-  Layers
+  Layers,
+  FileCode
 } from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
 import DataTable from '../components/shared/DataTable.vue';
@@ -33,7 +34,7 @@ const processing = ref(false);
 const error = ref<string | null>(null);
 const copied = ref(false);
 
-const outputFormat = ref<'csv' | 'json' | 'yaml' | 'xlsx' | 'md' | 'sql'>('json');
+const outputFormat = ref<'csv' | 'json' | 'yaml' | 'xlsx' | 'md' | 'sql' | 'html'>('json');
 
 async function handleFile(selectedFile: File) {
   file.value = selectedFile;
@@ -119,6 +120,15 @@ const yamlOutput = computed(() => {
     return yaml.dump(data.value.slice(0, 8)) + (data.value.length > 8 ? '\n... (truncated for preview)' : '');
 });
 
+const htmlOutput = computed(() => {
+  if (!data.value.length || !headers.value.length) return '';
+  const headerRow = '  <thead>\n    <tr>\n' + headers.value.map(h => `      <th>${h}</th>`).join('\n') + '\n    </tr>\n  </thead>';
+  const bodyRows = '  <tbody>\n' + data.value.slice(0, 50).map(row => {
+    return '    <tr>\n' + headers.value.map(h => `      <td>${row[h] || ''}</td>`).join('\n') + '\n    </tr>';
+  }).join('\n') + '\n  </tbody>';
+  return `<table class="table">\n${headerRow}\n${bodyRows}\n</table>${data.value.length > 50 ? '\n<!-- ... (truncated for preview) -->' : ''}`;
+});
+
 // Respective handlers
 function downloadFile() {
   if (!data.value.length) return;
@@ -152,6 +162,15 @@ function downloadFile() {
             data.value.map(row => '| ' + headers.value.map(h => String(row[h] || '').replace(/\|/g, '\\|')).join(' | ') + ' |').join('\n');
           blob = new Blob([fullMd], { type: 'text/markdown' });
           filename = `${baseName}.md`;
+          break;
+        case 'html':
+          const fullHtml = `<table class="table">\n  <thead>\n    <tr>\n` + 
+            headers.value.map(h => `      <th>${h}</th>`).join('\n') + 
+            `\n    </tr>\n  </thead>\n  <tbody>\n` + 
+            data.value.map(row => `    <tr>\n` + headers.value.map(h => `      <td>${row[h] || ''}</td>`).join('\n') + `\n    </tr>`).join('\n') + 
+            `\n  </tbody>\n</table>`;
+          blob = new Blob([fullHtml], { type: 'text/html' });
+          filename = `${baseName}.html`;
           break;
         case 'sql':
           const tableName = baseName.replace(/[^a-zA-Z0-9]/g, '_');
@@ -195,6 +214,7 @@ function copyPreview() {
     else if (outputFormat.value === 'sql') text = sqlOutput.value;
     else if (outputFormat.value === 'json') text = jsonOutput.value;
     else if (outputFormat.value === 'yaml') text = yamlOutput.value;
+    else if (outputFormat.value === 'html') text = htmlOutput.value;
     else if (outputFormat.value === 'csv') text = Papa.unparse(data.value.slice(0, 10));
 
     navigator.clipboard.writeText(text).then(() => {
@@ -219,6 +239,7 @@ const formats = [
   { id: 'sql', label: 'SQL Inserts', icon: Database, color: 'text-indigo-500' },
   { id: 'yaml', label: 'YAML File', icon: Layers, color: 'text-rose-500' },
   { id: 'md', label: 'Markdown Table', icon: FileText, color: 'text-slate-500' },
+  { id: 'html', label: 'HTML Table', icon: FileCode, color: 'text-orange-500' },
 ] as const;
 </script>
 
@@ -378,6 +399,7 @@ const formats = [
                       outputFormat === 'yaml' ? yamlOutput :
                       outputFormat === 'sql' ? sqlOutput : 
                       outputFormat === 'md' ? markdownOutput : 
+                      outputFormat === 'html' ? htmlOutput :
                       outputFormat === 'csv' ? Papa.unparse(data.slice(0, 5)) : 
                       'Ready for Excel Export...' 
                     }}</pre>

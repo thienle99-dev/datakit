@@ -20,7 +20,9 @@ import {
   MessageSquare,
   Grid3X3,
   Zap,
-  Type
+  Type,
+  Pencil,
+  X
 } from 'lucide-vue-next';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -72,6 +74,34 @@ const config = ref<ChartConfig>({
 });
 
 const chartRef = ref<any>(null);
+
+// Edit data modal
+const showEditModal = ref(false);
+const editDraft = ref<any[]>([]);
+const editPage = ref(1);
+const EDIT_PAGE_SIZE = 20;
+
+const editPaginatedRows = computed(() => {
+  const start = (editPage.value - 1) * EDIT_PAGE_SIZE;
+  return editDraft.value.slice(start, start + EDIT_PAGE_SIZE);
+});
+const editTotalPages = computed(() => Math.max(1, Math.ceil(editDraft.value.length / EDIT_PAGE_SIZE)));
+
+function openEditModal() {
+  editDraft.value = JSON.parse(JSON.stringify(parsedData.value));
+  editPage.value = 1;
+  showEditModal.value = true;
+}
+
+function saveEditModal() {
+  parsedData.value = JSON.parse(JSON.stringify(editDraft.value));
+  rawDataString.value = Papa.unparse(parsedData.value);
+  showEditModal.value = false;
+}
+
+function closeEditModal() {
+  showEditModal.value = false;
+}
 
 // Palette options: name + colors (min 5 colors so series stay consistent)
 const palettes: { name: string; colors: string[] }[] = [
@@ -689,6 +719,13 @@ onMounted(() => {
                   placeholder="Chart Title..."
                 />
                 <div class="flex items-center gap-3">
+                   <button 
+                     @click="openEditModal"
+                     class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-muted/50 hover:bg-primary/10 hover:border-primary/50 text-2xs font-bold uppercase tracking-wider transition-all"
+                   >
+                     <Pencil :size="12" />
+                     Edit data
+                   </button>
                    <div class="px-3 py-1 bg-muted rounded-full text-2xs font-bold uppercase tracking-wider border border-border/50">
                       {{ parsedData.length }} Points
                    </div>
@@ -728,6 +765,71 @@ onMounted(() => {
           </div>
       </main>
     </div>
+
+    <!-- Edit data modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showEditModal" 
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" 
+        @click.self="closeEditModal"
+      >
+        <div 
+          class="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200" 
+          @click.stop
+        >
+          <div class="p-4 border-b border-border flex items-center justify-between shrink-0">
+            <h3 class="text-sm font-black uppercase tracking-widest">Edit data</h3>
+            <button @click="closeEditModal" class="p-2 rounded-xl hover:bg-muted transition-colors">
+              <X :size="18" />
+            </button>
+          </div>
+          <div class="flex-1 overflow-auto p-4 min-h-0">
+            <table class="w-full text-left border-collapse table-fixed">
+              <thead>
+                <tr class="border-b border-border">
+                  <th v-for="h in headers" :key="h" class="text-[9px] font-black uppercase tracking-wider text-muted-foreground pb-2 pr-2 align-bottom" style="min-width: 80px">{{ h }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  v-for="(row, rowIdx) in editPaginatedRows" 
+                  :key="(editPage - 1) * EDIT_PAGE_SIZE + rowIdx" 
+                  class="border-b border-border/50 hover:bg-muted/30"
+                >
+                  <td v-for="h in headers" :key="h" class="py-1 pr-2 align-top">
+                    <input 
+                      v-model="editDraft[(editPage - 1) * EDIT_PAGE_SIZE + rowIdx][h]" 
+                      type="text" 
+                      class="w-full px-2 py-1.5 rounded-lg border border-border bg-background text-xs focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-border flex flex-wrap items-center justify-between gap-4 shrink-0 bg-muted/20">
+            <div class="flex items-center gap-2">
+              <button 
+                @click="editPage = Math.max(1, editPage - 1)" 
+                :disabled="editPage <= 1"
+                class="px-3 py-1.5 rounded-lg text-2xs font-bold border border-border bg-background disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+              >Prev</button>
+              <span class="text-2xs font-bold px-2">{{ editPage }} / {{ editTotalPages }}</span>
+              <button 
+                @click="editPage = Math.min(editTotalPages, editPage + 1)" 
+                :disabled="editPage >= editTotalPages"
+                class="px-3 py-1.5 rounded-lg text-2xs font-bold border border-border bg-background disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+              >Next</button>
+              <span class="text-2xs text-muted-foreground ml-2">{{ editDraft.length }} rows</span>
+            </div>
+            <div class="flex gap-2">
+              <button @click="closeEditModal" class="px-4 py-2 rounded-xl text-2xs font-bold border border-border hover:bg-muted transition-colors">Cancel</button>
+              <button @click="saveEditModal" class="px-4 py-2 rounded-xl text-2xs font-bold bg-primary text-primary-foreground hover:opacity-90 transition-opacity">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
