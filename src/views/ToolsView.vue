@@ -168,6 +168,15 @@ const tools = [
     bgColor: 'bg-rose-500/10'
   },
   {
+    id: 'data-to-chart',
+    name: 'Data to Chart',
+    description: 'Transform your raw data into stunning, interactive charts and visualizations instantly.',
+    path: '/data-to-chart',
+    icon: BarChart3,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-500/10'
+  },
+  {
     id: 'templates',
     name: 'Download Templates',
     description: 'Start from a ready-made CSV or Excel template. No upload required.',

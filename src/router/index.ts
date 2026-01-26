@@ -99,6 +99,11 @@ const router = createRouter({
             component: () => import('../views/MaskDataTool.vue'),
         },
         {
+            path: '/data-to-chart',
+            name: 'data-to-chart',
+            component: () => import('../views/DataToChart.vue'),
+        },
+        {
             path: '/templates',
             name: 'templates',
             component: () => import('../views/TemplateTool.vue'),

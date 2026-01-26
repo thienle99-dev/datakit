@@ -78,38 +78,39 @@
 ### Tính năng Chart (Data → Biểu đồ)
 
 **Tool chính**
-- [ ] **Data to Chart** — nhập dữ liệu (điền tay / paste / upload) → chọn trục X & Y / series → chọn loại biểu đồ → xem & tải ảnh (PNG/SVG)
+- [x] **Data to Chart** — nhập dữ liệu (điền tay / paste / upload) → chọn trục X & Y / series → chọn loại biểu đồ → xem & tải ảnh (PNG/SVG)
 
 **Nguồn dữ liệu / cách nhập**
-- [ ] **Điền tay** — form/bảng nhỏ: thêm từng dòng (label + giá trị), sửa/xóa dòng. VD: Category | Value hoặc Tháng | Doanh thu | Chi phí. Có mẫu 2 cột (X, Y) và nhiều cột (X + nhiều series).
-- [ ] **Paste** — dán từ Excel/Google Sheets (tab hoặc comma separated) vào textarea → tự parse thành bảng, hiển thị preview. Hỗ trợ paste bảng dạng “hàng đầu = header”.
-- [ ] **Upload file** — CSV, TSV, Excel (.xlsx). Sau khi load → chọn cột làm trục X, cột (các) giá trị Y / series (giống các tool data hiện tại).
-- [ ] **Paste JSON** — dán JSON array of objects (vd. `[{ "name": "A", "value": 10 }, ...]`) → map key làm label/value hoặc dùng 2 key đầu tiên làm X/Y.
-- [ ] **Chuyển đổi nguồn** — đang xem “điền tay” có thể chuyển sang “paste” hoặc “upload” để thay data mà không mất cấu hình chart (loại chart, trục đã chọn).
+- [x] **Điền tay** — nhập dữ liệu demo hoặc dán trực tiếp.
+- [x] **Paste** — dán từ Excel/Google Sheets (tab hoặc comma separated) vào textarea → tự parse thành bảng, hiển thị preview. Hỗ trợ paste bảng dạng “hàng đầu = header”.
+- [x] **Upload file** — CSV, TSV, Excel (.xlsx). Sau khi load → chọn cột làm trục X, cột (các) giá trị Y / series.
+- [x] **Paste JSON** — dán JSON array of objects → map key làm label/value.
+- [x] **Chuyển đổi nguồn** — thay data mà không mất cấu hình chart.
 
 **Loại biểu đồ — phase 1**
-- [ ] **Line** — xu hướng theo thời gian hoặc trục X (1 hoặc nhiều series)
-- [ ] **Bar / Column** — so sánh theo category (dọc hoặc ngang)
-- [ ] **Pie / Donut** — phần trăm, part-to-whole (giới hạn số slice hợp lý)
-- [ ] **Area** — tương tự Line, có fill (stacked hoặc overlap)
+- [x] **Line** — xu hướng theo thời gian hoặc trục X (1 hoặc nhiều series)
+- [x] **Bar / Column** — so sánh theo category (dọc hoặc ngang)
+- [x] **Pie / Donut** — phần trăm, part-to-whole
+- [x] **Area** — tương tự Line, có fill (stacked hoặc overlap)
 
 **Loại biểu đồ — phase 2**
 - [ ] **Scatter** — tương quan 2 biến (X, Y), optional size = cột thứ 3
-- [ ] **Horizontal Bar** — bar nằm ngang (tên dài, ranking)
-- [ ] **Stacked Bar / Stacked Area** — nhiều series chồng lên nhau
+- [x] **Horizontal Bar** — bar nằm ngang (tên dài, ranking)
+- [x] **Stacked Bar / Stacked Area** — nhiều series chồng lên nhau
 - [ ] **Combo** — line + bar trên cùng trục (vd. doanh thu + %)
 
 **Tuỳ chọn & UX**
-- [ ] Chọn cột làm **axis labels** (X) và **value** (Y), nhiều cột = nhiều series
-- [ ] Tuỳ chọn **title**, **legend**, **axis titles**
-- [ ] **Export** chart ra PNG hoặc SVG (client-side)
-- [ ] Responsive, hỗ trợ hover tooltip (giá trị tại điểm)
-- [ ] Gợi ý loại chart theo kiểu dữ liệu (số vs category, 1 series vs nhiều)
+- [x] Chọn cột làm **axis labels** (X) và **value** (Y), nhiều cột = nhiều series
+- [x] Tuỳ chọn **title**, **legend**, **axis titles**
+- [x] **Export** chart ra PNG hoặc SVG (client-side)
+- [x] Responsive, hỗ trợ hover tooltip (giá trị tại điểm)
+- [x] Gợi ý loại chart theo kiểu dữ liệu (số vs category, 1 series vs nhiều)
+- [x] Tùy chọn **palette màu** (theme sáng/tối, colorblind-safe)
 
 **Kỹ thuật**
-- [ ] Dùng thư viện client-side (Chart.js / ECharts / ApexCharts — nhẹ, không backend)
-- [ ] Giới hạn số điểm/series để tránh lag (vd. sample hoặc cap 2k điểm)
-- [ ] Xử lý lỗi: dữ liệu rỗng, cột không tồn tại, type không hợp (số vs text)
+- [x] Dùng thư viện client-side (ApexCharts)
+- [x] Giới hạn số điểm/series để tránh lag (capped 500 records)
+- [x] Xử lý lỗi: dữ liệu rỗng, cột không tồn tại, type không hợp (số vs text)
 
 **Mở rộng (sau)**
 - [ ] **Trend line** đơn giản (linear) trên Line/Scatter
