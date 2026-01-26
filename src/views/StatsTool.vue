@@ -131,7 +131,7 @@ const totalNullCells = computed(() => {
       </div>
 
       <div v-if="file" class="flex items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
-        <div class="flex items-center gap-4 px-6 py-3 bg-card/40 border border-border/50 rounded-2xl shadow-sm">
+        <div class="flex items-center gap-4 px-6 py-3 bg-card border border-border/50 rounded-2xl shadow-sm">
            <div class="flex flex-col items-end border-r border-border/50 pr-4 mr-2">
               <span class="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Active Context</span>
               <span class="text-sm font-bold truncate max-w-[180px]">{{ file.name }}</span>
@@ -162,7 +162,7 @@ const totalNullCells = computed(() => {
       <div v-else class="h-full flex flex-col gap-10 animate-in fade-in duration-700 overflow-hidden">
         
         <!-- Search & Global Metrics Bar -->
-        <div class="flex flex-col lg:flex-row gap-8 items-center bg-card/95 border border-border/50 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden group">
+        <div class="flex flex-col lg:flex-row gap-8 items-center bg-card border border-border/50 rounded-[2.5rem] p-6 shadow-2xl relative overflow-hidden group">
           <!-- Ambient Glow -->
           <div class="absolute -right-20 -bottom-20 w-40 h-40 bg-emerald-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-emerald-500/10 transition-all duration-700"></div>
 
@@ -204,7 +204,7 @@ const totalNullCells = computed(() => {
             <div 
               v-for="stat in filteredStats" 
               :key="stat.header"
-              class="bg-card dark:bg-card/95 rounded-[2.5rem] border border-border/50 overflow-hidden group hover:border-emerald-500/30 transition-all duration-500 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] flex flex-col"
+              class="bg-card rounded-[2.5rem] border border-border/50 overflow-hidden group hover:border-emerald-500/30 transition-all duration-500 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] flex flex-col"
             >
               <div class="p-8 border-b border-border/30 bg-muted/20 flex flex-col gap-4">
                  <div class="flex items-center justify-between">

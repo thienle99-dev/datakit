@@ -150,7 +150,7 @@ const filteredTools = computed(() => {
               v-model="searchQuery"
               type="text" 
               placeholder="What are we building today?" 
-              class="w-full pl-16 pr-24 py-7 bg-card/95 backdrop-blur-[64px] border border-border/50 rounded-[2rem] text-xl font-medium placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] group-hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all"
+              class="w-full pl-16 pr-24 py-7 bg-card border border-border/50 rounded-[2rem] text-xl font-medium placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] group-hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all"
             />
 
             <!-- Keystroke Hint -->

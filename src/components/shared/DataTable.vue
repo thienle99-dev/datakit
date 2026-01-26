@@ -89,7 +89,7 @@ function prevPage() {
 </script>
 
 <template>
-  <div class="flex flex-col h-full border border-border/50 rounded-3xl bg-card/98 backdrop-blur-[40px] shadow-2xl overflow-hidden transition-all duration-500">
+  <div class="flex flex-col h-full border border-border/50 rounded-3xl bg-card shadow-2xl overflow-hidden transition-all duration-500">
     <!-- Enhanced Toolbar -->
     <div class="p-5 border-b border-border/50 flex flex-wrap gap-6 justify-between items-center bg-muted/20">
       <div class="flex items-center gap-6 flex-1 min-w-[300px]">
@@ -101,7 +101,7 @@ function prevPage() {
             v-model="searchTerm"
             type="text" 
             placeholder="Filter records..." 
-            class="w-full pl-11 pr-4 py-2.5 bg-background/50 border border-border/50 rounded-2xl text-sm focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-muted-foreground/30 shadow-inner"
+            class="w-full pl-11 pr-4 py-2.5 bg-background border border-border/50 rounded-2xl text-sm focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-muted-foreground/30 shadow-inner"
           />
         </div>
         
@@ -129,12 +129,12 @@ function prevPage() {
       <table class="w-full text-sm text-left border-separate border-spacing-0">
         <thead class="sticky top-0 z-20">
           <tr>
-            <th class="px-5 py-4 bg-muted/90 backdrop-blur-xl border-b border-r border-border/50 w-16 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">#</th>
+            <th class="px-5 py-4 bg-muted border-b border-r border-border/50 w-16 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">#</th>
             <th 
               v-for="(header, index) in headers" 
               :key="index"
               @click="handleSort(header)"
-              class="px-5 py-4 bg-muted/90 backdrop-blur-xl border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground cursor-pointer hover:bg-muted/100 transition-all group/header first:rounded-tl-2xl relative"
+              class="px-5 py-4 bg-muted border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground cursor-pointer hover:bg-muted/100 transition-all group/header first:rounded-tl-2xl relative"
             >
               <div class="flex items-center justify-between gap-2">
                 <span class="truncate" :class="{ 'text-primary': sortColumn === header }">{{ header }}</span>
@@ -188,7 +188,7 @@ function prevPage() {
     </div>
 
     <!-- Enhanced Pagination -->
-    <div class="px-6 py-4 border-t border-border/50 flex flex-col sm:flex-row gap-4 justify-between items-center bg-muted/20 dark:bg-card/40 backdrop-blur-xl">
+    <div class="px-6 py-4 border-t border-border/50 flex flex-col sm:flex-row gap-4 justify-between items-center bg-muted/20 dark:bg-card">
       <div class="flex items-center gap-6">
         <div class="flex items-center gap-2">
            <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Per Page</span>

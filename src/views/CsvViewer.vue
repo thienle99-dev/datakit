@@ -63,7 +63,7 @@ function reset() {
       </div>
 
       <div v-if="data.length > 0" class="flex items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
-        <div class="flex flex-col items-end px-6 py-3 bg-card/40 border border-border/50 rounded-2xl shadow-sm">
+        <div class="flex flex-col items-end px-6 py-3 bg-card border border-border/50 rounded-2xl shadow-sm">
           <span class="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Mounted Records</span>
           <span class="text-xl font-black text-foreground">{{ data.length.toLocaleString() }}</span>
         </div>
@@ -94,10 +94,10 @@ function reset() {
       </transition>
 
       <!-- Content Area -->
-      <div class="flex-1 h-full bg-card/98 dark:bg-card/95 border border-border/50 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col relative">
+      <div class="flex-1 h-full bg-card border border-border/50 rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col relative">
         
         <!-- Premium Loading -->
-        <div v-if="loading" class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-card/80 backdrop-blur-2xl">
+        <div v-if="loading" class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-card">
           <div class="relative">
             <div class="absolute inset-0 bg-blue-500/40 rounded-full blur-3xl animate-pulse"></div>
             <div class="relative p-8 bg-background border border-border/50 rounded-[2.5rem] shadow-2xl">

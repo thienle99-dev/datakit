@@ -1,7 +1,19 @@
 <script setup lang="ts">
 import { ref, shallowRef } from 'vue';
 import Papa from 'papaparse';
-import { Sparkles, Loader2, X, Download, Scissors, Trash2, CopyX, ArrowLeft, Check, ShieldCheck } from 'lucide-vue-next';
+import { 
+  Sparkles, 
+  Loader2, 
+  X, 
+  Download, 
+  Scissors, 
+  Trash2, 
+  CopyX, 
+  ArrowLeft, 
+  Check, 
+  ShieldCheck,
+  Zap
+} from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
 import DataTable from '../components/shared/DataTable.vue';
 import { parseFile } from '../utils/fileParser';
@@ -14,6 +26,12 @@ const processing = ref(false);
 const error = ref<string | null>(null);
 const successMessage = ref<string | null>(null);
 
+const cleaningStats = ref({
+    trimmed: 0,
+    purged: 0,
+    deduplicated: 0
+});
+
 async function handleFile(selectedFile: File) {
   file.value = selectedFile;
   loading.value = true;
@@ -21,6 +39,7 @@ async function handleFile(selectedFile: File) {
   successMessage.value = null;
   headers.value = [];
   data.value = [];
+  cleaningStats.value = { trimmed: 0, purged: 0, deduplicated: 0 };
 
   try {
     const result = await parseFile(selectedFile);
@@ -61,13 +80,14 @@ function trimWhitespace() {
         if (modified) count++;
         return newRow;
       });
+      cleaningStats.value.trimmed += count;
       successMessage.value = `Whitespace trimmed across dataset.`;
     } catch (err: any) {
       error.value = 'Operation failed: ' + err.message;
     } finally {
       processing.value = false;
     }
-  }, 10);
+  }, 100);
 }
 
 function removeEmptyRows() {
@@ -81,13 +101,14 @@ function removeEmptyRows() {
         return Object.values(row).some(val => val !== null && val !== undefined && String(val).trim() !== '');
       });
       const removed = initialLen - data.value.length;
+      cleaningStats.value.purged += removed;
       successMessage.value = `Purged ${removed} empty records.`;
     } catch (err: any) {
       error.value = 'Operation failed: ' + err.message;
     } finally {
       processing.value = false;
     }
-  }, 10);
+  }, 100);
 }
 
 function removeDuplicates() {
@@ -109,13 +130,14 @@ function removeDuplicates() {
       
       data.value = newData;
       const removed = initialLen - data.value.length;
+      cleaningStats.value.deduplicated += removed;
       successMessage.value = `Deduplication complete. ${removed} records removed.`;
     } catch (err: any) {
       error.value = 'Operation failed: ' + err.message;
     } finally {
       processing.value = false;
     }
-  }, 10);
+  }, 100);
 }
 
 function downloadCleaned() {
@@ -164,16 +186,16 @@ function reset() {
               Data <span class="text-amber-500">Cleaner</span>
             </h2>
             <p class="text-muted-foreground text-lg font-medium leading-relaxed">
-              Automated heuristics for data normalization and repair.
+              Automated heuristics for dataset normalization and repair.
             </p>
           </div>
         </div>
       </div>
 
-      <div v-if="data.length > 0" class="flex flex-wrap items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
+      <div v-if="data.length > 0" class="flex items-center gap-4 animate-in fade-in slide-in-from-right-8 duration-700">
         <button 
           @click="downloadCleaned" 
-          class="flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-[11px] hover:shadow-[0_20px_40px_-12px_rgba(var(--primary),0.3)] transition-all active:scale-95 group"
+          class="flex items-center gap-3 px-8 py-4 bg-amber-500 text-black rounded-2xl font-black uppercase tracking-widest text-[11px] hover:shadow-[0_20px_40px_-12px_rgba(245,158,11,0.3)] transition-all active:scale-95 group"
         >
           <Download :size="18" class="group-hover:translate-y-0.5 transition-transform" />
           <span>Export Cleaned</span>
@@ -181,7 +203,7 @@ function reset() {
 
         <button 
           @click="reset" 
-          class="flex items-center gap-3 px-6 py-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 rounded-2xl transition-all duration-300 font-bold active:scale-95 group"
+          class="flex items-center gap-3 px-6 py-4 bg-card hover:bg-muted text-foreground border border-border/50 rounded-2xl transition-all duration-300 font-bold active:scale-95 group"
         >
           <X :size="20" class="group-hover:rotate-90 transition-transform duration-500" />
         </button>
@@ -189,7 +211,7 @@ function reset() {
     </div>
 
     <!-- Main Workspace -->
-    <div class="flex-1 min-h-0 flex flex-col relative">
+    <div class="flex-1 min-h-0 flex flex-col relative overflow-hidden">
       <!-- Success/Error Notifications -->
       <transition name="slide-up">
         <div v-if="error" class="absolute top-0 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md p-5 bg-rose-500 text-white rounded-3xl shadow-[0_20px_50px_-12px_rgba(244,63,94,0.4)] flex items-center justify-between gap-6">
@@ -204,106 +226,153 @@ function reset() {
       </transition>
       
       <transition name="slide-up">
-        <div v-if="successMessage" class="absolute top-0 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md p-5 bg-emerald-500 text-white rounded-3xl shadow-[0_20px_50px_-12px_rgba(16,185,129,0.4)] flex items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div v-if="successMessage" class="absolute top-0 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md p-5 bg-amber-500 text-black rounded-3xl shadow-[0_20px_50px_-12px_rgba(245,158,11,0.4)] flex items-center justify-between gap-6">
           <div class="flex items-center gap-4">
-             <div class="bg-white/20 p-2 rounded-xl">
+             <div class="bg-black/10 p-2 rounded-xl">
                <Check :size="20" stroke-width="3" />
              </div>
              <p class="text-sm font-bold tracking-tight">{{ successMessage }}</p>
           </div>
-          <button @click="successMessage = null" class="p-2 hover:bg-white/20 rounded-xl transition-colors"><X :size="18" /></button>
+          <button @click="successMessage = null" class="p-2 hover:bg-black/10 rounded-xl transition-colors"><X :size="18" /></button>
         </div>
       </transition>
 
-      <!-- Content Area -->
-      <div class="flex-1 overflow-hidden relative">
-        <!-- Premium Loading -->
-        <div v-if="loading" class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-card/80 backdrop-blur-2xl rounded-[2.5rem]">
-          <div class="relative">
-            <div class="absolute inset-0 bg-amber-500/40 rounded-full blur-3xl animate-pulse"></div>
+      <div class="h-full flex flex-col lg:flex-row gap-8 overflow-hidden">
+        <!-- Sidebar: Global Sanitization Controls -->
+        <div class="w-full lg:w-96 flex flex-col gap-6 shrink-0 h-full overflow-hidden">
+           <div v-if="data.length === 0" class="hidden"></div>
+           <div v-else class="flex-1 bg-card border border-border/50 rounded-[2.5rem] p-8 shadow-2xl flex flex-col overflow-hidden animate-in fade-in duration-700">
+              <div class="mb-10">
+                 <h3 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2 mb-8">
+                    <ShieldCheck :size="14" class="text-amber-500" />
+                    Sanitization Suite
+                 </h3>
+
+                 <div class="space-y-4">
+                    <button 
+                      @click="trimWhitespace"
+                      :disabled="processing"
+                      class="w-full group flex items-center gap-4 p-5 bg-background hover:bg-amber-500/5 hover:border-amber-500/30 border border-border/50 rounded-2xl transition-all duration-300 text-left active:scale-[0.98] disabled:opacity-30"
+                    >
+                       <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all">
+                          <Scissors :size="18" />
+                       </div>
+                       <div class="flex-1">
+                          <div class="text-[11px] font-black uppercase tracking-widest text-foreground">Trim Whitespace</div>
+                          <div class="text-[9px] font-bold text-muted-foreground/60 mt-0.5">Remove hidden leading/trailing spaces</div>
+                       </div>
+                    </button>
+
+                    <button 
+                      @click="removeEmptyRows"
+                      :disabled="processing"
+                      class="w-full group flex items-center gap-4 p-5 bg-background hover:bg-rose-500/5 hover:border-rose-500/30 border border-border/50 rounded-2xl transition-all duration-300 text-left active:scale-[0.98] disabled:opacity-30"
+                    >
+                       <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-all">
+                          <Trash2 :size="18" />
+                       </div>
+                       <div class="flex-1">
+                          <div class="text-[11px] font-black uppercase tracking-widest text-foreground">Purge Nulls</div>
+                          <div class="text-[9px] font-bold text-muted-foreground/60 mt-0.5">Eliminate entirely empty records</div>
+                       </div>
+                    </button>
+
+                    <button 
+                      @click="removeDuplicates"
+                      :disabled="processing"
+                      class="w-full group flex items-center gap-4 p-5 bg-background hover:bg-blue-500/5 hover:border-blue-500/30 border border-border/50 rounded-2xl transition-all duration-300 text-left active:scale-[0.98] disabled:opacity-30"
+                    >
+                       <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">
+                          <CopyX :size="18" />
+                       </div>
+                       <div class="flex-1">
+                          <div class="text-[11px] font-black uppercase tracking-widest text-foreground">Deduplicate</div>
+                          <div class="text-[9px] font-bold text-muted-foreground/60 mt-0.5">Filter for unique record signatures</div>
+                       </div>
+                    </button>
+                 </div>
+              </div>
+
+              <!-- Metrics Analysis -->
+              <div class="flex-1 overflow-y-auto pr-2 -mr-2 scrollbar-none space-y-6">
+                 <div class="p-6 bg-muted/20 border border-border/50 rounded-3xl space-y-4">
+                    <h4 class="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">Operation Impact</h4>
+                    
+                    <div class="space-y-3">
+                       <div class="flex items-center justify-between">
+                          <span class="text-[10px] font-bold text-muted-foreground">Original Records</span>
+                          <span class="text-[10px] font-black font-mono tracking-tighter">{{ data.length + cleaningStats.purged + cleaningStats.deduplicated }}</span>
+                       </div>
+                       <div class="flex items-center justify-between">
+                          <span class="text-[10px] font-bold text-amber-500">Trimmed Cells</span>
+                          <span class="text-[10px] font-black font-mono tracking-tighter">{{ cleaningStats.trimmed }}</span>
+                       </div>
+                       <div class="flex items-center justify-between">
+                          <span class="text-[10px] font-bold text-rose-500">Purged Rows</span>
+                          <span class="text-[10px] font-black font-mono tracking-tighter">{{ cleaningStats.purged }}</span>
+                       </div>
+                       <div class="flex items-center justify-between border-t border-border/50 pt-3 mt-3">
+                          <span class="text-[10px] font-black uppercase">Current Total</span>
+                          <span class="text-xs font-black font-mono tracking-tighter">{{ data.length.toLocaleString() }}</span>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div class="p-6 bg-amber-500/5 border border-amber-500/10 rounded-3xl flex items-center gap-4 group/h">
+                    <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover/h:animate-spin">
+                       <Zap :size="14" />
+                    </div>
+                    <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest leading-relaxed">Local Buffer Execution</p>
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-hidden relative">
+          <!-- Premium Loading -->
+          <div v-if="loading" class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-8 bg-card rounded-[2.5rem]">
             <div class="relative p-8 bg-background border border-border/50 rounded-[2.5rem] shadow-2xl">
               <Loader2 class="animate-spin text-amber-500" :size="64" stroke-width="3" />
             </div>
-          </div>
-          <div class="text-center space-y-2">
-            <h4 class="text-2xl font-black tracking-tight uppercase">Infecting Heuristics</h4>
-            <p class="text-muted-foreground font-bold tracking-widest text-[11px] uppercase opacity-60">Preparing sanitization engine</p>
-          </div>
-        </div>
-
-        <div v-else-if="data.length === 0" class="h-full max-w-[1000px] mx-auto flex flex-col justify-center">
-            <div class="text-center space-y-4 mb-12">
-               <div class="inline-flex px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                 Dirty data? Not for long.
-               </div>
-               <h3 class="text-5xl font-black tracking-tighter">Polish your datasets.</h3>
-               <p class="text-muted-foreground text-xl font-medium max-w-lg mx-auto leading-relaxed">
-                 Drop your messy CSV files here to automatically repair types, trim spaces, and purge noise.
-               </p>
-            </div>
-
-            <FileUploader @files-selected="handleFile" class="min-h-[400px]" />
-        </div>
-
-        <!-- Tool Workspace -->
-        <div v-else class="h-full flex flex-col gap-6 animate-in fade-in duration-700">
-          <!-- Premium Actions Panel -->
-          <div class="bg-card/98 dark:bg-card/95 border border-border/50 rounded-[2.25rem] p-6 shadow-xl flex flex-wrap items-center gap-8 relative overflow-hidden group">
-             <!-- Ambient Glow -->
-             <div class="absolute -right-20 -top-20 w-40 h-40 bg-amber-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-amber-500/10 transition-all duration-700"></div>
-
-             <div class="flex items-center gap-4 px-6 border-r border-border/50 hidden xl:flex">
-                <div class="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 ring-1 ring-amber-500/20">
-                   <ShieldCheck :size="20" />
-                </div>
-                <div class="flex flex-col">
-                   <span class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Logic Engine</span>
-                   <span class="text-xs font-bold">V-Sanitize 2.0</span>
-                </div>
-             </div>
-             
-             <div class="flex flex-wrap items-center gap-3">
-                <button 
-                  @click="trimWhitespace"
-                  :disabled="processing"
-                  class="group flex items-center gap-3 px-6 py-3.5 bg-background hover:bg-amber-500/5 hover:border-amber-500/30 border border-border/50 text-foreground/80 hover:text-amber-500 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-30 active:scale-95"
-                >
-                  <Scissors :size="16" class="group-hover:rotate-12 transition-transform" /> 
-                  Trim Whitespace
-                </button>
-                
-                <button 
-                  @click="removeEmptyRows"
-                  :disabled="processing"
-                  class="group flex items-center gap-3 px-6 py-3.5 bg-background hover:bg-rose-500/5 hover:border-rose-500/30 border border-border/50 text-foreground/80 hover:text-rose-500 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-30 active:scale-95"
-                >
-                  <Trash2 :size="16" class="group-hover:translate-y-[-1px] transition-transform" /> 
-                  Purge Empty
-                </button>
-
-                <button 
-                  @click="removeDuplicates"
-                  :disabled="processing"
-                  class="group flex items-center gap-3 px-6 py-3.5 bg-background hover:bg-blue-500/5 hover:border-blue-500/30 border border-border/50 text-foreground/80 hover:text-blue-500 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all disabled:opacity-30 active:scale-95"
-                >
-                  <CopyX :size="16" class="group-hover:scale-110 transition-transform" /> 
-                  Deduplicate
-                </button>
-             </div>
-             
-             <transition name="fade">
-               <div v-if="processing" class="flex items-center gap-3 text-[10px] font-black tracking-[0.2em] text-amber-500 ml-auto bg-amber-500/10 px-4 py-2 rounded-full ring-1 ring-amber-500/20 animate-pulse">
-                  <Loader2 :size="14" class="animate-spin" /> ANALYZING PATTERNS...
-               </div>
-             </transition>
+            <h4 class="text-2xl font-black uppercase tracking-tight">Booting Engine...</h4>
           </div>
 
-          <!-- Data Preview Table Area -->
-          <div class="flex-1 min-w-0 bg-card/40 border border-border/50 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col p-2">
+          <div v-else-if="data.length === 0" class="h-full max-w-[1000px] mx-auto flex flex-col justify-center">
+              <div class="text-center space-y-4 mb-12">
+                 <div class="inline-flex px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                   Heuristic Data Repair
+                 </div>
+                 <h3 class="text-5xl font-black tracking-tighter">Polish your datasets.</h3>
+                 <p class="text-muted-foreground text-xl font-medium max-w-lg mx-auto leading-relaxed">
+                   Automatically repair common data issues like whitespace inconsistencies, duplicate records, and empty noise.
+                 </p>
+              </div>
+              <FileUploader @files-selected="handleFile" class="min-h-[400px]" />
+          </div>
+
+          <!-- Table Container -->
+          <div v-else class="h-full flex flex-col animate-in fade-in duration-700 overflow-hidden bg-card border border-border/50 rounded-[2.5rem] shadow-2xl p-2 relative">
              <DataTable 
                :headers="headers" 
                :data="data" 
              />
+             
+             <!-- Active Processing Overlay -->
+             <transition name="fade">
+                <div v-if="processing" class="absolute inset-0 z-40 bg-card/60 backdrop-blur-md flex flex-col items-center justify-center gap-6">
+                   <div class="relative">
+                      <div class="absolute inset-0 bg-amber-500/20 rounded-full blur-2xl animate-pulse"></div>
+                      <div class="relative w-16 h-16 rounded-2xl bg-background border border-border/50 flex items-center justify-center shadow-xl">
+                         <Loader2 class="animate-spin text-amber-500" :size="32" stroke-width="3" />
+                      </div>
+                   </div>
+                   <div class="text-center">
+                      <div class="text-sm font-black uppercase tracking-widest text-foreground">Scrubbing Buffer</div>
+                      <div class="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">Applying heuristic filters</div>
+                   </div>
+                </div>
+             </transition>
           </div>
         </div>
       </div>
@@ -312,22 +381,41 @@ function reset() {
 </template>
 
 <style scoped>
-.slide-up-enter-active,
-.slide-up-leave-active {
+/* Scrollbar polish */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: hsl(var(--border) / 0.5);
+  border-radius: 10px;
+}
+
+.slide-up-enter-active, .slide-up-leave-active {
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.slide-up-enter-from,
-.slide-up-leave-to {
-  transform: translate(-50%, 60px);
+.slide-up-enter-from, .slide-up-leave-to {
   opacity: 0;
+  transform: translate(-50%, 60px);
   filter: blur(10px);
 }
 
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
+  transition: opacity 0.4s ease;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 </style>
+
 

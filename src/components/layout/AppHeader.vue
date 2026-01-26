@@ -126,14 +126,14 @@ onMounted(() => {
     <Transition name="fade">
       <div 
         v-if="showMegaMenu" 
-        class="fixed inset-0 bg-background/60 backdrop-blur-sm z-[9998]"
+        class="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9998]"
         @mouseenter="showMegaMenu = false"
       ></div>
     </Transition>
 
     <!-- Floating Glass Container -->
     <div 
-      class="absolute inset-x-4 md:inset-x-8 rounded-2xl bg-background/95 border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-500 z-[9999] hover:border-white/30"
+      class="absolute inset-x-4 md:inset-x-8 rounded-2xl bg-background border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-500 z-[9999] hover:border-white/30"
       :class="isScrolled ? 'top-1 bottom-1 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.2)]' : 'top-2 bottom-2'"
     >
       
@@ -170,7 +170,7 @@ onMounted(() => {
           <Transition name="menu-slide">
             <div 
               v-if="showMegaMenu" 
-              class="absolute top-[calc(100%+12px)] left-0 w-[800px] bg-card/98 backdrop-blur-[64px] border border-border rounded-3xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] z-[10000] overflow-hidden"
+              class="absolute top-[calc(100%+12px)] left-0 w-[800px] bg-card border border-border rounded-3xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] z-[10000] overflow-hidden"
             >
               <div class="flex">
                 <!-- Main Tools Section -->
