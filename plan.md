@@ -4,6 +4,20 @@
 
 ---
 
+## ✅ Status: Done (Implementation complete)
+
+**Đã triển khai:** App Vue (Vite) với đủ tools MVP + nhiều tools mở rộng.
+
+| Nhóm | Tools đã có trong app |
+|------|------------------------|
+| **MVP** | CSV/Excel Viewer, CSV↔Excel (Universal Converter), CSV Cleaner, Column Selector, Filter & Sort, CSV→JSON/SQL/Markdown (Universal Converter) |
+| **Mở rộng** | Merge, Split, Validate, Compare, Transpose, Pivot/Unpivot, Find & Replace, Column Stats, Aggregate (Summarize) |
+| **Bổ sung** | Skip Rows / Set Header, Random Sample, Mask Sensitive Data, Download Templates |
+
+**Backlog (chưa làm):** XML/YAML, Excel→PDF, CSV→Chart, Format phone/address, Excel formula→values, Group by nâng cao, v.v. — xem mục 5.1 và 5.
+
+---
+
 ## 1. Mục tiêu & Đối tượng
 
 **Mục tiêu**

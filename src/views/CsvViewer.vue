@@ -8,20 +8,30 @@ import { parseFile } from '../utils/fileParser';
 const file = shallowRef<File | null>(null);
 const headers = ref<string[]>([]);
 const data = ref<any[]>([]);
+const sheets = ref<string[]>([]);
+const currentSheet = ref('');
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-async function handleFile(selectedFile: File) {
+async function handleFile(selectedFile: File, sheetName?: string) {
   file.value = selectedFile;
   loading.value = true;
   error.value = null;
-  headers.value = [];
-  data.value = [];
+  
+  if (!sheetName) {
+    headers.value = [];
+    data.value = [];
+    sheets.value = [];
+  }
 
   try {
-    const result = await parseFile(selectedFile);
+    const result = await parseFile(selectedFile, sheetName);
     headers.value = result.headers;
     data.value = result.data;
+    if (result.sheets) {
+      sheets.value = result.sheets;
+      if (!currentSheet.value) currentSheet.value = result.sheets[0] || '';
+    }
   } catch (err: any) {
     console.error(err);
     error.value = 'Failed to parse file: ' + (err.message || err);
@@ -30,10 +40,18 @@ async function handleFile(selectedFile: File) {
   }
 }
 
+async function handleSheetChange() {
+  if (file.value) {
+    await handleFile(file.value, currentSheet.value);
+  }
+}
+
 function reset() {
   file.value = null;
   data.value = [];
   headers.value = [];
+  sheets.value = [];
+  currentSheet.value = '';
 }
 </script>
 
@@ -61,6 +79,17 @@ function reset() {
       </div>
 
       <div v-if="data.length > 0" class="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-700">
+        <div v-if="sheets.length > 1" class="flex items-center gap-2 px-3 py-1.5 bg-muted/50 border border-border/50 rounded-xl">
+          <span class="text-[9px] font-black uppercase text-muted-foreground/40">Sheet</span>
+          <select 
+            v-model="currentSheet" 
+            @change="handleSheetChange"
+            class="bg-transparent text-xs font-bold outline-none cursor-pointer"
+          >
+            <option v-for="s in sheets" :key="s" :value="s">{{ s }}</option>
+          </select>
+        </div>
+
         <div class="flex items-baseline gap-2 px-4 py-2 bg-blue-500/5 border border-blue-500/10 rounded-xl">
           <span class="text-xl font-black text-blue-500">{{ data.length.toLocaleString() }}</span>
           <span class="text-[9px] font-black uppercase tracking-widest text-blue-500/40">Records</span>

@@ -21,6 +21,7 @@ import { parseFile } from '../utils/fileParser';
 interface ColumnState {
   id: string;
   label: string;
+  newName: string; // New: tracking user's rename
   visible: boolean;
 }
 
@@ -50,6 +51,7 @@ async function handleFile(selectedFile: File) {
     columnStates.value = result.headers.map((h, i) => ({
       id: `col-${i}`,
       label: h,
+      newName: h,
       visible: true
     }));
   } catch (err: any) {
@@ -102,17 +104,17 @@ function downloadNewCsv() {
   
   setTimeout(() => {
     try {
-      const orderedFields = activeHeaders.value;
+      const orderedFields = columnStates.value.filter(c => c.visible);
       const newData = rawData.value.map(row => {
         const newRow: any = {};
-        orderedFields.forEach(field => {
-          newRow[field] = row[field];
+        orderedFields.forEach(col => {
+          newRow[col.newName] = row[col.label];
         });
         return newRow;
       });
 
       const csv = Papa.unparse({
-        fields: orderedFields,
+        fields: orderedFields.map(c => c.newName),
         data: newData
       });
 
@@ -259,9 +261,16 @@ function closeTool() {
                     >
                       <Check v-if="col.visible" :size="10" stroke-width="4" />
                     </div>
-                    <div class="flex flex-col min-w-0 translate-y-0.5">
-                       <span class="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mb-0.5">Index {{ index.toString().padStart(2, '0') }}</span>
-                       <span class="font-black text-xs truncate uppercase tracking-tight" :class="col.visible ? 'text-foreground' : 'text-muted-foreground'">{{ col.label }}</span>
+                    <div class="flex flex-col min-w-0 flex-1">
+                       <span class="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40 mb-0.5">Original: {{ col.label }}</span>
+                       <input 
+                         v-model="col.newName" 
+                         @click.stop
+                         type="text"
+                         class="bg-transparent border-none p-0 text-xs font-black uppercase tracking-tight focus:ring-0 focus:outline-none w-full"
+                         :class="col.visible ? 'text-foreground' : 'text-muted-foreground'"
+                         placeholder="New name..."
+                       />
                     </div>
                   </button>
 

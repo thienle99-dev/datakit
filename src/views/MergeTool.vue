@@ -31,6 +31,9 @@ const processing = ref(false);
 const error = ref<string | null>(null);
 const success = ref(false);
 
+const mergeMode = ref<'stack' | 'join'>('stack');
+const joinKey = ref('');
+
 const handleFilesSelected = async (fileList: File[]) => {
   error.value = null;
   success.value = false;
@@ -45,6 +48,9 @@ const handleFilesSelected = async (fileList: File[]) => {
         data: result.data,
         headers: result.headers
       });
+      if (!joinKey.value && result.headers.length > 0) {
+          joinKey.value = result.headers[0] || '';
+      }
     } catch (err: any) {
       error.value = `Error parsing ${file.name}: ${err.message}`;
     }
@@ -65,10 +71,46 @@ const mergeFiles = async () => {
   error.value = null;
 
   try {
-    const allHeaders = new Set<string>();
-    files.value.forEach(f => f.headers.forEach(h => allHeaders.add(h)));
-    const finalHeaders = Array.from(allHeaders);
-    const combinedData = files.value.flatMap(f => f.data);
+    let finalHeaders: string[] = [];
+    let combinedData: any[] = [];
+
+    if (mergeMode.value === 'stack') {
+        const allHeaders = new Set<string>();
+        files.value.forEach(f => f.headers.forEach(h => allHeaders.add(h)));
+        finalHeaders = Array.from(allHeaders);
+        combinedData = files.value.flatMap(f => f.data);
+    } else {
+        // Join mode
+        if (!joinKey.value) throw new Error("Join key is required for joining datasets.");
+        
+        const mainFile = files.value[0];
+        if (!mainFile) throw new Error("No primary file found.");
+
+        const lookup: Record<string, any> = {};
+        mainFile.data.forEach(row => {
+            const key = String(row[joinKey.value] || '');
+            lookup[key] = { ...row };
+        });
+
+        const allHeadersSet = new Set<string>(mainFile.headers);
+
+        // Merge subsequent files
+        for (let i = 1; i < files.value.length; i++) {
+            const f = files.value[i];
+            if (!f) continue;
+            f.headers.forEach(h => allHeadersSet.add(h));
+            
+            f.data.forEach(row => {
+               const key = String(row[joinKey.value] || '');
+               if (lookup[key]) {
+                  lookup[key] = { ...lookup[key], ...row };
+               }
+            });
+        }
+
+        finalHeaders = Array.from(allHeadersSet);
+        combinedData = Object.values(lookup);
+    }
 
     const csv = Papa.unparse({
       fields: finalHeaders,
@@ -79,7 +121,7 @@ const mergeFiles = async () => {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `merged_data_${new Date().getTime()}.csv`);
+    link.setAttribute('download', `merged_${mergeMode.value}_${new Date().getTime()}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -280,8 +322,35 @@ const uniqueHeadersCount = computed(() => {
                     </div>
                  </div>
 
+                 <!-- Synthesis Mode -->
+                 <div class="space-y-4 pt-4 border-t border-border/50">
+                    <h4 class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Synthesis Strategy</h4>
+                    <div class="flex p-1 bg-muted/50 rounded-2xl border border-border/10">
+                       <button 
+                         @click="mergeMode = 'stack'"
+                         class="flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                         :class="mergeMode === 'stack' ? 'bg-indigo-600 text-white shadow-lg' : 'text-muted-foreground hover:bg-muted'"
+                       >Stack Rows</button>
+                       <button 
+                         @click="mergeMode = 'join'"
+                         class="flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
+                         :class="mergeMode === 'join' ? 'bg-indigo-600 text-white shadow-lg' : 'text-muted-foreground hover:bg-muted'"
+                       >Join Columns</button>
+                    </div>
+                    
+                    <div v-if="mergeMode === 'join'" class="space-y-3 animate-in slide-in-from-top-2 duration-500">
+                       <label class="text-[8px] font-black uppercase text-muted-foreground/40 tracking-[0.2em]">Primary Join Key</label>
+                       <select v-model="joinKey" class="w-full bg-muted/20 border border-border/50 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-indigo-500/50">
+                          <option v-for="h in Array.from(new Set(files.flatMap(f => f.headers)))" :key="h" :value="h">{{ h }}</option>
+                       </select>
+                       <p class="text-[8px] font-medium text-muted-foreground leading-relaxed italic border-l-2 border-indigo-500/20 pl-3">
+                          Outer-join based on common key. Non-matching rows from primary file are preserved.
+                       </p>
+                    </div>
+                 </div>
+
                  <!-- Logic Steps -->
-                 <div class="space-y-6 pt-4 border-t border-border/50">
+                 <div class="space-y-6 pt-8 border-t border-border/50">
                     <div v-for="step in ['Schema Detection', 'Atomic Alignment', 'Memory Buffer Pooling', 'Quantized Export']" :key="step" class="flex gap-4 items-center group/step">
                        <div class="w-2 h-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 group-hover/step:bg-indigo-500 group-hover/step:shadow-[0_0_10px_rgba(79,70,229,0.5)] transition-all"></div>
                        <span class="text-xs font-black uppercase tracking-widest text-muted-foreground/60 group-hover/step:text-foreground transition-colors">{{ step }}</span>

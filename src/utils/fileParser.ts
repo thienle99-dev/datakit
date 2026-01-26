@@ -4,17 +4,18 @@ import * as XLSX from 'xlsx';
 export interface ParseResult {
     headers: string[];
     data: any[];
+    sheets?: string[]; // New: list of sheet names
 }
 
-export const parseFile = async (file: File): Promise<ParseResult> => {
-    if (file.name.endsWith('.csv')) {
+export const parseFile = async (file: File, sheetName?: string): Promise<ParseResult> => {
+    if (file.name.endsWith('.csv') || file.name.endsWith('.tsv') || file.name.endsWith('.txt')) {
         return parseCSV(file);
     } else if (file.name.match(/\.xls(x)?$/)) {
-        return parseExcel(file);
+        return parseExcel(file, sheetName);
     } else if (file.name.endsWith('.json')) {
         return parseJSON(file);
     } else {
-        throw new Error('Unsupported file format. Please upload .csv, .xlsx, or .json');
+        throw new Error('Unsupported file format. Please upload .csv, .tsv, .xlsx, or .json');
     }
 };
 
@@ -34,7 +35,7 @@ const parseJSON = async (file: File): Promise<ParseResult> => {
         return { headers: [], data: [] };
     }
 
-    // Extract headers from all unique keys across all objects to be safe
+    // Extract headers from all unique keys
     const headerSet = new Set<string>();
     jsonData.forEach((item: any) => {
         if (typeof item === 'object' && item !== null) {
@@ -54,9 +55,6 @@ const parseCSV = (file: File): Promise<ParseResult> => {
             header: true,
             skipEmptyLines: true,
             complete: (results) => {
-                if (results.errors.length > 0) {
-                    console.warn('CSV Parse Errors:', results.errors);
-                }
                 const headers = results.meta.fields || [];
                 const data = results.data;
                 resolve({ headers, data });
@@ -66,20 +64,24 @@ const parseCSV = (file: File): Promise<ParseResult> => {
     });
 };
 
-const parseExcel = (file: File): Promise<ParseResult> => {
+const parseExcel = (file: File, targetSheet?: string): Promise<ParseResult> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const dataStr = e.target?.result;
                 const workbook = XLSX.read(dataStr, { type: 'binary' });
-                const firstSheetName = workbook.SheetNames[0];
-                if (!firstSheetName) {
+                const sheets = workbook.SheetNames;
+
+                if (sheets.length === 0) {
                     throw new Error('No sheets found in Excel file');
                 }
-                const worksheet = workbook.Sheets[firstSheetName];
+
+                const sheetToParse = targetSheet || sheets[0];
+                const worksheet = workbook.Sheets[sheetToParse!];
+
                 if (!worksheet) {
-                    throw new Error('Sheet data not found');
+                    throw new Error(`Sheet "${sheetToParse}" not found`);
                 }
 
                 // Convert to JSON
@@ -99,9 +101,9 @@ const parseExcel = (file: File): Promise<ParseResult> => {
                         return rowObj;
                     });
 
-                    resolve({ headers, data });
+                    resolve({ headers, data, sheets });
                 } else {
-                    resolve({ headers: [], data: [] });
+                    resolve({ headers: [], data: [], sheets });
                 }
             } catch (err) {
                 reject(err);

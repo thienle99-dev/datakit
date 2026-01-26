@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Sun, Moon, Github, ChevronDown, Table, ArrowRightLeft, Sparkles, Command, Search, Columns, Layers, Scissors, BarChart3, GitCompare } from 'lucide-vue-next';
+import { Sun, Moon, Github, ChevronDown, Table, ArrowRightLeft, Sparkles, Command, Search, Columns, Layers, Scissors, BarChart3, GitCompare, ShieldCheck, Sigma, Repeat } from 'lucide-vue-next';
 import AppBreadcrumb from './AppBreadcrumb.vue';
 
 const isDark = ref(false);
@@ -86,6 +86,46 @@ const tools = [
     fromColor: 'from-pink-500', 
     toColor: 'to-rose-400',
     iconColor: 'group-hover:text-pink-500'
+  },
+  { 
+    id: 'validate-data', 
+    name: 'Data Validator', 
+    description: 'Audit file structure', 
+    path: '/validate-data', 
+    icon: ShieldCheck, 
+    fromColor: 'from-emerald-500', 
+    toColor: 'to-teal-400',
+    iconColor: 'group-hover:text-emerald-500' 
+  },
+  { 
+    id: 'reshape-data', 
+    name: 'Pivot / Unpivot', 
+    description: 'Switch data formats', 
+    path: '/reshape-data', 
+    icon: ArrowRightLeft, 
+    fromColor: 'from-violet-500', 
+    toColor: 'to-purple-400',
+    iconColor: 'group-hover:text-violet-500' 
+  },
+  { 
+    id: 'summarize-data', 
+    name: 'Summarizer', 
+    description: 'Aggregate and group', 
+    path: '/summarize-data', 
+    icon: Sigma, 
+    fromColor: 'from-blue-500', 
+    toColor: 'to-indigo-400',
+    iconColor: 'group-hover:text-blue-500' 
+  },
+  { 
+    id: 'find-replace', 
+    name: 'Find & Replace', 
+    description: 'Global text rewrite', 
+    path: '/find-replace', 
+    icon: Repeat, 
+    fromColor: 'from-cyan-500', 
+    toColor: 'to-teal-400',
+    iconColor: 'group-hover:text-cyan-500' 
   }
 ];
 

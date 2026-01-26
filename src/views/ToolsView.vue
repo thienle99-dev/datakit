@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare, Sigma } from 'lucide-vue-next';
 
 const searchQuery = ref('');
 
@@ -94,6 +94,42 @@ const tools = [
     icon: ArrowRightLeft,
     color: 'text-violet-500',
     bgColor: 'bg-violet-500/10'
+  },
+  {
+    id: 'validate-data',
+    name: 'Data Validator',
+    description: 'Audit file structure, inconsistent row lengths, and potential encoding issues.',
+    path: '/validate-data',
+    icon: ShieldCheck,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10'
+  },
+  {
+    id: 'reshape-data',
+    name: 'Pivot / Unpivot',
+    description: 'Reshape your data from long to wide or wide to long format for analysis.',
+    path: '/reshape-data',
+    icon: ArrowRightLeft,
+    color: 'text-violet-500',
+    bgColor: 'bg-violet-500/10'
+  },
+  {
+    id: 'find-replace',
+    name: 'Seek & Destroy',
+    description: 'Find and replace strings across your entire dataset using text or Regex.',
+    path: '/find-replace',
+    icon: Search,
+    color: 'text-cyan-500',
+    bgColor: 'bg-cyan-500/10'
+  },
+  {
+    id: 'summarize-data',
+    name: 'Data Summarizer',
+    description: 'Group rows and calculate sums, averages, or counts for deep insights.',
+    path: '/summarize-data',
+    icon: Sigma,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10'
   }
 ];
 

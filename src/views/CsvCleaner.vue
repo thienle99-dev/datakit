@@ -140,6 +140,37 @@ function removeDuplicates() {
   }, 100);
 }
 
+const fillValueInput = ref('');
+
+function fillEmptyValues() {
+  if (!data.value.length) return;
+  processing.value = true;
+  
+  setTimeout(() => {
+    try {
+      let count = 0;
+      data.value = data.value.map(row => {
+        const newRow: any = {};
+        headers.value.forEach(key => {
+          const val = row[key];
+          if (val === null || val === undefined || String(val).trim() === '') {
+            newRow[key] = fillValueInput.value;
+            count++;
+          } else {
+            newRow[key] = val;
+          }
+        });
+        return newRow;
+      });
+      successMessage.value = `Filled ${count} empty cells with "${fillValueInput.value}".`;
+    } catch (err: any) {
+      error.value = 'Operation failed: ' + err.message;
+    } finally {
+      processing.value = false;
+    }
+  }, 100);
+}
+
 function downloadCleaned() {
   if (!data.value || data.value.length === 0) return;
   
@@ -276,19 +307,41 @@ function reset() {
                      </button>
 
                       <button 
-                       @click="removeDuplicates"
-                       :disabled="processing"
-                       class="w-full group flex items-center gap-4 p-4 bg-card hover:bg-blue-500/5 hover:border-blue-500/30 border border-border/80 rounded-2xl transition-all duration-300 text-left active:scale-[0.98] disabled:opacity-30 shadow-sm"
-                     >
-                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-inner group-hover:scale-110 shrink-0">
-                           <CopyX :size="16" stroke-width="2.5" />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                           <div class="text-[11px] font-black uppercase tracking-[0.1em] text-foreground">Deduplicate</div>
-                           <div class="text-[9px] font-bold text-muted-foreground/40 mt-0.5 truncate uppercase">Filter unique</div>
-                        </div>
-                     </button>
-                  </div>
+                        @click="removeDuplicates"
+                        :disabled="processing"
+                        class="w-full group flex items-center gap-4 p-4 bg-card hover:bg-blue-500/5 hover:border-blue-500/30 border border-border/80 rounded-2xl transition-all duration-300 text-left active:scale-[0.98] disabled:opacity-30 shadow-sm"
+                      >
+                         <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-inner group-hover:scale-110 shrink-0">
+                            <CopyX :size="16" stroke-width="2.5" />
+                         </div>
+                         <div class="flex-1 min-w-0">
+                            <div class="text-[11px] font-black uppercase tracking-[0.1em] text-foreground">Deduplicate</div>
+                            <div class="text-[9px] font-bold text-muted-foreground/40 mt-0.5 truncate uppercase">Filter unique</div>
+                         </div>
+                      </button>
+
+                      <div class="p-4 bg-muted/20 border border-border/50 rounded-2xl space-y-3">
+                         <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                               <Check :size="14" stroke-width="3" />
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-foreground">Fill Empties</span>
+                         </div>
+                         <div class="flex gap-2">
+                            <input 
+                              v-model="fillValueInput"
+                              type="text" 
+                              placeholder="Value..."
+                              class="flex-1 min-w-0 bg-background border border-border/50 rounded-xl px-3 py-2 text-[10px] font-bold outline-none focus:border-amber-500/50"
+                            />
+                            <button 
+                              @click="fillEmptyValues"
+                              :disabled="processing"
+                              class="px-3 bg-emerald-500 text-black rounded-xl text-[9px] font-black uppercase tracking-widest hover:shadow-lg transition-all active:scale-90 disabled:opacity-30"
+                            >Fill</button>
+                         </div>
+                      </div>
+                   </div>
                </div>
 
               <!-- Metrics Analysis -->

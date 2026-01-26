@@ -58,6 +58,26 @@ const router = createRouter({
             name: 'transpose-data',
             component: () => import('../views/TransposeTool.vue'),
         },
+        {
+            path: '/validate-data',
+            name: 'validate-data',
+            component: () => import('../views/ValidateTool.vue'),
+        },
+        {
+            path: '/reshape-data',
+            name: 'reshape-data',
+            component: () => import('../views/PivotTool.vue'),
+        },
+        {
+            path: '/summarize-data',
+            name: 'summarize-data',
+            component: () => import('../views/AggregateTool.vue'),
+        },
+        {
+            path: '/find-replace',
+            name: 'find-replace',
+            component: () => import('../views/FindReplace.vue'),
+        },
     ],
 });
 
