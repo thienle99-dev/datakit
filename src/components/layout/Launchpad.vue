@@ -25,7 +25,11 @@ import {
   ChevronRight,
   Braces,
   Search as SearchQuery,
-  FileCode
+  FileCode,
+  Binary,
+  Clock,
+  Fingerprint,
+  Regex
 } from 'lucide-vue-next';
 
 interface Tool {
@@ -71,6 +75,11 @@ const tools: Tool[] = [
   { id: 'json-diff', name: 'JSON Diff', description: 'Compare two JSONs', path: '/json-diff', icon: GitCompare, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
   { id: 'json-path', name: 'JSON Query', description: 'Extract data by path', path: '/json-path', icon: SearchQuery, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
   { id: 'xml-converter', name: 'XML <> JSON', description: 'Convert XML and JSON', path: '/xml-converter', icon: FileCode, color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' },
+  { id: 'encoder', name: 'Encoder Suite', description: 'Base64, URL, Hash', path: '/encoder', icon: Binary, color: 'text-indigo-500', bgColor: 'bg-indigo-500/10' },
+  { id: 'jwt-debugger', name: 'JWT Debugger', description: 'Decode JWT Tokens', path: '/jwt-debugger', icon: ShieldCheck, color: 'text-pink-500', bgColor: 'bg-pink-500/10' },
+  { id: 'epoch-converter', name: 'Epoch Time', description: 'Timestamp Converter', path: '/epoch-converter', icon: Clock, color: 'text-teal-500', bgColor: 'bg-teal-500/10' },
+  { id: 'uuid-generator', name: 'UUID Gen', description: 'Generate UUIDs', path: '/uuid-generator', icon: Fingerprint, color: 'text-violet-500', bgColor: 'bg-violet-500/10' },
+  { id: 'regex-tester', name: 'Regex Tester', description: 'Test RegEx patterns', path: '/regex-tester', icon: Regex, color: 'text-yellow-500', bgColor: 'bg-yellow-500/10' },
   { id: 'templates', name: 'Templates', description: 'Download CSV/Excel templates', path: '/templates', icon: FileDown, color: 'text-slate-500', bgColor: 'bg-slate-500/10' }
 ];
 

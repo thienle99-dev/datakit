@@ -145,25 +145,97 @@
 **Phân tích nhanh**
 - [ ] **VLOOKUP-style join** — nối 2 bảng theo cột khóa (left/inner, 1-1 hoặc 1-n)
 
-**Text & encoding**
-- [ ] **Base64 encode/decode** — text ↔ Base64 (encode string, decode paste)
-- [ ] **URL encode/decode** — encode/decode query string
-- [ ] **HTML encode/decode** — &amp; &lt; &gt; &quot; ...
-- [ ] **MD5 / SHA hash** — hash chuỗi (chọn algo), copy hex
-- [ ] **JWT decode** — paste JWT → decode header + payload (read-only, không verify chữ ký)
+**Encode / Decode**
+- [ ] **Base64 encode/decode** — text ↔ Base64; option “file → Base64” (upload file, ra data URL hoặc raw string)
+- [ ] **URL encode/decode** — encode/decode component (query string, path)
+- [ ] **HTML encode/decode** — &amp; &lt; &gt; &quot; &apos; ...
+- [ ] **Hex encode/decode** — text ↔ hex (UTF-8 bytes as hex)
+- [ ] **Unicode escape/unescape** — \uXXXX \UXXXXXXXX (JavaScript/JSON style)
+- [ ] **Punycode** — unicode domain ↔ punycode (vd. münchen.de ↔ xn--mnchen-3ya.de)
+- [ ] **ROT13 / Caesar** — xoay ký tự (ROT13, hoặc Caesar N bước), dùng cho text nhanh
 
-**Diff & so sánh**
-- [ ] **Text diff** — so sánh 2 đoạn text (line-by-line hoặc character), side-by-side hoặc unified
-- [ ] **Markdown diff** — tương tự Text diff, tối ưu cho .md
+**Hash & checksum**
+- [ ] **MD5 / SHA-1 / SHA-256** — hash chuỗi hoặc file (chọn algo), copy hex/base64
+- [ ] **CRC32** — checksum (optional, dùng cho đơn giản)
 
-**Generator & mock**
-- [ ] **Fake data generator** — sinh dữ liệu mẫu (tên, email, SĐT, ngày, …) theo template, xuất CSV/JSON
-- [ ] **UUID generator** — sinh 1 hoặc N UUID v4, copy
+**String / Text**
+- [ ] **Character / word / line count** — đếm ký tự, từ, dòng, byte (UTF-8)
+- [ ] **Case converter** — camelCase ↔ snake_case ↔ kebab-case ↔ PascalCase ↔ UPPER
+- [ ] **Reverse string / Reverse lines** — đảo chuỗi hoặc thứ tự từng dòng
+- [ ] **Sort lines** — sắp xếp dòng A–Z, Z–A, random, theo độ dài
+- [ ] **Remove duplicate lines** — bỏ dòng trùng, giữ thứ tự hoặc sort
+- [ ] **Slug generator** — "Tiêu Đề Bài Viết" → "tieu-de-bai-viet" (lowercase, dấu → không dấu)
+- [ ] **Lorem ipsum** — sinh đoạn placeholder (số từ/câu/đoạn tùy chọn)
 
-**Developer**
-- [ ] **Regex tester** — nhập regex + chuỗi test → highlight match, list groups
-- [ ] **Epoch ↔ datetime** — convert Unix timestamp (s/ms) ↔ ngày giờ đọc được
+**Number & format**
+- [ ] **Binary / Octal / Decimal / Hex** — chuyển giữa các hệ (số nguyên, có thể hỗ trợ base 2–36)
+- [ ] **Roman numerals** — số Ả Rập ↔ La Mã (1–3999 hoặc rộng hơn)
+- [ ] **Color converter** — hex ↔ rgb ↔ hsl (paste hex hoặc nhập RGB/HSL → copy các format)
+
+**File & embed**
+- [ ] **File to Base64** — upload file bất kỳ → chuỗi Base64 (raw hoặc data URL)
+- [ ] **Image ↔ Base64** — upload/paste ảnh → Base64; paste Base64 → xem ảnh & tải
+- [ ] **JSON/CSV string escape** — escape chuỗi để nhúng vào code (\" \n …) hoặc unescape
+
+### Text & Encoding Suite
+- [x] **Base64 encode/decode**
+- [x] **URL encode/decode**
+- [x] **HTML encode/decode**
+- [x] **MD5 / SHA hash**
+- [x] **JWT Debugger**
+
+### Developer Utils
+- [x] **Epoch ↔ Timestamp**
+- [x] **UUID Generator**
+- [x] **Regex tester** — nhập regex + chuỗi test → highlight match, list groups
+- [ ] **QR code** — (pending library)
+- [ ] **IP ↔ integer** — địa chỉ IP ↔ số 32-bit (dùng khi lưu IP dạng int)
 - [ ] **QR code from text/URL** — nhập text hoặc URL → tạo QR image, tải hoặc copy ảnh
+
+### Có thể bổ sung thêm (ý tưởng mới)
+
+**Encode / convert thêm**
+- [ ] **Hex encode/decode** — text ↔ hex
+- [ ] **Unicode escape/unescape** — \uXXXX
+- [ ] **Punycode** — domain unicode ↔ ASCII
+- [ ] **File / Image to Base64** — upload file hoặc ảnh → Base64 (raw hoặc data URL); paste Base64 → xem ảnh
+
+**String / text**
+- [ ] **Text diff** — so sánh 2 đoạn text (line-by-line), side-by-side hoặc unified
+- [ ] **Character / word / line count** — đếm ký tự, từ, dòng
+- [ ] **Case converter** — camelCase ↔ snake_case ↔ kebab-case ↔ PascalCase
+- [ ] **Sort lines / Remove duplicate lines** — sắp xếp hoặc bỏ dòng trùng
+- [ ] **Slug generator** — "Tiêu Đề" → "tieu-de"
+- [ ] **Lorem ipsum** — sinh placeholder (số từ/câu)
+
+**Số & format**
+- [ ] **Binary / Octal / Decimal / Hex** — chuyển giữa các hệ
+- [ ] **Roman numerals** — số ↔ La Mã
+- [ ] **Color converter** — hex ↔ rgb ↔ hsl
+
+**Generator**
+- [ ] **Password generator** — sinh mật khẩu (độ dài, chữ/số/ký tự đặc biệt), copy
+- [ ] **Fake data generator** — tên, email, SĐT, địa chỉ, ngày… → CSV/JSON (hoặc mở rộng Mock hiện có)
+
+**Cron & dev**
+- [ ] **Cron explainer** — paste `0 */2 * * *` → "Every 2 hours" (human-readable)
+- [ ] **Crontab builder** — chọn "every day at 9am" → sinh biểu thức cron
+- [ ] **TOTP / 2FA** — nhập secret → hiển thị mã 6 số (client-side, dùng khi test 2FA)
+- [ ] **Hash detector** — dán chuỗi hash → đoán loại (MD5/SHA1/SHA256 theo độ dài)
+
+**YAML**
+- [ ] **YAML ↔ JSON** — chuyển qua lại (đã có trong backlog XML/YAML)
+- [ ] **YAML format/validate** — pretty-print, báo lỗi cú pháp
+
+**Ref & lookup (static, không API)**
+- [ ] **HTTP status** — tra 200, 404, 503… (code + message + mô tả ngắn)
+- [ ] **Timezone list** — IANA names, UTC offset (filter/search)
+- [ ] **Country/currency codes** — ISO 3166, ISO 4217 (dropdown hoặc search)
+
+**Minify / optimize**
+- [ ] **HTML minify** — paste HTML → xóa comment, collapse whitespace
+- [ ] **CSS minify** — tương tự cho CSS
+- [ ] **ASCII table from CSV** — paste bảng (tab/comma) → vẽ bảng ASCII box (│ ─ ├ …)
 
 ---
 

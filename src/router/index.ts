@@ -128,6 +128,31 @@ const router = createRouter({
             name: 'xml-converter',
             component: () => import('../views/XmlConverter.vue'),
         },
+        {
+            path: '/encoder',
+            name: 'encoder',
+            component: () => import('../views/EncoderDecoder.vue'),
+        },
+        {
+            path: '/jwt-debugger',
+            name: 'jwt-debugger',
+            component: () => import('../views/JwtDebugger.vue'),
+        },
+        {
+            path: '/epoch-converter',
+            name: 'epoch-converter',
+            component: () => import('../views/EpochConverter.vue'),
+        },
+        {
+            path: '/uuid-generator',
+            name: 'uuid-generator',
+            component: () => import('../views/UuidGenerator.vue'),
+        },
+        {
+            path: '/regex-tester',
+            name: 'regex-tester',
+            component: () => import('../views/RegexTester.vue'),
+        },
     ],
 });
 
