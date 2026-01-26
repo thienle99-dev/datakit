@@ -20,7 +20,9 @@ import {
   EyeOff,
   FileDown,
   X,
-  Search as SearchIcon
+  Search as SearchIcon,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-vue-next';
 
 interface Tool {
@@ -82,71 +84,159 @@ const handleEsc = (e: KeyboardEvent) => {
   }
 };
 
-onMounted(() => window.addEventListener('keydown', handleEsc));
-onUnmounted(() => window.removeEventListener('keydown', handleEsc));
+// Pagination Logic
+const itemsPerPage = ref(18); // Default desktop
+const currentPage = ref(0);
+const scrollContainer = ref<HTMLElement | null>(null);
+
+const pages = computed(() => {
+  const list = filteredTools.value;
+  const result = [];
+  for (let i = 0; i < list.length; i += itemsPerPage.value) {
+    result.push(list.slice(i, i + itemsPerPage.value));
+  }
+  return result;
+});
+
+const updateItemsPerPage = () => {
+    // 3 rows x N columns based on width
+    const w = window.innerWidth;
+    if (w < 640) itemsPerPage.value = 9; // Mobile: 3x3
+    else if (w < 768) itemsPerPage.value = 12; // SM: 3x4
+    else if (w < 1024) itemsPerPage.value = 15; // MD: 3x5
+    else itemsPerPage.value = 18; // LG: 3x6
+};
+
+const scrollToPage = (index: number) => {
+    if (!scrollContainer.value) return;
+    const w = scrollContainer.value.clientWidth;
+    scrollContainer.value.scrollTo({ left: w * index, behavior: 'smooth' });
+    currentPage.value = index;
+};
+
+const handleScroll = (e: Event) => {
+    const target = e.target as HTMLElement;
+    const index = Math.round(target.scrollLeft / target.clientWidth);
+    currentPage.value = index;
+};
+
+onMounted(() => {
+    window.addEventListener('keydown', handleEsc);
+    window.addEventListener('resize', updateItemsPerPage);
+    updateItemsPerPage();
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleEsc);
+    window.removeEventListener('resize', updateItemsPerPage);
+});
 </script>
 
 <template>
   <Transition name="launchpad">
-    <div v-if="isVisible" class="fixed inset-0 z-[9999] flex flex-col items-center justify-start pt-16 md:pt-24 px-6 md:px-12 backdrop-blur-2xl bg-black/60 overflow-hidden">
+    <div v-if="isVisible" class="fixed inset-0 z-[9999] flex flex-col items-center justify-start pt-16 md:pt-24 px-6 md:px-12 backdrop-blur-3xl bg-background/80 overflow-hidden">
       <!-- Background Abstract Decor -->
       <div class="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/20 rounded-full blur-[120px] animate-pulse"></div>
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 rounded-full blur-[120px] animate-pulse" style="animation-delay: 2s"></div>
       </div>
 
       <!-- Search Interface -->
-      <div class="w-full max-w-xl mb-16 md:mb-24 relative group animate-in slide-in-from-top duration-700">
-        <div class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-        <div class="relative flex items-center bg-white/10 dark:bg-black/40 border border-white/20 rounded-2xl px-6 py-4 shadow-2xl">
-          <SearchIcon class="text-white/40 mr-4" :size="24" />
+      <div class="w-full max-w-lg mb-12 relative group animate-in slide-in-from-top duration-700 z-30">
+        <div class="relative flex items-center bg-card/50 border border-border/50 rounded-full px-5 py-3 shadow-2xl backdrop-blur-md transition-all group-hover:bg-card/80 group-focus-within:bg-card group-focus-within:border-primary/50 group-focus-within:ring-1 group-focus-within:ring-primary/50">
+          <SearchIcon class="text-muted-foreground mr-3" :size="18" />
           <input 
             v-model="searchQuery"
             type="text" 
             placeholder="Search for tools..."
-            class="bg-transparent border-none focus:ring-0 text-white text-xl md:text-2xl font-medium placeholder-white/20 w-full outline-none"
+            class="bg-transparent border-none focus:ring-0 text-foreground text-md font-medium placeholder-muted-foreground w-full outline-none h-full p-0"
             autofocus
           />
-          <button @click="emit('close')" class="ml-4 p-2 hover:bg-white/10 rounded-full transition-colors text-white/40 hover:text-white">
-            <X :size="20" />
+          <button v-if="searchQuery" @click="searchQuery = ''" class="ml-2 text-muted-foreground hover:text-foreground transition-colors">
+            <X :size="14" />
+          </button>
+          <button @click="emit('close')" class="ml-2 text-muted-foreground hover:text-foreground transition-colors md:hidden">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Close</span>
           </button>
         </div>
       </div>
 
-      <!-- Icon Grid -->
-      <div class="w-full max-w-5xl overflow-y-auto pb-24 scrollbar-none flex-1">
-        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-8 md:gap-16">
-          <div 
-            v-for="tool in filteredTools" 
-            :key="tool.id"
-            @click="navigateTo(tool.path)"
-            class="flex flex-col items-center gap-4 group cursor-pointer animate-in fade-in zoom-in duration-500"
-          >
-            <div class="relative">
-              <!-- Glow effect on hover -->
-              <div class="absolute -inset-4 bg-white/10 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100"></div>
-              
-              <div 
-                class="w-16 h-16 md:w-20 md:h-20 rounded-[1.4rem] md:rounded-[1.6rem] relative z-10 flex items-center justify-center shadow-2xl transform transition-transform duration-300 group-hover:scale-105 active:scale-95"
-                :class="[tool.bgColor, tool.color]"
-              >
-                <component :is="tool.icon" :size="32" stroke-width="2" class="md:w-10 md:h-10" />
+      <!-- Icon Grid Slider -->
+      <div class="w-full flex-1 flex flex-col justify-center relative min-h-0">
+         <div 
+            ref="scrollContainer"
+            @scroll="handleScroll"
+            class="w-full h-full overflow-x-auto scrollbar-none flex snap-x snap-mandatory items-center"
+         >
+            <div 
+              v-for="(page, pageIndex) in pages" 
+              :key="pageIndex"
+              class="w-full flex-shrink-0 h-full flex flex-col justify-center snap-center px-4 md:px-12"
+            >
+              <div class="grid grid-cols-4 md:grid-cols-6 gap-x-6 gap-y-10 mx-auto max-w-5xl">
+                <div 
+                  v-for="tool in page" 
+                  :key="tool.id"
+                  @click="navigateTo(tool.path)"
+                  class="flex flex-col items-center gap-3 group cursor-pointer animate-in fade-in zoom-in duration-500"
+                >
+                  <div class="relative">
+                    <div class="absolute inset-0 bg-card rounded-[1.2rem] group-hover:bg-accent transition-colors duration-300 shadow-sm"></div>
+                    <div class="absolute -inset-2 bg-primary/20 rounded-[1.5rem] opacity-0 group-hover:opacity-100 transition-all duration-500 blur-md"></div>
+                    
+                    <div 
+                      class="w-20 h-20 md:w-24 md:h-24 rounded-[1.6rem] relative z-10 flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-105 active:scale-95 border border-border/50 overflow-hidden bg-card"
+                    >
+                      <!-- Tint background based on tool color -->
+                      <div class="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity bg-current" :class="tool.color"></div>
+                      
+                      <component :is="tool.icon" :size="32" stroke-width="2" class="md:w-10 md:h-10 relative z-10 opacity-90 group-hover:opacity-100 transition-opacity" :class="tool.color" />
+                    </div>
+                  </div>
+                  <span class="text-muted-foreground text-[10px] md:text-xs font-bold tracking-wide text-center relative z-10 group-hover:text-foreground transition-colors opacity-80 group-hover:opacity-100 max-w-[80px] leading-tight select-none">
+                    {{ tool.name }}
+                  </span>
+                </div>
               </div>
             </div>
-            <span class="text-white text-[11px] md:text-sm font-black tracking-tight text-center relative z-10 group-hover:text-white/100 transition-colors opacity-80 group-hover:opacity-100">
-              {{ tool.name }}
-            </span>
-          </div>
-        </div>
-        
-        <div v-if="filteredTools.length === 0" class="flex flex-col items-center justify-center py-24 text-white/40">
-           <SearchIcon :size="64" class="mb-4 opacity-20" />
-           <p class="text-xl font-bold">No results found for "{{ searchQuery }}"</p>
-        </div>
+         </div>
+         
+         <!-- Empty State -->
+         <div v-if="filteredTools.length === 0" class="flex flex-col items-center justify-center text-muted-foreground absolute inset-0 pointer-events-none">
+             <SearchIcon :size="48" class="mb-4 opacity-20" />
+             <p class="text-sm font-bold opacity-50">No tools found</p>
+         </div>
+
+         <!-- Scroll Indicators (Arrows) -->
+         <button 
+            v-if="currentPage > 0"
+            @click="scrollToPage(currentPage - 1)"
+            class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-card/50 hover:bg-card border border-border/50 text-muted-foreground hover:text-foreground transition-all backdrop-blur-sm z-20 hidden md:flex"
+         >
+            <ChevronLeft :size="24" />
+         </button>
+         <button 
+            v-if="currentPage < pages.length - 1"
+            @click="scrollToPage(currentPage + 1)"
+            class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-card/50 hover:bg-card border border-border/50 text-muted-foreground hover:text-foreground transition-all backdrop-blur-sm z-20 hidden md:flex"
+         >
+            <ChevronRight :size="24" />
+         </button>
+         
+         <!-- Pagination Dots -->
+         <div v-if="pages.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            <button 
+              v-for="(_, idx) in pages" 
+              :key="idx"
+              @click="scrollToPage(idx)"
+              class="w-2 h-2 rounded-full transition-all duration-300"
+              :class="currentPage === idx ? 'bg-primary w-6' : 'bg-muted-foreground/30 hover:bg-muted-foreground'"
+            ></button>
+         </div>
       </div>
 
       <!-- Footer Info -->
-      <div class="absolute bottom-12 text-white/20 text-[10px] font-black uppercase tracking-[0.3em] pointer-events-none">
+      <div class="absolute bottom-12 text-muted-foreground/40 text-[10px] font-black uppercase tracking-[0.3em] pointer-events-none">
         Press ESC to exit
       </div>
     </div>
