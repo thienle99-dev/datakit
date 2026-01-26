@@ -208,75 +208,71 @@ const filteredTools = computed<Tool[]>(() => {
 </script>
 
 <template>
-  <div class="max-w-screen-2xl mx-auto py-12 md:py-16 px-4 md:px-8">
+  <div class="max-w-screen-2xl mx-auto py-10 md:py-12 px-4 md:px-8">
     <!-- Hero Section -->
-    <div class="relative mb-20">
-      <div class="absolute inset-0 -top-20 -z-10 bg-[radial-gradient(45%_40%_at_50%_50%,var(--primary-rgb,theme(colors.primary.DEFAULT))_0%,transparent_100%)] opacity-[0.03] blur-3xl"></div>
+    <div class="relative mb-14">
+      <div class="absolute inset-0 -top-16 -z-10 bg-[radial-gradient(45%_40%_at_50%_50%,var(--primary-rgb,theme(colors.primary.DEFAULT))_0%,transparent_100%)] opacity-[0.03] blur-3xl"></div>
       
-      <div class="text-center space-y-6">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] animate-in fade-in slide-in-from-bottom-2 duration-700">
-          <Zap :size="12" fill="currentColor" /> v2.0 - Universal Data Toolkit
+      <div class="text-center space-y-4">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-2xs font-bold uppercase tracking-[0.15em] animate-in fade-in slide-in-from-bottom-2 duration-700">
+          <Zap :size="10" fill="currentColor" /> v2.0 - Universal Data Toolkit
         </div>
         
-        <h1 class="text-4xl md:text-6xl font-black tracking-tight leading-[1] animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
+        <h1 class="text-3xl md:text-5xl font-black tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
           Supercharge your <br/>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500 pb-1">Data Workflow</span>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500 pb-0.5">Data Workflow</span>
         </h1>
         
-        <p class="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+        <p class="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
           A suite of premium, heavy-duty data utilities that run 100% in your browser. 
           No uploads, no cloud, just raw speed and privacy.
         </p>
 
         <!-- Feature Badges -->
-        <div class="flex flex-wrap justify-center gap-6 pt-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-          <div class="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-            <ShieldCheck :size="16" class="text-emerald-500" /> Private by Design
+        <div class="flex flex-wrap justify-center gap-4 pt-2 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+          <div class="flex items-center gap-1.5 text-2xs font-bold text-muted-foreground uppercase tracking-wider">
+            <ShieldCheck :size="14" class="text-emerald-500" /> Private by Design
           </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-            <Cpu :size="16" class="text-blue-500" /> Local Processing
+          <div class="flex items-center gap-1.5 text-2xs font-bold text-muted-foreground uppercase tracking-wider">
+            <Cpu :size="14" class="text-blue-500" /> Local Processing
           </div>
-          <div class="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
-            <ArrowRightLeft :size="16" class="text-amber-500" /> Multi-Format
+          <div class="flex items-center gap-1.5 text-2xs font-bold text-muted-foreground uppercase tracking-wider">
+            <ArrowRightLeft :size="14" class="text-amber-500" /> Multi-Format
           </div>
         </div>
       </div>
     </div>
 
     <!-- Toolbar: Search & View Options -->
-    <div class="max-w-4xl mx-auto mb-16 space-y-8">
+    <div class="max-w-4xl mx-auto mb-12 space-y-6">
       <div class="relative group animate-in zoom-in-95 duration-1000 delay-300">
-        <!-- Modern Glow Backdrop -->
-        <div class="absolute -inset-2 bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 rounded-[2.5rem] blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-700"></div>
+        <div class="absolute -inset-1.5 bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-700"></div>
         
-        <div class="relative flex flex-col gap-6">
+        <div class="relative flex flex-col gap-4">
           <div class="relative flex items-center">
-            <span class="absolute left-7 text-muted-foreground transition-all duration-300 group-focus-within:text-primary group-focus-within:scale-110">
-              <Search :size="24" stroke-width="2.5" />
+            <span class="absolute left-5 text-muted-foreground transition-all duration-300 group-focus-within:text-primary group-focus-within:scale-110">
+              <Search :size="20" stroke-width="2.5" />
             </span>
             
             <input 
               v-model="searchQuery"
               type="text" 
               placeholder="What are we building today?" 
-              class="w-full pl-14 pr-24 py-5 bg-card border border-border/80 rounded-[2rem] text-xl font-black placeholder:text-muted-foreground/20 focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] group-hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] transition-all tracking-tight"
+              class="w-full pl-12 pr-20 py-3.5 bg-card border border-border/80 rounded-xl text-base font-bold placeholder:text-muted-foreground/20 focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.08)] group-hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.12)] transition-all tracking-tight"
             />
 
-            <!-- Keystroke Hint -->
-            <div class="absolute right-7 flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 border border-border/50 rounded-xl text-[10px] font-black tracking-tighter text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex">
-              <span class="text-xs">⌘</span>
-              <span>K</span>
+            <div class="absolute right-5 flex items-center gap-1 px-2 py-1 bg-muted/50 border border-border/50 rounded-lg text-2xs font-bold tracking-tight text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex">
+              <span>⌘</span><span>K</span>
             </div>
           </div>
 
-          <!-- Quick Filters / Categories -->
-          <div class="flex flex-wrap items-center justify-center gap-3 animate-in fade-in slide-in-from-top-4 duration-1000 delay-500">
+          <div class="flex flex-wrap items-center justify-center gap-2 animate-in fade-in slide-in-from-top-4 duration-1000 delay-500">
              <button 
                v-for="cat in ['All', 'Converter', 'Viewer', 'Cleaner', 'Manager']" 
                :key="cat"
                @click="searchQuery = cat === 'All' ? '' : cat"
-               class="px-5 py-2 rounded-full border border-border/40 hover:border-primary/50 text-[10px] font-bold uppercase tracking-widest transition-all hover:bg-primary/5 hover:text-primary active:scale-95 shadow-sm"
-               :class="{ 'bg-primary border-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-lg shadow-primary/20': searchQuery.toLowerCase() === cat.toLowerCase() }"
+               class="px-4 py-1.5 rounded-full border border-border/40 hover:border-primary/50 text-2xs font-bold uppercase tracking-wider transition-all hover:bg-primary/5 hover:text-primary active:scale-95 shadow-sm"
+               :class="{ 'bg-primary border-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md shadow-primary/20': searchQuery.toLowerCase() === cat.toLowerCase() }"
              >
                {{ cat }}
              </button>
@@ -286,7 +282,7 @@ const filteredTools = computed<Tool[]>(() => {
     </div>
 
     <!-- Tools Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <router-link 
         v-for="(tool, index) in filteredTools" 
         :key="tool.id" 
@@ -294,28 +290,28 @@ const filteredTools = computed<Tool[]>(() => {
         class="group relative h-full animate-in fade-in slide-in-from-bottom-10 duration-1000"
         :style="{ transitionDelay: `${index * 50}ms` }"
       >
-        <div class="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 border border-white/10 pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 border border-white/10 pointer-events-none"></div>
         
-        <div class="h-full glass-card p-5 rounded-3xl border border-border/50 flex flex-col transition-all duration-500 group-hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] group-hover:-translate-y-1.5 group-hover:border-primary/40 relative overflow-hidden bg-card">
+        <div class="h-full glass-card p-4 rounded-2xl border border-border/50 flex flex-col transition-all duration-500 group-hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 group-hover:border-primary/40 relative overflow-hidden bg-card">
           <div class="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
-          <div class="flex items-center gap-4 mb-4 relative z-10">
-            <div :class="[tool.bgColor, tool.color]" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 shadow-sm relative overflow-hidden ring-1 ring-white/10 shrink-0">
-               <component :is="tool.icon" :size="20" stroke-width="2.5" />
+          <div class="flex items-center gap-3 mb-3 relative z-10">
+            <div :class="[tool.bgColor, tool.color]" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-105 shadow-sm relative overflow-hidden ring-1 ring-white/10 shrink-0">
+               <component :is="tool.icon" :size="18" stroke-width="2.5" />
             </div>
             
-            <h3 class="text-lg font-black tracking-tighter group-hover:text-primary transition-colors truncate">
+            <h3 class="text-base font-bold tracking-tight group-hover:text-primary transition-colors truncate">
               {{ tool.name }}
             </h3>
           </div>
           
-          <p class="text-muted-foreground leading-relaxed text-[13px] font-medium opacity-70 group-hover:opacity-100 transition-opacity line-clamp-2">
+          <p class="text-muted-foreground leading-relaxed text-sm font-medium opacity-70 group-hover:opacity-100 transition-opacity line-clamp-2">
             {{ tool.description }}
           </p>
 
-          <div class="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-4 transition-all duration-500">
-            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-sm ring-1 ring-primary/20">
-              <ArrowRight :size="16" />
+          <div class="absolute right-3 bottom-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-3 transition-all duration-500">
+            <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-sm ring-1 ring-primary/20">
+              <ArrowRight :size="14" />
             </div>
           </div>
         </div>
@@ -323,12 +319,12 @@ const filteredTools = computed<Tool[]>(() => {
     </div>
 
     <!-- Empty State -->
-    <div v-if="filteredTools.length === 0" class="text-center py-20 animate-in fade-in zoom-in-95 duration-500">
-      <div class="w-24 h-24 bg-muted/50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-        <Search :size="48" class="text-muted-foreground/20" />
+    <div v-if="filteredTools.length === 0" class="text-center py-14 animate-in fade-in zoom-in-95 duration-500">
+      <div class="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <Search :size="32" class="text-muted-foreground/20" />
       </div>
-      <h3 class="text-2xl font-bold mb-2">No tools found</h3>
-      <p class="text-muted-foreground">Adjust your search to find what you're looking for.</p>
+      <h3 class="text-xl font-bold mb-1.5">No tools found</h3>
+      <p class="text-sm text-muted-foreground">Adjust your search to find what you're looking for.</p>
     </div>
   </div>
 </template>

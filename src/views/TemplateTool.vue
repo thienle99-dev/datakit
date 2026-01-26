@@ -73,7 +73,7 @@ function onDownload(t: (typeof templates)[0], format: 'csv' | 'xlsx') {
 </script>
 
 <template>
-  <div class="w-full min-h-[calc(100vh-6rem)] flex flex-col p-2 md:p-4">
+  <div class="w-full min-h-screen-minus-header flex flex-col p-2 md:p-4">
     <div class="flex items-center gap-4 mb-6 shrink-0">
       <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
         <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />

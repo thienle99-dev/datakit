@@ -89,29 +89,30 @@ const chartOptions = computed(() => {
     colors: config.value.colors,
     stroke: {
       curve: 'smooth',
-      width: config.value.type === 'line' || config.value.type === 'area' || config.value.type === 'radar' ? 3 : 0
+      width: config.value.type === 'line' || config.value.type === 'area' || config.value.type === 'radar' ? 2 : 0
     },
     title: {
       text: config.value.title,
       align: 'left',
       style: {
-        fontSize: '16px',
-        fontWeight: '900',
+        fontSize: '12px',
+        fontWeight: '700',
         fontFamily: 'Outfit, sans-serif',
         color: 'var(--color-foreground)'
       }
     },
     markers: {
-      size: ['line', 'area', 'scatter', 'radar'].includes(config.value.type) ? (config.value.type === 'scatter' ? 6 : 4) : 0,
-      strokeWidth: 2,
+      size: ['line', 'area', 'scatter', 'radar'].includes(config.value.type) ? (config.value.type === 'scatter' ? 4 : 3) : 0,
+      strokeWidth: 1.5,
       strokeColors: '#fff',
-      hover: { size: 8 }
+      hover: { size: 6 }
     },
     dataLabels: {
       enabled: config.value.showLabels,
       style: {
          fontFamily: 'Outfit, sans-serif',
-         fontWeight: '900'
+         fontWeight: '700',
+         fontSize: '9px'
       },
       dropShadow: { enabled: false }
     },
@@ -119,7 +120,8 @@ const chartOptions = computed(() => {
       position: 'bottom',
       horizontalAlign: 'center',
       fontFamily: 'Outfit, sans-serif',
-      fontWeight: 'bold'
+      fontWeight: '600',
+      fontSize: '10px'
     },
     tooltip: {
       theme: 'dark',
@@ -136,8 +138,8 @@ const chartOptions = computed(() => {
         categories: parsedData.value.map(row => (config.value.xAxis ? row[config.value.xAxis] : '') || ''),
         labels: {
             style: {
-                fontWeight: 700,
-                fontSize: '10px'
+                fontWeight: 600,
+                fontSize: '9px'
             }
         }
     };
@@ -156,15 +158,17 @@ const chartOptions = computed(() => {
       axisTicks: { show: false },
       labels: {
         style: {
-          fontWeight: 700,
-          fontSize: '10px'
+          fontWeight: 600,
+          fontSize: '9px'
         }
       }
     };
+    options.yaxis = options.yaxis || {};
+    options.yaxis.labels = { style: { fontSize: '9px', fontWeight: 600 } };
     options.grid = {
       borderColor: 'var(--color-border)',
       strokeDashArray: 4,
-      padding: { top: 10, right: 30, bottom: 0, left: 10 }
+      padding: { top: 6, right: 16, bottom: 0, left: 6 }
     };
     options.plotOptions = {
         bar: {
@@ -352,15 +356,15 @@ onMounted(() => {
           <ArrowLeft :size="20" class="text-muted-foreground group-hover:text-primary transition-all" />
         </router-link>
         
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <BarChart3 :size="24" class="text-white" />
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center shadow-md shadow-purple-500/20">
+            <BarChart3 :size="20" class="text-white" />
           </div>
           <div>
-            <h1 class="text-lg font-black tracking-tight text-foreground leading-tight">
+            <h1 class="text-base font-bold tracking-tight text-foreground leading-tight">
               Data <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-pink-500">Visualization</span>
             </h1>
-            <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+            <p class="text-2xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                <Sparkles :size="10" /> Beautiful charts in seconds
             </p>
           </div>
@@ -588,39 +592,41 @@ onMounted(() => {
               <div class="w-24 h-24 bg-primary/5 rounded-[2rem] flex items-center justify-center mb-6 ring-1 ring-primary/10 animate-bounce-slow">
                   <BarChart3 :size="40" class="text-primary/30" />
               </div>
-              <h2 class="text-xl font-black mb-2">Feed the engine</h2>
-              <p class="text-xs font-medium text-muted-foreground max-w-sm">Upload your dataset to unlock professional data visualization tools instantly.</p>
+              <h2 class="text-lg font-bold mb-2">Feed the engine</h2>
+              <p class="text-sm font-medium text-muted-foreground max-w-sm">Upload your dataset to unlock professional data visualization tools instantly.</p>
           </div>
 
-          <div v-else class="h-full flex flex-col p-5 animate-in fade-in zoom-in-95 duration-1000">
-             <div class="flex items-center justify-between mb-10 shrink-0">
+          <div v-else class="h-full flex flex-col p-4 animate-in fade-in zoom-in-95 duration-1000">
+             <div class="flex items-center justify-between mb-4 shrink-0">
                 <input 
                   v-model="config.title"
                   type="text"
-                  class="text-xl font-black tracking-tight bg-transparent border-none p-0 focus:ring-0 outline-none w-full"
+                  class="text-base font-bold tracking-tight bg-transparent border-none p-0 focus:ring-0 outline-none w-full"
                   placeholder="Chart Title..."
                 />
                 <div class="flex items-center gap-3">
-                   <div class="px-4 py-1.5 bg-muted rounded-full text-[10px] font-black uppercase tracking-widest border border-border/50">
+                   <div class="px-3 py-1 bg-muted rounded-full text-2xs font-bold uppercase tracking-wider border border-border/50">
                       {{ parsedData.length }} Points
                    </div>
                 </div>
              </div>
 
-             <div class="flex-1 min-h-0 bg-white/5 dark:bg-black/20 rounded-xl p-4 border border-white/5 shadow-inner backdrop-blur-sm relative flex items-center justify-center">
-                <VueApexCharts 
-                  ref="chartRef"
-                  width="100%" 
-                  height="100%" 
-                  :type="config.type" 
-                  :options="chartOptions" 
-                  :series="chartSeries" 
-                  class="w-full h-full"
-                />
+             <div class="flex-1 min-h-0 bg-white/5 dark:bg-black/20 rounded-lg p-3 border border-white/5 shadow-inner backdrop-blur-sm relative flex items-center justify-center">
+                <div class="w-full h-full max-w-4xl max-h-[28rem] min-h-[200px] flex items-center justify-center">
+                  <VueApexCharts 
+                    ref="chartRef"
+                    width="100%" 
+                    height="100%" 
+                    :type="config.type" 
+                    :options="chartOptions" 
+                    :series="chartSeries" 
+                    class="w-full h-full min-w-0 min-h-0"
+                  />
+                </div>
              </div>
 
              <!-- Footer Stats or Meta -->
-             <div class="mt-8 flex items-center justify-between text-muted-foreground/40">
+             <div class="mt-4 flex items-center justify-between text-muted-foreground/40">
                 <div class="flex items-center gap-6">
                     <div class="flex flex-col">
                         <span class="text-[8px] font-black uppercase tracking-wider">X-Axis</span>

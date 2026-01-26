@@ -75,8 +75,8 @@ onUnmounted(() => {
           class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-300 group ring-1 ring-white/5"
         >
           <Search :size="14" class="group-hover:scale-110 transition-transform" />
-          <span class="text-[10px] font-black uppercase tracking-widest hidden md:block">Launchpad</span>
-          <div class="hidden md:flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded-md bg-background/50 border border-border/50 text-[8px] font-black opacity-40">
+          <span class="text-2xs font-bold uppercase tracking-wider hidden md:block">Launchpad</span>
+          <div class="hidden md:flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded-md bg-background/50 border border-border/50 text-2xs font-bold opacity-40">
             <span>⌘</span>
             <span>K</span>
           </div>

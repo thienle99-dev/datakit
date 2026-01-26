@@ -228,3 +228,37 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 - Code production-ready: TypeScript, test cho logic nặng (convert, clean, SQL gen).
 - Tránh phức tạp không cần thiết; ưu tiên rõ ràng, dễ sửa.
 - Ghi ngắn các quyết định quan trọng (format, giới hạn kích thước file, v.v.).
+
+---
+
+## 10. Typography & layout — cân đối size
+
+**Mục tiêu:** Giảm và thống nhất font size, weight, width/height để giao diện cân đối, dễ đọc, dễ bảo trì.
+
+**Font**
+- Giữ **Outfit** làm font chính. Bỏ import Inter nếu không dùng.
+- Code/data: `font-mono` (system monospace) cho textarea, preview, bảng.
+
+**Font size**
+- Định nghĩa scale trong `tailwind.config.js` (vd. `text-2xs`, `text-xs`, …) thay vì arbitrary `text-[8px]`–`text-[13px]`.
+- Giảm size chung: hero H1 `text-3xl md:text-5xl`; tool page title `text-base md:text-lg`; card title `text-base`.
+- Tối thiểu cho chữ đọc được: label / header bảng ≥ `text-xs` (12px); cell bảng ≥ `text-xs`. Tránh 8–9px cho nội dung đọc.
+- Mô tả card/body: `text-sm` thay cho `text-[13px]`.
+
+**Font weight**
+- `font-black` chỉ cho H1 hero và tên tool chính.
+- Tiêu đề section / panel: `font-bold`.
+- Label nhỏ (uppercase): `font-bold`, không dùng black.
+- Body / mô tả: `font-medium` hoặc `font-normal`.
+
+**Width / height**
+- Thống nhất workspace: `calc(100vh - var(--header-h, 5rem))` cho tất cả tool view; set `--header-h` ở `:root`.
+- Sidebar tool: token chung `lg:w-72`.
+- Container: giữ `max-w-screen-2xl`; có thể giảm padding hero (vd. `py-10 md:py-12`).
+
+**Checklist**
+- [x] Thêm/chuẩn hóa fontSize trong tailwind theme (`text-2xs`, scale xs→5xl).
+- [ ] Thay arbitrary `text-[…]` bằng class từ scale (làm dần trong từng view).
+- [x] Giảm font-black xuống bold ở label/section (ToolsView, DataTable, AppHeader).
+- [x] Tăng tối thiểu size chữ bảng/label (DataTable: header/cell ≥ text-2xs, text-xs).
+- [x] Dùng CSS var `--header-h` và thống nhất height workspace (`h-screen-minus-header`).

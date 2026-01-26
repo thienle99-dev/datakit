@@ -56,7 +56,7 @@ function reset() {
 </script>
 
 <template>
-  <div class="w-full flex flex-col h-[calc(100vh-5rem)]">
+  <div class="w-full flex flex-col h-screen-minus-header">
     <!-- Premium Header Section -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 shrink-0 relative z-20">
       <div class="flex items-center gap-4">

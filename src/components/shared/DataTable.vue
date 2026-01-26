@@ -107,10 +107,10 @@ function prevPage() {
         
         <div class="h-8 w-px bg-border/30 hidden md:block"></div>
         
-        <div class="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+        <div class="flex items-center gap-4 text-2xs font-bold uppercase tracking-wider text-muted-foreground/60">
           <div class="flex flex-col">
-            <span class="text-[10px] opacity-60">Visibility</span>
-            <span class="text-foreground/80 font-black">{{ processedData.length.toLocaleString() }} / {{ props.data.length.toLocaleString() }}</span>
+            <span class="opacity-60">Visibility</span>
+            <span class="text-foreground/80 font-bold">{{ processedData.length.toLocaleString() }} / {{ props.data.length.toLocaleString() }}</span>
           </div>
         </div>
       </div>
@@ -129,12 +129,12 @@ function prevPage() {
       <table class="w-full text-sm text-left border-separate border-spacing-0 table-fixed">
         <thead class="sticky top-0 z-20">
           <tr>
-            <th class="px-4 py-3 bg-muted border-b border-r border-border/50 w-12 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground/50">#</th>
+            <th class="px-4 py-2.5 bg-muted border-b border-r border-border/50 w-12 text-center text-2xs font-bold uppercase tracking-wider text-muted-foreground/50">#</th>
             <th 
               v-for="(header, index) in headers" 
               :key="index"
               @click="handleSort(header)"
-              class="px-4 py-3 bg-muted border-b border-border/50 text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground cursor-pointer hover:bg-muted/100 transition-all group/header first:rounded-tl-2xl relative min-w-[150px]"
+              class="px-4 py-2.5 bg-muted border-b border-border/50 text-2xs font-bold uppercase tracking-wider text-muted-foreground cursor-pointer hover:bg-muted/100 transition-all group/header first:rounded-tl-2xl relative min-w-[150px]"
             >
               <div class="flex items-center justify-between gap-1.5">
                 <span class="truncate" :class="{ 'text-primary': sortColumn === header }">{{ header }}</span>
@@ -153,17 +153,17 @@ function prevPage() {
             :key="rowIndex"
             class="group hover:bg-primary/5 transition-colors duration-200"
           >
-            <td class="px-4 py-2 border-r border-border/10 text-[9px] text-center font-mono font-bold text-muted-foreground/30 bg-muted/[0.02] group-hover:bg-primary/5 group-hover:text-primary transition-all">
+            <td class="px-4 py-2 border-r border-border/10 text-2xs text-center font-mono font-medium text-muted-foreground/40 bg-muted/[0.02] group-hover:bg-primary/5 group-hover:text-primary transition-all">
               {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
             </td>
             <td 
               v-for="(header, colIndex) in headers" 
               :key="colIndex"
-              class="px-4 py-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px] text-[10px] font-medium text-foreground/70 group-hover:text-foreground transition-colors"
+              class="px-4 py-2 whitespace-nowrap overflow-hidden text-ellipsis max-w-[180px] text-xs font-medium text-foreground/80 group-hover:text-foreground transition-colors"
               :title="String(row[header] || '')"
             >
               <div class="flex items-center">
-                 <span v-if="!row[header]" class="text-[9px] italic opacity-10">null</span>
+                 <span v-if="!row[header]" class="text-2xs italic opacity-30">null</span>
                  <span v-else>{{ row[header] }}</span>
               </div>
             </td>
@@ -176,8 +176,8 @@ function prevPage() {
                  <div class="w-20 h-20 rounded-[2rem] bg-muted/50 flex items-center justify-center mb-6 shadow-inner ring-1 ring-border/50">
                    <SearchIcon :size="32" class="opacity-20 text-primary" />
                  </div>
-                 <h4 class="text-xl font-black tracking-tight text-foreground/40">No Matches Found</h4>
-                 <p class="text-xs font-bold uppercase tracking-widest text-muted-foreground/50 mt-3 max-w-[240px] leading-relaxed">
+                 <h4 class="text-lg font-bold tracking-tight text-foreground/50">No Matches Found</h4>
+                 <p class="text-2xs font-bold uppercase tracking-wider text-muted-foreground/50 mt-2 max-w-[240px] leading-relaxed">
                    We couldn't find any records matching your search criteria.
                  </p>
               </div>
@@ -191,7 +191,7 @@ function prevPage() {
     <div class="px-6 py-4 border-t border-border/50 flex flex-col sm:flex-row gap-4 justify-between items-center bg-muted/20 dark:bg-card">
       <div class="flex items-center gap-6">
         <div class="flex items-center gap-2">
-           <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Per Page</span>
+           <span class="text-2xs font-bold uppercase tracking-wider text-muted-foreground/60">Per Page</span>
            <select 
             v-model="pageSize" 
             class="bg-background/80 border border-border/50 rounded-xl px-3 py-1 text-xs font-bold text-foreground/80 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
@@ -205,7 +205,7 @@ function prevPage() {
         
         <div class="h-4 w-px bg-border/20"></div>
 
-        <div class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+        <div class="text-2xs font-bold uppercase tracking-wider text-muted-foreground/60">
           Showing <span class="text-foreground mr-1">{{ ((currentPage - 1) * pageSize) + 1 }}-{{ Math.min(currentPage * pageSize, processedData.length) }}</span> 
           of <span class="text-foreground ml-1">{{ processedData.length.toLocaleString() }}</span>
         </div>
@@ -223,19 +223,19 @@ function prevPage() {
         <button 
           @click="prevPage" 
           :disabled="currentPage === 1"
-          class="px-4 py-2 rounded-xl bg-background text-xs font-black uppercase tracking-widest text-foreground shadow-sm hover:shadow-md hover:text-primary disabled:opacity-30 disabled:pointer-events-none transition-all border border-border/50"
+          class="px-4 py-2 rounded-xl bg-background text-2xs font-bold uppercase tracking-wider text-foreground shadow-sm hover:shadow-md hover:text-primary disabled:opacity-30 disabled:pointer-events-none transition-all border border-border/50"
         >
           Prev
         </button>
         
-        <div class="px-4 text-xs font-black text-primary/80">
+        <div class="px-4 text-2xs font-bold text-primary/80">
           {{ currentPage }} / {{ totalPages || 1 }}
         </div>
 
         <button 
           @click="nextPage" 
           :disabled="currentPage === totalPages || totalPages === 0"
-          class="px-4 py-2 rounded-xl bg-background text-xs font-black uppercase tracking-widest text-foreground shadow-sm hover:shadow-md hover:text-primary disabled:opacity-30 disabled:pointer-events-none transition-all border border-border/50"
+          class="px-4 py-2 rounded-xl bg-background text-2xs font-bold uppercase tracking-wider text-foreground shadow-sm hover:shadow-md hover:text-primary disabled:opacity-30 disabled:pointer-events-none transition-all border border-border/50"
         >
           Next
         </button>

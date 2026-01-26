@@ -178,7 +178,7 @@ function resetTool() {
 </script>
 
 <template>
-  <div class="w-full h-[calc(100vh-6rem)] flex flex-col p-2 md:p-4">
+  <div class="w-full h-screen-minus-header flex flex-col p-2 md:p-4">
     <!-- Header Section -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 shrink-0 relative z-20">
       <div class="flex items-center gap-4">

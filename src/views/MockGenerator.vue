@@ -320,7 +320,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full h-[calc(100vh-6rem)] flex flex-col p-4 bg-background overflow-hidden relative">
+  <div class="w-full h-screen-minus-header flex flex-col p-4 bg-background overflow-hidden relative">
     
     <!-- Design Decor -->
     <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[100px] rounded-full pointer-events-none -z-10"></div>
