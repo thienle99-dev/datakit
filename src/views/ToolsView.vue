@@ -206,37 +206,27 @@ const filteredTools = computed<Tool[]>(() => {
       >
         <div class="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 border border-white/10 pointer-events-none"></div>
         
-        <div class="h-full glass-card p-7 rounded-[2rem] border border-border/50 flex flex-col transition-all duration-700 group-hover:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.1)] group-hover:-translate-y-2 group-hover:border-primary/40 relative overflow-hidden bg-card">
-          <div class="absolute inset-0 bg-gradient-to-br from-primary/[0.01] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+        <div class="h-full glass-card p-5 rounded-3xl border border-border/50 flex flex-col transition-all duration-500 group-hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] group-hover:-translate-y-1.5 group-hover:border-primary/40 relative overflow-hidden bg-card">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
-          <div class="flex items-start justify-between mb-6 relative z-10">
-            <div :class="[tool.bgColor, tool.color]" class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-inner relative overflow-hidden ring-1 ring-white/10">
-               <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-               <component :is="tool.icon" :size="24" stroke-width="2.5" />
+          <div class="flex items-center gap-4 mb-4 relative z-10">
+            <div :class="[tool.bgColor, tool.color]" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 shadow-sm relative overflow-hidden ring-1 ring-white/10 shrink-0">
+               <component :is="tool.icon" :size="20" stroke-width="2.5" />
             </div>
             
-            <div class="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-4 transition-all duration-700">
-              <ArrowRight :size="20" class="group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
-            </div>
+            <h3 class="text-lg font-black tracking-tighter group-hover:text-primary transition-colors truncate">
+              {{ tool.name }}
+            </h3>
           </div>
-
-          <h3 class="text-xl font-black mb-3 tracking-tighter group-hover:text-primary transition-colors relative z-10">
-            {{ tool.name }}
-          </h3>
           
-          <p class="text-muted-foreground leading-relaxed text-sm font-medium flex-1 relative z-10 opacity-70 group-hover:opacity-100 transition-opacity">
+          <p class="text-muted-foreground leading-relaxed text-[13px] font-medium opacity-70 group-hover:opacity-100 transition-opacity line-clamp-2">
             {{ tool.description }}
           </p>
 
-          <div class="mt-8 pt-6 border-t border-border/50 flex items-center justify-between relative z-10">
-             <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                <span class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">Ready</span>
-             </div>
-             <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-x-3 group-hover:translate-x-0">
-                <span class="text-[9px] font-black uppercase tracking-widest text-primary">Open</span>
-                <ArrowRight :size="10" class="text-primary" />
-             </div>
+          <div class="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-4 transition-all duration-500">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-sm ring-1 ring-primary/20">
+              <ArrowRight :size="16" />
+            </div>
           </div>
         </div>
       </router-link>
