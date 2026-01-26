@@ -41,7 +41,7 @@
 - [ ] **JSON Validate** — kiểm tra cú pháp, báo lỗi dòng/cột, optional schema (JSON Schema)
 - [x] **JSON sort keys** — sắp xếp keys object theo alphabet (ổn định khi diff)
 - [x] **JSON escape/unescape** — escape chuỗi JSON hoặc unescape để paste vào code
-- [ ] **JSON Path / Query** — nhập path (vd. `$.data.items[*].id`) → extract & xuất
+- [x] **JSON Path / Query** — nhập path (vd. `$.data.items[*].id`) → extract & xuất
 - [ ] **JSON → XML / XML → JSON** — chuyển qua lại (nằm trong nhóm XML đã liệt kê)
 
 ### Backlog — ưu tiên cao

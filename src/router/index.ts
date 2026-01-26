@@ -118,6 +118,11 @@ const router = createRouter({
             name: 'json-diff',
             component: () => import('../views/JsonDiff.vue'),
         },
+        {
+            path: '/json-path',
+            name: 'json-path',
+            component: () => import('../views/JsonPath.vue'),
+        },
     ],
 });
 
