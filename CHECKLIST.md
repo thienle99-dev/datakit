@@ -121,6 +121,61 @@
 - [ ] Add computed column (công thức đơn giản)
 - [ ] Column reorder bằng kéo thả (bổ sung Column Selector)
 
+### Tools lớn (workflow / product-level)
+
+Các tính năng multi-bước, gần product, có thể chia phase (MVP → mở rộng).
+
+**Pipeline & ETL lite**
+- [ ] **Data Pipeline (browser)** — Chuỗi bước: Upload → Clean → Transform (column/filter) → Join hoặc Split → Export. Chạy tuần tự trong tab, không backend. Lưu "recipe" dạng JSON để load lại và chia sẻ.
+- [ ] **Import Wizard** — Flow từng bước: chọn file → preview → map cột / đổi tên → quy tắc transform (trim, fill, type) → chọn output (CSV/JSON/Excel). Một entry point thống nhất thay vì vào từng tool rời.
+
+**SQL & query**
+- [ ] **SQL Playground** — Load 1 hoặc nhiều CSV làm bảng ảo (tên bảng = tên file hoặc tự đặt). Viết SQL, chạy bằng SQL.js (client-side), xem bảng kết quả, export. Dùng phân tích nhanh không cần DB thật.
+- [ ] **Visual Query Builder** — Chọn nguồn (CSV đã load), kéo thả: filter (WHERE), group (GROUP BY), sort, chọn cột (SELECT) → sinh SQL hoặc áp dụng trực tiếp lên data. Cho người ít viết SQL.
+
+**Quality & report**
+- [ ] **Data Quality Report** — Upload CSV/Excel → báo cáo: % missing, số dòng trùng, outlier cơ bản, kiểu từng cột, cảnh báo encoding. Gợi ý "Sửa bằng Cleaner / Validate" (link sang tool tương ứng).
+- [ ] **Report / Document Generator** — Template (Markdown hoặc HTML có placeholder `{{field}}`) + data (JSON/CSV). Render từng dòng data thành trang → xuất HTML hoặc PDF (client-side). Kiểu mail-merge cho báo cáo, hợp đồng mẫu.
+
+**Dashboard & bulk**
+- [ ] **Dashboard / Multi-chart** — Một trang nhiều chart (line, bar, pie…), mỗi chart gắn dataset hoặc dùng chung 1 dataset. Filter/date range chung. Export tất cả ra ảnh hoặc in một trang.
+- [ ] **PDF Form Filler (bulk)** — Upload 1 form PDF + 1 CSV (mỗi dòng = một bộ giá trị cho các field). Fill từng dòng → tạo nhiều PDF hoặc merge thành 1 file. Dùng thư viện client-side (vd. pdf-lib).
+
+**Schema & merge**
+- [ ] **Schema Designer / ER lite** — Vẽ bảng (tên, cột) và quan hệ (1-1, 1-n). Export thành DDL (CREATE TABLE) hoặc JSON Schema. Toàn bộ trong browser.
+- [ ] **3-way Merge (Data)** — Base + Yours + Theirs (3 CSV hoặc 3 JSON). Highlight conflict từng ô, chọn giữ bên nào hoặc sửa tay → xuất file đã merge. Hướng đến workflow kiểu git merge cho bảng.
+
+**Automation & mock**
+- [ ] **Workflow / Automation chain** — Chọn chuỗi tool (vd. CSV → Cleaner → Split → Chart). Output bước trước = input bước sau, chạy tuần tự. Lưu workflow dạng JSON, load lại để chạy một lần click.
+- [ ] **Mock API Designer** — Định nghĩa routes (path + method) và response body (JSON/text). Xuất OpenAPI spec + file collection (Postman/Insomnia style). Không chạy server, chỉ tạo spec và mock data để dev dùng bên ngoài.
+
+**Edit nâng cao**
+- [ ] **Bulk Edit / Spreadsheet mode** — Mở CSV hoặc JSON dạng bảng: sửa inline từng ô, bulk find-replace, sort/filter, thêm công thức đơn giản (sum cột, nối chuỗi). Gần trải nghiệm spreadsheet nhẹ, xuất lại CSV/Excel.
+
+**Visualization & geography**
+- [ ] **Graph / Network from table** — 2 cột (from, to) hoặc edge list → vẽ đồ thị (force-directed hoặc tree). Tùy chọn cột label, color theo nhóm. Export SVG/PNG.
+- [ ] **Map from CSV** — Cột lat/long (hoặc địa chỉ nếu có geocode) → vẽ điểm lên bản đồ. Client-side (Leaflet/MapLibre), tùy chọn cluster khi nhiều điểm. Export ảnh hoặc embed.
+
+**Changelog & versioning**
+- [ ] **Changelog / Diff from data** — 2 CSV/JSON (old vs new), chọn cột khóa → bảng "added / removed / changed" theo dòng. Xuất dạng markdown changelog hoặc CSV delta.
+- [ ] **Data Anonymization suite** — Một flow: upload → chọn cột cần mask/synthetic/drop → áp Mask + (optional) fake data → export. Gom các bước "chuẩn bị data để share" vào một chỗ.
+
+**API & code gen**
+- [ ] **CSV/Excel → API payload** — Map cột → body JSON (hoặc form). Chọn method, URL mẫu, headers. Xuất Postman collection hoặc danh sách cURL/fetch snippet (không gửi request thật).
+- [ ] **cURL → fetch / axios** — Paste cURL → chuyển sang code JavaScript (fetch hoặc axios). Hỗ trợ nhiều ngôn ngữ nếu dễ (Python requests, etc.).
+- [ ] **OpenAPI → client snippet** — Paste OpenAPI spec (hoặc URL) → chọn endpoint + body mẫu → sinh đoạn code gọi API (fetch/axios) cho endpoint đó.
+
+**Config & infra**
+- [ ] **.env compare** — Paste 2 file .env (hoặc 2 đoạn text) → so sánh key: nào chỉ có bên A, chỉ bên B, cùng key khác value. Dùng so sánh dev vs prod.
+- [ ] **.gitignore generator** — Chọn stack/editor (Node, Python, Go, VS Code, …) → xuất .gitignore phù hợp. Có thể merge nhiều template.
+- [ ] **PEM / Certificate decoder** — Paste cert (PEM) → hiển thị subject, issuer, validity, SANs. Chỉ đọc, client-side.
+
+**Batch output & delivery**
+- [ ] **Template → Batch documents** — 1 template (HTML/MD với `{{field}}`) + CSV/JSON. Mỗi dòng data → 1 file (certificate, invoice, thư). Xuất ZIP chứa nhiều HTML/PDF.
+- [ ] **Chart / Table embed snippet** — Sau khi tạo chart hoặc bảng, sinh đoạn HTML/iframe hoặc React/Vue component để nhúng vào trang khác (data inline hoặc link static JSON).
+
+---
+
 ### Tools ý tưởng mới (bổ sung vào roadmap)
 
 **Cột & chuỗi**

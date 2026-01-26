@@ -21,8 +21,6 @@ import {
   FileDown,
   X,
   Search as SearchIcon,
-  ChevronLeft,
-  ChevronRight,
   Braces,
   Search as SearchQuery,
   FileCode,
@@ -100,51 +98,40 @@ const handleEsc = (e: KeyboardEvent) => {
   }
 };
 
-// Pagination Logic
-const itemsPerPage = ref(18); // Default desktop
-const currentPage = ref(0);
-const scrollContainer = ref<HTMLElement | null>(null);
-
-const pages = computed(() => {
-  const list = filteredTools.value;
-  const result = [];
-  for (let i = 0; i < list.length; i += itemsPerPage.value) {
-    result.push(list.slice(i, i + itemsPerPage.value));
-  }
-  return result;
+const categories = computed(() => {
+    // Basic grouping logic (could be metadata based)
+    const groups: Record<string, Tool[]> = {
+        'Core': [],
+        'Data & CSV': [],
+        'JSON & Text': [],
+        'Encoder & Dev': [],
+        'Charts': []
+    };
+    
+    // Helper to safely push
+    const addToGroup = (name: string, tool: Tool) => {
+        if (groups[name]) groups[name].push(tool);
+    };
+    
+    filteredTools.value.forEach(t => {
+        if (['json-formatter','json-diff','json-path','xml-converter'].includes(t.id)) addToGroup('JSON & Text', t);
+        else if (['encoder','jwt-debugger','epoch-converter','uuid-generator','regex-tester'].includes(t.id)) addToGroup('Encoder & Dev', t);
+        else if (t.id === 'data-to-chart') addToGroup('Charts', t);
+        else if (['csv-viewer','csv-cleaner','universal-converter'].includes(t.id)) addToGroup('Core', t);
+        else addToGroup('Data & CSV', t);
+    });
+    
+    return Object.keys(groups)
+        .filter(k => groups[k].length > 0)
+        .map(k => ({ name: k, tools: groups[k] }));
 });
-
-const updateItemsPerPage = () => {
-    // 3 rows x N columns based on width
-    const w = window.innerWidth;
-    if (w < 640) itemsPerPage.value = 9; // Mobile: 3x3
-    else if (w < 768) itemsPerPage.value = 12; // SM: 3x4
-    else if (w < 1024) itemsPerPage.value = 15; // MD: 3x5
-    else itemsPerPage.value = 18; // LG: 3x6
-};
-
-const scrollToPage = (index: number) => {
-    if (!scrollContainer.value) return;
-    const w = scrollContainer.value.clientWidth;
-    scrollContainer.value.scrollTo({ left: w * index, behavior: 'smooth' });
-    currentPage.value = index;
-};
-
-const handleScroll = (e: Event) => {
-    const target = e.target as HTMLElement;
-    const index = Math.round(target.scrollLeft / target.clientWidth);
-    currentPage.value = index;
-};
 
 onMounted(() => {
     window.addEventListener('keydown', handleEsc);
-    window.addEventListener('resize', updateItemsPerPage);
-    updateItemsPerPage();
 });
 
 onUnmounted(() => {
     window.removeEventListener('keydown', handleEsc);
-    window.removeEventListener('resize', updateItemsPerPage);
 });
 </script>
 
@@ -177,82 +164,44 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Icon Grid Slider -->
-      <div class="w-full flex-1 flex flex-col justify-center relative min-h-0">
-         <div 
-            ref="scrollContainer"
-            @scroll="handleScroll"
-            class="w-full h-full overflow-x-auto scrollbar-none flex snap-x snap-mandatory items-center"
-         >
-            <div 
-              v-for="(page, pageIndex) in pages" 
-              :key="pageIndex"
-              class="w-full flex-shrink-0 h-full flex flex-col justify-center snap-center px-4 md:px-12"
-            >
-              <div class="grid grid-cols-4 md:grid-cols-6 gap-x-6 gap-y-10 mx-auto max-w-5xl">
-                <div 
-                  v-for="tool in page" 
-                  :key="tool.id"
-                  @click="navigateTo(tool.path)"
-                  class="flex flex-col items-center gap-3 group cursor-pointer animate-in fade-in zoom-in duration-500"
-                >
-                  <div class="relative">
-                    <div class="absolute inset-0 bg-card rounded-[1.2rem] group-hover:bg-accent transition-colors duration-300 shadow-sm"></div>
-                    <div class="absolute -inset-2 bg-primary/20 rounded-[1.5rem] opacity-0 group-hover:opacity-100 transition-all duration-500 blur-md"></div>
-                    
-                    <div 
-                      class="w-20 h-20 md:w-24 md:h-24 rounded-[1.6rem] relative z-10 flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-105 active:scale-95 border border-border/50 overflow-hidden bg-card"
-                    >
-                      <!-- Tint background based on tool color -->
-                      <div class="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity bg-current" :class="tool.color"></div>
-                      
-                      <component :is="tool.icon" :size="32" stroke-width="2" class="md:w-10 md:h-10 relative z-10 opacity-90 group-hover:opacity-100 transition-opacity" :class="tool.color" />
-                    </div>
+      <div class="flex-1 overflow-y-auto custom-scrollbar p-2 md:p-4">
+        <div class="max-w-7xl mx-auto">
+          <div v-for="category in categories" :key="category.name" class="mb-6 animate-in slide-in-from-bottom-2 duration-500">
+            <h3 class="text-[11px] font-black uppercase tracking-widest text-muted-foreground/50 mb-3 px-1">{{ category.name }}</h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+              <button 
+                v-for="tool in category.tools" 
+                :key="tool.id"
+                @click="navigateTo(tool.path)"
+                class="group flex flex-col items-start p-3 bg-card hover:bg-muted/50 border border-border/50 hover:border-primary/50 rounded-xl transition-all duration-300 hover:shadow-md text-left relative overflow-hidden active:scale-[0.98]"
+              >
+                <div class="flex items-center gap-3 w-full mb-2">
+                  <div :class="`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${tool.bgColor} ${tool.color}`">
+                    <component :is="tool.icon" :size="18" stroke-width="2.5" />
                   </div>
-                  <span class="text-muted-foreground text-[10px] md:text-xs font-bold tracking-wide text-center relative z-10 group-hover:text-foreground transition-colors opacity-80 group-hover:opacity-100 max-w-[80px] leading-tight select-none">
-                    {{ tool.name }}
-                  </span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs text-foreground truncate leading-tight group-hover:text-primary transition-colors">{{ tool.name }}</div>
+                  </div>
                 </div>
-              </div>
+                <!-- Description moved outside flex row, correct closing tag for button -->
+                <div class="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed opacity-80 group-hover:opacity-100">{{ tool.description }}</div>
+                
+                <!-- Hover Effect -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-primary/0 via-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+              </button>
             </div>
-         </div>
-         
-         <!-- Empty State -->
-         <div v-if="filteredTools.length === 0" class="flex flex-col items-center justify-center text-muted-foreground absolute inset-0 pointer-events-none">
+          </div>
+          
+          <!-- Empty State -->
+          <div v-if="filteredTools.length === 0" class="flex flex-col items-center justify-center py-20 text-muted-foreground animate-in fade-in zoom-in duration-500">
              <SearchIcon :size="48" class="mb-4 opacity-20" />
              <p class="text-sm font-bold opacity-50">No tools found</p>
-         </div>
-
-         <!-- Scroll Indicators (Arrows) -->
-         <button 
-            v-if="currentPage > 0"
-            @click="scrollToPage(currentPage - 1)"
-            class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-card/50 hover:bg-card border border-border/50 text-muted-foreground hover:text-foreground transition-all backdrop-blur-sm z-20 hidden md:flex"
-         >
-            <ChevronLeft :size="24" />
-         </button>
-         <button 
-            v-if="currentPage < pages.length - 1"
-            @click="scrollToPage(currentPage + 1)"
-            class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-card/50 hover:bg-card border border-border/50 text-muted-foreground hover:text-foreground transition-all backdrop-blur-sm z-20 hidden md:flex"
-         >
-            <ChevronRight :size="24" />
-         </button>
-         
-         <!-- Pagination Dots -->
-         <div v-if="pages.length > 1" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            <button 
-              v-for="(_, idx) in pages" 
-              :key="idx"
-              @click="scrollToPage(idx)"
-              class="w-2 h-2 rounded-full transition-all duration-300"
-              :class="currentPage === idx ? 'bg-primary w-6' : 'bg-muted-foreground/30 hover:bg-muted-foreground'"
-            ></button>
-         </div>
+          </div>
+        </div>
       </div>
 
       <!-- Footer Info -->
-      <div class="absolute bottom-12 text-muted-foreground/40 text-[10px] font-black uppercase tracking-[0.3em] pointer-events-none">
+      <div class="absolute bottom-6 text-muted-foreground/40 text-[10px] font-black uppercase tracking-[0.3em] pointer-events-none">
         Press ESC to exit
       </div>
     </div>
