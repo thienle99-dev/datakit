@@ -158,43 +158,45 @@ onMounted(() => {
           @mouseleave="showMegaMenu = false"
         >
           <button 
-            class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-secondary/50 text-sm font-medium transition-all duration-200 group-hover:text-primary"
-            :class="{'text-primary bg-secondary/50': showMegaMenu}"
+            class="group/btn flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-card hover:bg-primary/5 text-primary transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.15)] active:scale-95 border border-primary/10"
+            :class="{'bg-primary/5 ring-2 ring-primary/20': showMegaMenu}"
           >
-            <Command :size="14" class="opacity-50" />
-            <span>Tools</span>
-            <ChevronDown :size="14" class="opacity-50 transition-transform duration-200" :class="{'rotate-180': showMegaMenu}" />
+            <Command :size="16" class="transition-transform duration-500 group-hover/btn:rotate-12" />
+            <span class="text-sm font-bold tracking-tight">Tools</span>
+            <ChevronDown :size="16" class="transition-transform duration-300" :class="{'rotate-180': showMegaMenu}" />
           </button>
 
           <!-- The Pro Mega Menu -->
           <Transition name="menu-slide">
             <div 
               v-if="showMegaMenu" 
-              class="absolute top-[calc(100%+12px)] left-0 w-[800px] bg-card border border-border rounded-3xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] z-[10000] overflow-hidden"
+              class="absolute top-[calc(100%+8px)] left-0 w-[840px] bg-card border border-border/80 rounded-[2.5rem] shadow-[0_30px_70px_-20px_rgba(0,0,0,0.25)] z-[10000] overflow-hidden"
             >
               <div class="flex">
                 <!-- Main Tools Section -->
-                <div class="flex-1 p-6">
-                  <div class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4 pl-2 opacity-70">
-                    Core Utilities
+                <div class="flex-1 p-8">
+                  <div class="flex items-center justify-between mb-6 px-2">
+                    <div class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-50">
+                      Core Utilities
+                    </div>
                   </div>
-                  <div class="grid grid-cols-2 gap-3">
+                  <div class="grid grid-cols-2 gap-4">
                      <router-link 
                       v-for="tool in tools" 
                       :key="tool.id" 
                       :to="tool.path"
-                      class="group/card relative flex items-start gap-4 p-3 rounded-xl hover:bg-primary/5 border border-transparent hover:border-primary/10 transition-all duration-300"
+                      class="group/item relative flex items-center gap-5 p-4 rounded-3xl hover:bg-muted/50 border border-transparent hover:border-border/50 transition-all duration-300"
                     >
-                      <div class="relative w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover/card:shadow-md transition-all duration-300">
-                        <div class="absolute inset-0 bg-gradient-to-br opacity-10 group-hover/card:opacity-20 transition-opacity duration-300" :class="[tool.fromColor, tool.toColor]"></div>
-                        <component :is="tool.icon" :size="20" class="relative z-10 transition-colors duration-300" :class="tool.iconColor" />
+                      <div class="relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden shadow-sm group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-br opacity-10 group-hover/item:opacity-20 transition-opacity duration-300" :class="[tool.fromColor, tool.toColor]"></div>
+                        <component :is="tool.icon" :size="24" class="relative z-10 transition-colors duration-300" :class="tool.iconColor" />
                       </div>
 
                       <div class="flex-1 min-w-0">
-                        <div class="font-medium text-sm text-foreground group-hover/card:text-primary transition-colors">
+                        <div class="font-black text-sm tracking-tight text-foreground group-hover/item:text-primary transition-colors">
                           {{ tool.name }}
                         </div>
-                        <div class="text-[11px] text-muted-foreground mt-0.5 line-clamp-1 leading-tight opacity-80">
+                        <div class="text-[11px] text-muted-foreground mt-1 line-clamp-1 opacity-70">
                           {{ tool.description }}
                         </div>
                       </div>

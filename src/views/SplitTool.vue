@@ -117,7 +117,7 @@ const splitData = async () => {
             <Scissors :size="40" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-foreground mb-2">
+            <h2 class="text-5xl md:text-6xl font-black tracking-tighter text-foreground mb-4">
               Data <span class="text-rose-500">Splitter</span>
             </h2>
             <p class="text-muted-foreground text-lg font-medium leading-relaxed">
@@ -188,37 +188,37 @@ const splitData = async () => {
                  </div>
 
                  <div class="grid grid-cols-2 gap-4">
-                    <button 
+                     <button 
                       @click="splitMode = 'rows'"
-                      class="flex flex-col gap-4 p-8 rounded-[2rem] border-2 transition-all duration-300 text-left relative overflow-hidden group"
-                      :class="splitMode === 'rows' ? 'border-rose-500 bg-rose-500/5 shadow-inner' : 'border-border/50 bg-background hover:border-rose-500/30'"
+                      class="flex flex-col gap-6 p-10 rounded-[2.5rem] border-2 transition-all duration-500 text-left relative overflow-hidden group/opt h-full"
+                      :class="splitMode === 'rows' ? 'border-rose-500 bg-rose-500/5 shadow-[0_20px_50px_-20px_rgba(244,63,94,0.15)] scale-[1.02]' : 'border-border/50 bg-background hover:border-rose-500/30'"
                     >
-                      <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors" :class="splitMode === 'rows' ? 'bg-rose-500 text-white' : 'bg-muted text-muted-foreground group-hover:bg-rose-500/10 group-hover:text-rose-500'">
-                         <Layers :size="20" />
+                      <div class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm" :class="splitMode === 'rows' ? 'bg-rose-500 text-white shadow-xl shadow-rose-500/20' : 'bg-muted text-muted-foreground group-hover/opt:bg-rose-500/10 group-hover/opt:text-rose-500'">
+                         <Layers :size="28" stroke-width="2.5" />
                       </div>
-                      <div>
-                        <div class="font-black text-base uppercase tracking-tight">By Row Limit</div>
-                        <div class="text-[10px] uppercase font-bold text-muted-foreground mt-1 tracking-widest opacity-60">Fixed-size segments</div>
+                      <div class="translate-y-1">
+                        <div class="font-black text-xl uppercase tracking-tighter">By Row Limit</div>
+                        <div class="text-[10px] uppercase font-black text-muted-foreground mt-2 tracking-[0.2em] opacity-40">Fixed-size fragments</div>
                       </div>
-                      <div v-if="splitMode === 'rows'" class="absolute -right-2 -bottom-2 p-4">
-                         <div class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.8)]"></div>
+                      <div v-if="splitMode === 'rows'" class="absolute right-6 top-6 animate-in zoom-in duration-300">
+                         <div class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.8)]"></div>
                       </div>
                     </button>
 
                     <button 
                       @click="splitMode = 'parts'"
-                      class="flex flex-col gap-4 p-8 rounded-[2rem] border-2 transition-all duration-300 text-left relative overflow-hidden group"
-                      :class="splitMode === 'parts' ? 'border-rose-500 bg-rose-500/5 shadow-inner' : 'border-border/50 bg-background hover:border-rose-500/30'"
+                      class="flex flex-col gap-6 p-10 rounded-[2.5rem] border-2 transition-all duration-500 text-left relative overflow-hidden group/opt h-full"
+                      :class="splitMode === 'parts' ? 'border-rose-500 bg-rose-500/5 shadow-[0_20px_50px_-20px_rgba(244,63,94,0.15)] scale-[1.02]' : 'border-border/50 bg-background hover:border-rose-500/30'"
                     >
-                      <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors" :class="splitMode === 'parts' ? 'bg-rose-500 text-white' : 'bg-muted text-muted-foreground group-hover:bg-rose-500/10 group-hover:text-rose-500'">
-                         <Split :size="20" />
+                      <div class="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm" :class="splitMode === 'parts' ? 'bg-rose-500 text-white shadow-xl shadow-rose-500/20' : 'bg-muted text-muted-foreground group-hover/opt:bg-rose-500/10 group-hover/opt:text-rose-500'">
+                         <Split :size="28" stroke-width="2.5" />
                       </div>
-                      <div>
-                        <div class="font-black text-base uppercase tracking-tight">By Fragment Count</div>
-                        <div class="text-[10px] uppercase font-bold text-muted-foreground mt-1 tracking-widest opacity-60">Equal proportions</div>
+                      <div class="translate-y-1">
+                        <div class="font-black text-xl uppercase tracking-tighter">By File Count</div>
+                        <div class="text-[10px] uppercase font-black text-muted-foreground mt-2 tracking-[0.2em] opacity-40">Equal distribution</div>
                       </div>
-                      <div v-if="splitMode === 'parts'" class="absolute -right-2 -bottom-2 p-4">
-                         <div class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.8)]"></div>
+                      <div v-if="splitMode === 'parts'" class="absolute right-6 top-6 animate-in zoom-in duration-300">
+                         <div class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.8)]"></div>
                       </div>
                     </button>
                  </div>

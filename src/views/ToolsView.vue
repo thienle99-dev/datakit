@@ -109,9 +109,9 @@ const filteredTools = computed(() => {
           <Zap :size="12" fill="currentColor" /> v2.0 - Universal Data Toolkit
         </div>
         
-        <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+        <h1 class="text-6xl md:text-8xl font-black tracking-tight leading-[1] animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
           Supercharge your <br/>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500">Data Workflow</span>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500 pb-2">Data Workflow</span>
         </h1>
         
         <p class="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
@@ -150,7 +150,7 @@ const filteredTools = computed(() => {
               v-model="searchQuery"
               type="text" 
               placeholder="What are we building today?" 
-              class="w-full pl-16 pr-24 py-7 bg-card border border-border/50 rounded-[2rem] text-xl font-medium placeholder:text-muted-foreground/30 focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] group-hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all"
+              class="w-full pl-16 pr-24 py-8 bg-card border border-border/80 rounded-[2.5rem] text-2xl font-black placeholder:text-muted-foreground/20 focus:outline-none focus:ring-8 focus:ring-primary/5 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] group-hover:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] transition-all tracking-tight"
             />
 
             <!-- Keystroke Hint -->
@@ -187,34 +187,36 @@ const filteredTools = computed(() => {
       >
         <div class="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 border border-white/10 pointer-events-none"></div>
         
-        <div class="h-full glass-card p-8 rounded-3xl border border-border/50 flex flex-col transition-all duration-500 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] group-hover:-translate-y-2 group-hover:border-primary/30">
-          <div class="flex items-start justify-between mb-8">
-            <div :class="[tool.bgColor, tool.color]" class="w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-inner relative overflow-hidden">
+        <div class="h-full glass-card p-10 rounded-[2.5rem] border border-border/50 flex flex-col transition-all duration-700 group-hover:shadow-[0_40px_100px_-20px_rgba(0,0,0,0.12)] group-hover:-translate-y-3 group-hover:border-primary/40 relative overflow-hidden bg-card">
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+          
+          <div class="flex items-start justify-between mb-10 relative z-10">
+            <div :class="[tool.bgColor, tool.color]" class="w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-xl shadow-inner relative overflow-hidden ring-1 ring-white/10">
                <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-               <component :is="tool.icon" :size="32" stroke-width="2" />
+               <component :is="tool.icon" :size="36" stroke-width="2.5" />
             </div>
             
-            <div class="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-4 transition-all duration-500">
-              <ArrowRight :size="20" class="group-hover:text-primary" />
+            <div class="w-12 h-12 rounded-2xl bg-muted/50 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-6 transition-all duration-700">
+              <ArrowRight :size="24" class="group-hover:text-primary transition-transform group-hover:translate-x-0.5" />
             </div>
           </div>
 
-          <h3 class="text-2xl font-bold mb-4 tracking-tight group-hover:text-primary transition-colors">
+          <h3 class="text-3xl font-black mb-4 tracking-tighter group-hover:text-primary transition-colors relative z-10">
             {{ tool.name }}
           </h3>
           
-          <p class="text-muted-foreground leading-relaxed text-sm flex-1">
+          <p class="text-muted-foreground leading-relaxed text-base font-medium flex-1 relative z-10 opacity-70 group-hover:opacity-100 transition-opacity">
             {{ tool.description }}
           </p>
 
-          <div class="mt-8 pt-6 border-t border-border/50 flex items-center justify-between">
-             <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span class="text-[10px] font-black uppercase tracking-widest opacity-40">Ready to Use</span>
+          <div class="mt-10 pt-8 border-t border-border/50 flex items-center justify-between relative z-10">
+             <div class="flex items-center gap-2.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
+                <span class="text-xs font-black uppercase tracking-[0.2em] opacity-40">Ready to Use</span>
              </div>
-             <div class="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <span class="text-[10px] font-bold uppercase text-primary">Open Tool</span>
-                <ArrowRight :size="10" />
+             <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-x-4 group-hover:translate-x-0">
+                <span class="text-xs font-black uppercase tracking-widest text-primary">Open Tool</span>
+                <ArrowRight :size="12" class="text-primary" />
              </div>
           </div>
         </div>

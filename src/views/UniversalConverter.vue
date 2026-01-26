@@ -200,7 +200,7 @@ const formats = [
             <ArrowRightLeft :size="40" stroke-width="2.5" />
           </div>
           <div>
-            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-foreground mb-2">
+            <h2 class="text-5xl md:text-6xl font-black tracking-tighter text-foreground mb-4">
               Universal <span class="text-emerald-500">Converter</span>
             </h2>
             <p class="text-muted-foreground text-lg font-medium leading-relaxed">
@@ -288,20 +288,22 @@ const formats = [
                       v-for="fmt in formats" 
                       :key="fmt.id"
                       @click="outputFormat = fmt.id as any"
-                      class="flex items-center justify-between p-4 rounded-2xl border-2 transition-all group/btn"
-                      :class="outputFormat === fmt.id ? 'bg-primary/5 border-primary text-primary shadow-inner scale-[1.02]' : 'bg-background border-border/50 hover:border-primary/30 text-muted-foreground hover:text-foreground'"
+                      class="flex items-center justify-between p-5 rounded-[2rem] border-2 transition-all duration-500 group/btn"
+                      :class="outputFormat === fmt.id ? 'bg-primary/5 border-primary text-primary shadow-xl scale-[1.02]' : 'bg-background border-border/50 hover:border-primary/30 text-muted-foreground hover:text-foreground'"
                     >
-                      <div class="flex items-center gap-4">
-                         <div class="p-2.5 rounded-xl bg-muted group-hover/btn:bg-background transition-colors" :class="outputFormat === fmt.id ? 'bg-primary/10' : ''">
-                            <component :is="fmt.icon" :size="18" :class="outputFormat === fmt.id ? 'text-primary' : 'opacity-40'" />
+                      <div class="flex items-center gap-5">
+                         <div class="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center group-hover/btn:bg-background transition-all duration-500 shadow-sm" :class="outputFormat === fmt.id ? 'bg-primary/10 shadow-lg shadow-primary/10' : ''">
+                            <component :is="fmt.icon" :size="24" :class="outputFormat === fmt.id ? 'text-primary' : 'opacity-40'" />
                          </div>
-                         <div class="flex flex-col items-start">
-                           <span class="font-black uppercase tracking-widest text-[10px]">{{ fmt.id }}</span>
-                           <span class="text-xs font-bold opacity-60 group-hover/btn:opacity-100 transition-opacity">{{ fmt.label }}</span>
+                         <div class="flex flex-col items-start translate-y-0.5">
+                           <span class="font-black uppercase tracking-[0.2em] text-[10px]">{{ fmt.id }}</span>
+                           <span class="text-sm font-bold opacity-60 group-hover/btn:opacity-100 transition-opacity">
+                             {{ fmt.label.split(' ')[0] }} <span class="opacity-50 font-medium">{{ fmt.label.split(' ')[1] }}</span>
+                           </span>
                          </div>
                       </div>
-                      <div v-if="outputFormat === fmt.id" class="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                        <Check :size="12" stroke-width="4" />
+                      <div v-if="outputFormat === fmt.id" class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20 animate-in zoom-in duration-300">
+                        <Check :size="14" stroke-width="4" />
                       </div>
                     </button>
                  </div>
