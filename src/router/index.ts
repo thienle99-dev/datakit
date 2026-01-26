@@ -123,6 +123,11 @@ const router = createRouter({
             name: 'json-path',
             component: () => import('../views/JsonPath.vue'),
         },
+        {
+            path: '/xml-converter',
+            name: 'xml-converter',
+            component: () => import('../views/XmlConverter.vue'),
+        },
     ],
 });
 

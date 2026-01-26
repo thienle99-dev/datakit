@@ -33,16 +33,11 @@
 - [x] Mask sensitive data
 - [x] Download Templates
 
-### JSON & text — đã có / chưa có
-
-- [x] JSON trong Universal Converter (CSV↔JSON, xuất pretty khi export)
-- [x] **JSON Format / Beautify** — paste hoặc upload JSON → pretty-print (indent) hoặc minify
-- [x] **JSON Diff** — so sánh 2 JSON (file hoặc paste), highlight khác biệt theo key/value, tree view
-- [ ] **JSON Validate** — kiểm tra cú pháp, báo lỗi dòng/cột, optional schema (JSON Schema)
-- [x] **JSON sort keys** — sắp xếp keys object theo alphabet (ổn định khi diff)
-- [x] **JSON escape/unescape** — escape chuỗi JSON hoặc unescape để paste vào code
-- [x] **JSON Path / Query** — nhập path (vd. `$.data.items[*].id`) → extract & xuất
-- [ ] **JSON → XML / XML → JSON** — chuyển qua lại (nằm trong nhóm XML đã liệt kê)
+### JSON & text tools
+- [x] **JSON Format / Beautify** — (Prettier, Minify, Sort Keys, Escape/Unescape)
+- [x] **JSON Diff** — Compare two JSONs
+- [x] **JSON Path / Query** — Extract data
+- [x] **JSON ↔ XML** — Bidirectional converter
 
 ### Backlog — ưu tiên cao
 

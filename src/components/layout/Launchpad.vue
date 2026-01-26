@@ -24,7 +24,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Braces,
-  Search as SearchQuery
+  Search as SearchQuery,
+  FileCode
 } from 'lucide-vue-next';
 
 interface Tool {
@@ -69,6 +70,7 @@ const tools: Tool[] = [
   { id: 'json-formatter', name: 'JSON Beautify', description: 'Format & Minify JSON', path: '/json-formatter', icon: Braces, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
   { id: 'json-diff', name: 'JSON Diff', description: 'Compare two JSONs', path: '/json-diff', icon: GitCompare, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
   { id: 'json-path', name: 'JSON Query', description: 'Extract data by path', path: '/json-path', icon: SearchQuery, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
+  { id: 'xml-converter', name: 'XML <> JSON', description: 'Convert XML and JSON', path: '/xml-converter', icon: FileCode, color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' },
   { id: 'templates', name: 'Templates', description: 'Download CSV/Excel templates', path: '/templates', icon: FileDown, color: 'text-slate-500', bgColor: 'bg-slate-500/10' }
 ];
 
