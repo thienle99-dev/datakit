@@ -41,8 +41,9 @@ const processJsonData = (jsonData: any): ParseResult => {
         if (typeof jsonData === 'object' && jsonData !== null) {
             // Check if it's a wrapper object with a single key containing array
             const keys = Object.keys(jsonData);
-            if (keys.length === 1 && Array.isArray((jsonData as Record<string, any>)[keys[0]])) {
-                jsonData = (jsonData as Record<string, any>)[keys[0]];
+            const firstKey = keys[0] as string | undefined;
+            if (keys.length === 1 && firstKey !== undefined && Array.isArray((jsonData as Record<string, any>)[firstKey])) {
+                jsonData = (jsonData as Record<string, any>)[firstKey];
             } else {
                 jsonData = [jsonData];
             }

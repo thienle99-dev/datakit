@@ -1,3 +1,4 @@
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type } from 'lucide-vue-next';
 
@@ -286,7 +287,7 @@ interface Tool {
   bgColor: string;
 }
 
-const filteredTools = computed<Tool[]>(() => {
+const filteredTools = computed(() => {
   if (!searchQuery.value) return tools as Tool[];
   const q = searchQuery.value.toLowerCase();
   return (tools as Tool[]).filter(t => 

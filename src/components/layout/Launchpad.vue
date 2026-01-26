@@ -122,8 +122,8 @@ const categories = computed(() => {
     });
     
     return Object.keys(groups)
-        .filter(k => groups[k].length > 0)
-        .map(k => ({ name: k, tools: groups[k] }));
+        .filter((k): k is string => (groups[k] ?? []).length > 0)
+        .map(k => ({ name: k, tools: groups[k] ?? [] }));
 });
 
 onMounted(() => {
