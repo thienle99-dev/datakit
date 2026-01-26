@@ -1,5 +1,6 @@
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import yaml from 'js-yaml';
 
 export interface ParseResult {
     headers: string[];
@@ -14,8 +15,10 @@ export const parseFile = async (file: File, sheetName?: string): Promise<ParseRe
         return parseExcel(file, sheetName);
     } else if (file.name.endsWith('.json')) {
         return parseJSON(file);
+    } else if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+        return parseYAML(file);
     } else {
-        throw new Error('Unsupported file format. Please upload .csv, .tsv, .xlsx, or .json');
+        throw new Error('Unsupported file format. Please upload .csv, .tsv, .xlsx, .json, or .yaml');
     }
 };
 
@@ -23,11 +26,28 @@ const parseJSON = async (file: File): Promise<ParseResult> => {
     const text = await file.text();
     let jsonData = JSON.parse(text);
 
+    return processJsonData(jsonData);
+};
+
+const parseYAML = async (file: File): Promise<ParseResult> => {
+    const text = await file.text();
+    let yamlData = yaml.load(text);
+
+    return processJsonData(yamlData);
+};
+
+const processJsonData = (jsonData: any): ParseResult => {
     if (!Array.isArray(jsonData)) {
         if (typeof jsonData === 'object' && jsonData !== null) {
-            jsonData = [jsonData];
+            // Check if it's a wrapper object with a single key containing array
+            const keys = Object.keys(jsonData);
+            if (keys.length === 1 && Array.isArray((jsonData as Record<string, any>)[keys[0]])) {
+                jsonData = (jsonData as Record<string, any>)[keys[0]];
+            } else {
+                jsonData = [jsonData];
+            }
         } else {
-            throw new Error('JSON data must be an array of objects or a single object');
+            throw new Error('Data must be an array of objects or a single object');
         }
     }
 
@@ -47,7 +67,7 @@ const parseJSON = async (file: File): Promise<ParseResult> => {
         headers: Array.from(headerSet),
         data: jsonData
     };
-};
+}
 
 const parseCSV = (file: File): Promise<ParseResult> => {
     return new Promise((resolve, reject) => {

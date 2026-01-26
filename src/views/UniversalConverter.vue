@@ -2,6 +2,7 @@
 import { ref, shallowRef, computed } from 'vue';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import yaml from 'js-yaml';
 import { 
   ArrowRightLeft, 
   Loader2, 
@@ -15,7 +16,8 @@ import {
   ArrowLeft,
   Sparkles,
   FileText,
-  Database
+  Database,
+  Layers
 } from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
 import DataTable from '../components/shared/DataTable.vue';
@@ -24,12 +26,14 @@ import { parseFile } from '../utils/fileParser';
 const file = shallowRef<File | null>(null);
 const headers = ref<string[]>([]);
 const data = ref<any[]>([]);
+const sheets = ref<string[]>([]);
+const currentSheet = ref<string>('');
 const loading = ref(false);
 const processing = ref(false);
 const error = ref<string | null>(null);
 const copied = ref(false);
 
-const outputFormat = ref<'csv' | 'json' | 'xlsx' | 'md' | 'sql'>('json');
+const outputFormat = ref<'csv' | 'json' | 'yaml' | 'xlsx' | 'md' | 'sql'>('json');
 
 async function handleFile(selectedFile: File) {
   file.value = selectedFile;
@@ -37,14 +41,20 @@ async function handleFile(selectedFile: File) {
   error.value = null;
   headers.value = [];
   data.value = [];
+  sheets.value = [];
+  currentSheet.value = '';
 
   try {
     const result = await parseFile(selectedFile);
     headers.value = result.headers;
     data.value = result.data;
+    if (result.sheets && result.sheets.length > 0) {
+        sheets.value = result.sheets;
+        currentSheet.value = result.sheets[0] || '';
+    }
     
     // Auto-detect best output format
-    if (selectedFile.name.endsWith('.json')) {
+    if (selectedFile.name.endsWith('.json') || selectedFile.name.endsWith('.yaml') || selectedFile.name.endsWith('.yml')) {
         outputFormat.value = 'csv';
     } else {
         outputFormat.value = 'json';
@@ -55,6 +65,21 @@ async function handleFile(selectedFile: File) {
   } finally {
     loading.value = false;
   }
+}
+
+async function changeSheet(sheetName: string) {
+    if (!file.value || currentSheet.value === sheetName) return;
+    loading.value = true;
+    try {
+        currentSheet.value = sheetName;
+        const result = await parseFile(file.value, sheetName);
+        headers.value = result.headers;
+        data.value = result.data;
+    } catch (err: any) {
+        error.value = 'Failed to switch sheet: ' + err.message;
+    } finally {
+        loading.value = false;
+    }
 }
 
 // Formatters
@@ -90,6 +115,10 @@ const jsonOutput = computed(() => {
   return JSON.stringify(data.value.slice(0, 8), null, 2) + (data.value.length > 8 ? '\n\n... (truncated for preview)' : '');
 });
 
+const yamlOutput = computed(() => {
+    return yaml.dump(data.value.slice(0, 8)) + (data.value.length > 8 ? '\n... (truncated for preview)' : '');
+});
+
 // Respective handlers
 function downloadFile() {
   if (!data.value.length) return;
@@ -113,6 +142,10 @@ function downloadFile() {
           blob = new Blob([JSON.stringify(data.value, null, 2)], { type: 'application/json' });
           filename = `${baseName}.json`;
           break;
+        case 'yaml':
+            blob = new Blob([yaml.dump(data.value)], { type: 'text/yaml' });
+            filename = `${baseName}.yaml`;
+            break;
         case 'md':
           const fullMd = '| ' + headers.value.join(' | ') + ' |\n| ' + 
             headers.value.map(() => '---').join(' | ') + ' |\n' + 
@@ -161,6 +194,7 @@ function copyPreview() {
     if (outputFormat.value === 'md') text = markdownOutput.value;
     else if (outputFormat.value === 'sql') text = sqlOutput.value;
     else if (outputFormat.value === 'json') text = jsonOutput.value;
+    else if (outputFormat.value === 'yaml') text = yamlOutput.value;
     else if (outputFormat.value === 'csv') text = Papa.unparse(data.value.slice(0, 10));
 
     navigator.clipboard.writeText(text).then(() => {
@@ -173,6 +207,8 @@ function resetTool() {
   file.value = null;
   data.value = [];
   headers.value = [];
+  sheets.value = [];
+  currentSheet.value = '';
   error.value = null;
 }
 
@@ -181,6 +217,7 @@ const formats = [
   { id: 'csv', label: 'CSV File', icon: Table, color: 'text-blue-500' },
   { id: 'xlsx', label: 'Excel Sheet', icon: FileType, color: 'text-emerald-500' },
   { id: 'sql', label: 'SQL Inserts', icon: Database, color: 'text-indigo-500' },
+  { id: 'yaml', label: 'YAML File', icon: Layers, color: 'text-rose-500' },
   { id: 'md', label: 'Markdown Table', icon: FileText, color: 'text-slate-500' },
 ] as const;
 </script>
@@ -256,7 +293,7 @@ const formats = [
                </p>
             </div>
 
-            <FileUploader @files-selected="handleFile" class="min-h-[400px]" />
+            <FileUploader @files-selected="handleFile" accept=".csv,.xlsx,.xls,.json,.yaml,.yml,.txt" class="min-h-[400px]" />
             
             <div class="mt-12 grid grid-cols-5 gap-6 justify-center opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
                <div v-for="fmt in formats" :key="fmt.id" class="flex flex-col items-center gap-3">
@@ -274,6 +311,24 @@ const formats = [
           <!-- Sidebar: Target Configuration -->
           <div class="w-full lg:w-80 flex flex-col gap-5 shrink-0">
             <div class="flex-1 bg-card border border-border/50 rounded-2xl p-5 shadow-2xl flex flex-col overflow-hidden">
+              <div v-if="sheets.length > 1" class="mb-6 animate-in slide-in-from-left-2 duration-500">
+                 <h3 class="font-black text-xs uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2 mb-4">
+                    <Layers :size="12" class="text-amber-500" />
+                    Select Sheet
+                 </h3>
+                 <div class="flex flex-wrap gap-2">
+                    <button 
+                      v-for="sheet in sheets" 
+                      :key="sheet"
+                      @click="changeSheet(sheet)"
+                      class="px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all"
+                      :class="currentSheet === sheet ? 'bg-amber-500/10 text-amber-500 border-amber-500/50 shadow-sm' : 'bg-background text-muted-foreground border-border/50 hover:border-amber-500/30 hover:text-foreground'"
+                    >
+                      {{ sheet }}
+                    </button>
+                 </div>
+              </div>
+
               <div class="mb-6">
                  <h3 class="font-black text-xs uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2 mb-4">
                     <Sparkles :size="12" class="text-emerald-500" />
@@ -320,6 +375,7 @@ const formats = [
                  <div class="flex-1 bg-muted/40 rounded-2xl p-4 font-mono text-xs border border-border/50 overflow-hidden relative group/preview shadow-inner">
                     <pre class="h-full overflow-auto whitespace-pre-wrap break-all opacity-70 leading-relaxed scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">{{ 
                       outputFormat === 'json' ? jsonOutput : 
+                      outputFormat === 'yaml' ? yamlOutput :
                       outputFormat === 'sql' ? sqlOutput : 
                       outputFormat === 'md' ? markdownOutput : 
                       outputFormat === 'csv' ? Papa.unparse(data.slice(0, 5)) : 
@@ -332,6 +388,21 @@ const formats = [
 
           <!-- Table Area -->
           <div class="flex-1 min-w-0 bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col p-2">
+             <!-- Sheet tabs (Excel multi-sheet) -->
+             <div v-if="sheets.length > 1" class="flex flex-wrap items-center gap-2 mb-3 shrink-0 px-1">
+               <span class="text-[9px] font-black uppercase text-muted-foreground/70 tracking-widest flex items-center gap-1.5">
+                 <Layers :size="10" /> Sheet
+               </span>
+               <button
+                 v-for="s in sheets"
+                 :key="s"
+                 @click="changeSheet(s)"
+                 class="px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all truncate max-w-[140px]"
+                 :class="currentSheet === s ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border hover:border-primary/50'"
+               >
+                 {{ s }}
+               </button>
+             </div>
              <DataTable 
                :headers="headers" 
                :data="data" 

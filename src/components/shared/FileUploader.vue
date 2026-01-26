@@ -2,9 +2,12 @@
 import { ref } from 'vue';
 import { Upload } from 'lucide-vue-next';
 
-const props = defineProps<{
-  multiple?: boolean
-}>();
+const props = withDefaults(defineProps<{
+  multiple?: boolean;
+  accept?: string;
+}>(), {
+  accept: '.csv,.xlsx,.xls,.txt'
+});
 
 const emit = defineEmits(['files-selected']);
 
@@ -70,7 +73,7 @@ function triggerBrowse() {
       ref="fileInput" 
       class="hidden" 
       :multiple="multiple"
-      accept=".csv,.xlsx,.xls,.txt"
+      :accept="accept"
       @change="onFileSelect"
     />
     

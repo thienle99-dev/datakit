@@ -12,6 +12,7 @@
     "@faker-js/faker": "^10.2.0",
     "@types/papaparse": "^5.5.2",
     "apexcharts": "^5.3.6",
+    "js-yaml": "^4.1.1",
     "jszip": "^3.10.1",
     "lucide-vue-next": "^0.563.0",
     "papaparse": "^5.5.3",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
+    "@types/js-yaml": "^4.0.9",
     "@types/jszip": "^3.4.1",
     "@types/node": "^24.10.9",
     "@vitejs/plugin-vue": "^6.0.1",

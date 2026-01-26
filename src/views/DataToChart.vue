@@ -15,7 +15,12 @@ import {
   Radar,
   Sparkles,
   Check,
-  Table
+  Table,
+  List,
+  MessageSquare,
+  Grid3X3,
+  Zap,
+  Type
 } from 'lucide-vue-next';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -33,6 +38,12 @@ interface ChartConfig {
   stacked: boolean;
   horizontal: boolean;
   showLabels: boolean;
+  showLegend: boolean;
+  showTooltip: boolean;
+  showGrid: boolean;
+  animations: boolean;
+  curve: 'smooth' | 'straight' | 'stepline';
+  barBorderRadius: number;
   colors: string[];
 }
 
@@ -51,18 +62,34 @@ const config = ref<ChartConfig>({
   stacked: false,
   horizontal: false,
   showLabels: true,
+  showLegend: true,
+  showTooltip: true,
+  showGrid: true,
+  animations: true,
+  curve: 'smooth',
+  barBorderRadius: 8,
   colors: ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
 });
 
 const chartRef = ref<any>(null);
 
-// Palette options
-const palettes = [
-  ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'], // Indigo Mix
-  ['#3b82f6', '#0ea5e9', '#06b6d4', '#2dd4bf', '#10b981'], // Blue/Green
-  ['#f43f5e', '#fb7185', '#fda4af', '#fff1f2', '#881337'], // Rose
-  ['#f59e0b', '#fbbf24', '#fcd34d', '#fef3c7', '#78350f'], // Amber
-  ['#71717a', '#a1a1aa', '#d4d4d8', '#f4f4f5', '#18181b'], // Zinc
+// Palette options: name + colors (min 5 colors so series stay consistent)
+const palettes: { name: string; colors: string[] }[] = [
+  { name: 'Indigo Mix', colors: ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'] },
+  { name: 'Ocean', colors: ['#3b82f6', '#0ea5e9', '#06b6d4', '#2dd4bf', '#10b981'] },
+  { name: 'Rose', colors: ['#f43f5e', '#fb7185', '#fda4af', '#e879f9', '#c084fc'] },
+  { name: 'Amber', colors: ['#f59e0b', '#fbbf24', '#fcd34d', '#fde68a', '#fef3c7'] },
+  { name: 'Zinc', colors: ['#71717a', '#a1a1aa', '#d4d4d8', '#e4e4e7', '#f4f4f5'] },
+  { name: 'Emerald', colors: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'] },
+  { name: 'Sky', colors: ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#bae6fd'] },
+  { name: 'Violet', colors: ['#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe'] },
+  { name: 'Slate', colors: ['#475569', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'] },
+  { name: 'Sunset', colors: ['#dc2626', '#ea580c', '#f59e0b', '#eab308', '#84cc16'] },
+  { name: 'Mint', colors: ['#14b8a6', '#2dd4bf', '#5eead4', '#99f6e4', '#ccfbf1'] },
+  { name: 'Berry', colors: ['#be185d', '#db2777', '#ec4899', '#f472b6', '#f9a8d4'] },
+  { name: 'Forest', colors: ['#15803d', '#22c55e', '#4ade80', '#86efac', '#bbf7d0'] },
+  { name: 'Steel', colors: ['#0f172a', '#334155', '#64748b', '#94a3b8', '#cbd5e1'] },
+  { name: 'Coral', colors: ['#e11d48', '#f43f5e', '#fb7185', '#fda4af', '#fecdd3'] },
 ];
 
 // Computed
@@ -79,16 +106,16 @@ const chartOptions = computed(() => {
       fontFamily: 'Outfit, sans-serif',
       foreColor: 'var(--color-muted-foreground)',
       animations: {
-        enabled: true,
+        enabled: config.value.animations,
         easing: 'easeinout',
         speed: 800,
-        animateGradually: { enabled: true, delay: 150 },
+        animateGradually: { enabled: config.value.animations, delay: 150 },
       },
       background: 'transparent'
     },
     colors: config.value.colors,
     stroke: {
-      curve: 'smooth',
+      curve: ['line', 'area', 'radar'].includes(config.value.type) ? config.value.curve : 'smooth',
       width: config.value.type === 'line' || config.value.type === 'area' || config.value.type === 'radar' ? 2 : 0
     },
     title: {
@@ -117,6 +144,7 @@ const chartOptions = computed(() => {
       dropShadow: { enabled: false }
     },
     legend: {
+      show: config.value.showLegend,
       position: 'bottom',
       horizontalAlign: 'center',
       fontFamily: 'Outfit, sans-serif',
@@ -124,6 +152,7 @@ const chartOptions = computed(() => {
       fontSize: '10px'
     },
     tooltip: {
+      enabled: config.value.showTooltip,
       theme: 'dark',
       x: { show: true },
       y: { formatter: (val: number) => val.toLocaleString() }
@@ -166,6 +195,7 @@ const chartOptions = computed(() => {
     options.yaxis = options.yaxis || {};
     options.yaxis.labels = { style: { fontSize: '9px', fontWeight: 600 } };
     options.grid = {
+      show: config.value.showGrid,
       borderColor: 'var(--color-border)',
       strokeDashArray: 4,
       padding: { top: 6, right: 16, bottom: 0, left: 6 }
@@ -173,7 +203,7 @@ const chartOptions = computed(() => {
     options.plotOptions = {
         bar: {
             horizontal: config.value.horizontal,
-            borderRadius: 8,
+            borderRadius: config.value.barBorderRadius,
             columnWidth: '60%'
         }
     };
@@ -536,45 +566,99 @@ onMounted(() => {
                 <button 
                   @click="config.stacked = !config.stacked"
                   v-if="['bar', 'area'].includes(config.type)"
-                  class="p-4 rounded-3xl border border-border flex flex-col gap-2 transition-all"
+                  class="p-4 rounded-2xl border border-border flex flex-col gap-2 transition-all"
                   :class="config.stacked ? 'bg-primary/5 border-primary/30' : 'bg-background'"
                 >
                    <span class="text-[9px] font-black uppercase tracking-widest">Stacked</span>
                    <div class="flex items-center gap-2">
                       <div class="w-2 h-2 rounded-full" :class="config.stacked ? 'bg-emerald-500' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
-                      <span class="text-[10px] font-bold opacity-60">{{ config.stacked ? 'Enabled' : 'Disabled' }}</span>
+                      <span class="text-[10px] font-bold opacity-60">{{ config.stacked ? 'On' : 'Off' }}</span>
                    </div>
                 </button>
 
                 <button 
                   @click="config.horizontal = !config.horizontal"
                   v-if="config.type === 'bar'"
-                  class="p-4 rounded-3xl border border-border flex flex-col gap-2 transition-all"
+                  class="p-4 rounded-2xl border border-border flex flex-col gap-2 transition-all"
                   :class="config.horizontal ? 'bg-primary/5 border-primary/30' : 'bg-background'"
                 >
                    <span class="text-[9px] font-black uppercase tracking-widest">Horizontal</span>
                    <div class="flex items-center gap-2">
                       <div class="w-2 h-2 rounded-full" :class="config.horizontal ? 'bg-emerald-500' : 'bg-zinc-200 dark:bg-zinc-800'"></div>
-                      <span class="text-[10px] font-bold opacity-60">{{ config.horizontal ? 'Enabled' : 'Disabled' }}</span>
+                      <span class="text-[10px] font-bold opacity-60">{{ config.horizontal ? 'On' : 'Off' }}</span>
                    </div>
                 </button>
+            </div>
+
+            <!-- Display Options -->
+            <div class="space-y-4">
+               <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Display</span>
+               <div class="grid grid-cols-2 gap-2">
+                 <button @click="config.showLabels = !config.showLabels" class="p-3 rounded-xl border border-border flex items-center justify-between transition-all" :class="config.showLabels ? 'bg-primary/5 border-primary/30' : 'bg-background'">
+                   <span class="text-[9px] font-bold uppercase">Data labels</span>
+                   <div class="w-2 h-2 rounded-full" :class="config.showLabels ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'"></div>
+                 </button>
+                 <button @click="config.showLegend = !config.showLegend" class="p-3 rounded-xl border border-border flex items-center justify-between transition-all" :class="config.showLegend ? 'bg-primary/5 border-primary/30' : 'bg-background'">
+                   <span class="text-[9px] font-bold uppercase">Legend</span>
+                   <div class="w-2 h-2 rounded-full" :class="config.showLegend ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'"></div>
+                 </button>
+                 <button @click="config.showTooltip = !config.showTooltip" class="p-3 rounded-xl border border-border flex items-center justify-between transition-all" :class="config.showTooltip ? 'bg-primary/5 border-primary/30' : 'bg-background'">
+                   <span class="text-[9px] font-bold uppercase">Tooltip</span>
+                   <div class="w-2 h-2 rounded-full" :class="config.showTooltip ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'"></div>
+                 </button>
+                 <button @click="config.showGrid = !config.showGrid" class="p-3 rounded-xl border border-border flex items-center justify-between transition-all" :class="config.showGrid ? 'bg-primary/5 border-primary/30' : 'bg-background'">
+                   <span class="text-[9px] font-bold uppercase">Grid</span>
+                   <div class="w-2 h-2 rounded-full" :class="config.showGrid ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'"></div>
+                 </button>
+                 <button @click="config.animations = !config.animations" class="p-3 rounded-xl border border-border flex items-center justify-between transition-all col-span-2" :class="config.animations ? 'bg-primary/5 border-primary/30' : 'bg-background'">
+                   <span class="text-[9px] font-bold uppercase">Animations</span>
+                   <div class="w-2 h-2 rounded-full" :class="config.animations ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'"></div>
+                 </button>
+               </div>
+            </div>
+
+            <!-- Line style (line / area) -->
+            <div v-if="['line', 'area'].includes(config.type)" class="space-y-3">
+               <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Line style</span>
+               <div class="flex flex-wrap gap-2">
+                 <button v-for="c in [{ id: 'smooth', label: 'Smooth' }, { id: 'straight', label: 'Straight' }, { id: 'stepline', label: 'Step' }]" :key="c.id"
+                   @click="config.curve = c.id as any"
+                   class="px-3 py-1.5 rounded-lg text-2xs font-bold border transition-all"
+                   :class="config.curve === c.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border hover:border-primary/40'"
+                 >{{ c.label }}</button>
+               </div>
+            </div>
+
+            <!-- Bar corners (bar only) -->
+            <div v-if="config.type === 'bar'" class="space-y-3">
+               <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Bar corners</span>
+               <div class="flex flex-wrap gap-2">
+                 <button v-for="r in [0, 4, 8]" :key="r"
+                   @click="config.barBorderRadius = r"
+                   class="px-3 py-1.5 rounded-lg text-2xs font-bold border transition-all"
+                   :class="config.barBorderRadius === r ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border hover:border-primary/40'"
+                 >{{ r === 0 ? 'Sharp' : r }}</button>
+               </div>
             </div>
 
             <!-- Color Palette -->
             <div class="space-y-4">
                <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Color Aesthetic</span>
-               <div class="flex flex-col gap-2">
+               <div class="flex flex-col gap-2 max-h-[280px] overflow-y-auto overscroll-contain pr-0.5">
                   <button 
                     v-for="(p, idx) in palettes" 
                     :key="idx"
-                    @click="config.colors = [...p]"
-                    class="p-2 rounded-2xl border border-border flex items-center justify-between hover:border-primary/50 transition-all bg-background pr-4"
-                    :class="{ 'ring-2 ring-primary border-primary/50': JSON.stringify(config.colors) === JSON.stringify(p) }"
+                    @click="config.colors = [...p.colors]"
+                    class="p-2 rounded-2xl border border-border flex items-center justify-between hover:border-primary/50 transition-all bg-background pr-4 shrink-0"
+                    :class="{ 'ring-2 ring-primary border-primary/50': JSON.stringify(config.colors) === JSON.stringify(p.colors) }"
                   >
-                    <div class="flex -space-x-2">
-                        <div v-for="c in p" :key="c" :style="{ backgroundColor: c }" class="w-8 h-8 rounded-full border-2 border-background"></div>
+                    <div class="flex items-center gap-2 min-w-0">
+                      <div class="flex -space-x-2 shrink-0">
+                        <div v-for="c in p.colors" :key="c" :style="{ backgroundColor: c }" class="w-6 h-6 rounded-full border-2 border-background"></div>
+                      </div>
+                      <span class="text-2xs font-bold truncate">{{ p.name }}</span>
                     </div>
-                    <Check v-if="JSON.stringify(config.colors) === JSON.stringify(p)" :size="16" class="text-primary" />
+                    <Check v-if="JSON.stringify(config.colors) === JSON.stringify(p.colors)" :size="16" class="text-primary shrink-0" />
                   </button>
                </div>
             </div>
