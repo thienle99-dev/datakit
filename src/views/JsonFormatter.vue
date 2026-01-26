@@ -32,17 +32,10 @@ const format = () => {
         error.value = null;
     } catch (err: any) {
         error.value = err.message;
-        // Don't clear result, keep previous output or empty
     }
 };
 
 const minify = () => {
-    if (!input.value.trim()) {
-        result.value = '';
-        error.value = null;
-        return;
-    }
-
     try {
         const parsed = JSON.parse(input.value);
         result.value = JSON.stringify(parsed);
@@ -50,6 +43,54 @@ const minify = () => {
     } catch (err: any) {
         error.value = err.message;
     }
+};
+
+const sortKeys = () => {
+   try {
+        const parsed = JSON.parse(input.value);
+        const sorted = sortObject(parsed);
+        result.value = JSON.stringify(sorted, null, indentSize.value);
+        error.value = null;
+    } catch (err: any) {
+        error.value = err.message;
+    }
+};
+
+const escapeJson = () => {
+    try {
+        // Just text escape, usually for putting JSON inside a string
+        result.value = JSON.stringify(input.value).slice(1, -1); // remove surrounding quotes
+        error.value = null;
+    } catch (err: any) {
+        error.value = err.message;
+    }
+};
+
+const unescapeJson = () => {
+    try {
+        // Unwrap logic
+        // If it's a string literal representation, JSON.parse it as a string
+        let val = input.value.trim();
+        if (!val.startsWith('"')) val = '"' + val + '"';
+        result.value = JSON.parse(val);
+        error.value = null;
+    } catch (err: any) {
+        error.value = "Could not unescape: " + err.message;
+    }
+};
+
+const sortObject = (obj: any): any => {
+    if (Array.isArray(obj)) {
+        return obj.map(sortObject);
+    } else if (obj !== null && typeof obj === 'object') {
+        return Object.keys(obj)
+            .sort()
+            .reduce((acc: any, key) => {
+                acc[key] = sortObject(obj[key]);
+                return acc;
+            }, {});
+    }
+    return obj;
 };
 
 const clear = () => {
@@ -111,17 +152,39 @@ watch(indentSize, () => {
          <div class="flex items-center bg-card border border-border p-1 rounded-xl shadow-sm">
              <button 
                 @click="format"
-                class="px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
+                class="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
                 :class="!error ? 'text-foreground' : ''"
             >
-                <Maximize2 :size="14" /> Beaufity
+                <Maximize2 :size="14" /> Format
             </button>
             <div class="w-px h-4 bg-border mx-1"></div>
             <button 
                 @click="minify"
-                class="px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
+                class="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
             >
                 <Minimize2 :size="14" /> Minify
+            </button>
+            <div class="w-px h-4 bg-border mx-1"></div>
+            <button 
+                @click="sortKeys"
+                class="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
+            >
+                Sort Keys
+            </button>
+            <div class="w-px h-4 bg-border mx-1"></div>
+            <button 
+                @click="escapeJson"
+                class="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
+                title="Escape"
+            >
+                Esc
+            </button>
+            <button 
+                @click="unescapeJson"
+                class="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2"
+                title="Unescape"
+            >
+                Un-Esc
             </button>
          </div>
 
