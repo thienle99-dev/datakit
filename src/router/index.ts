@@ -153,6 +153,11 @@ const router = createRouter({
             name: 'regex-tester',
             component: () => import('../views/RegexTester.vue'),
         },
+        {
+            path: '/text-tools',
+            name: 'text-tools',
+            component: () => import('../views/TextTools.vue'),
+        },
     ],
 });
 

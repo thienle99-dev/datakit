@@ -16,11 +16,6 @@ import {
   Sparkles,
   Check,
   Table,
-  List,
-  MessageSquare,
-  Grid3X3,
-  Zap,
-  Type,
   Pencil,
   X
 } from 'lucide-vue-next';
@@ -798,7 +793,7 @@ onMounted(() => {
                 >
                   <td v-for="h in headers" :key="h" class="py-1 pr-2 align-top">
                     <input 
-                      v-model="editDraft[(editPage - 1) * EDIT_PAGE_SIZE + rowIdx][h]" 
+                      v-model="row[h]" 
                       type="text" 
                       class="w-full px-2 py-1.5 rounded-lg border border-border bg-background text-xs focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                     />

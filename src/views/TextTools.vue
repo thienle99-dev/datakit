@@ -9,8 +9,7 @@ import {
   FileText,
   Copy, 
   Check, 
-  Trash2,
-  ArrowRight
+  Trash2
 } from 'lucide-vue-next';
 
 const inputText = ref('');
@@ -144,12 +143,12 @@ function copyText() {
             <Type :size="12" /> Case
           </h3>
           <div class="grid grid-cols-2 gap-2">
-             <button @click="toUpperCase" class="btn-tool"><CaseUpper :size="14" /> Upper</button>
-             <button @click="toLowerCase" class="btn-tool"><CaseLower :size="14" /> Lower</button>
-             <button @click="toTitleCase" class="btn-tool">Title Case</button>
-             <button @click="toCamelCase" class="btn-tool">camelCase</button>
-             <button @click="toSnakeCase" class="btn-tool">snake_case</button>
-             <button @click="toKebabCase" class="btn-tool">kebab-case</button>
+             <button @click="toUpperCase" class="flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-[10px] font-bold uppercase tracking-wide border border-transparent hover:border-primary/20 transition-all active:scale-95"><CaseUpper :size="14" /> Upper</button>
+             <button @click="toLowerCase" class="flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-[10px] font-bold uppercase tracking-wide border border-transparent hover:border-primary/20 transition-all active:scale-95"><CaseLower :size="14" /> Lower</button>
+             <button @click="toTitleCase" class="flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-[10px] font-bold uppercase tracking-wide border border-transparent hover:border-primary/20 transition-all active:scale-95">Title Case</button>
+             <button @click="toCamelCase" class="flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-[10px] font-bold uppercase tracking-wide border border-transparent hover:border-primary/20 transition-all active:scale-95">camelCase</button>
+             <button @click="toSnakeCase" class="flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-[10px] font-bold uppercase tracking-wide border border-transparent hover:border-primary/20 transition-all active:scale-95">snake_case</button>
+             <button @click="toKebabCase" class="flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-[10px] font-bold uppercase tracking-wide border border-transparent hover:border-primary/20 transition-all active:scale-95">kebab-case</button>
           </div>
         </div>
 
@@ -158,10 +157,10 @@ function copyText() {
             <AlignLeft :size="12" /> Lines & Order
           </h3>
           <div class="grid grid-cols-1 gap-2">
-             <button @click="sortLines" class="btn-list">Sort Lines (A-Z)</button>
-             <button @click="uniqueLines" class="btn-list">Remove Duplicates</button>
-             <button @click="reverseLines" class="btn-list">Reverse Lines</button>
-             <button @click="reverseText" class="btn-list">Reverse Text</button>
+             <button @click="sortLines" class="w-full text-left px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-xs font-medium border border-transparent hover:border-primary/20 transition-all active:translate-x-1">Sort Lines (A-Z)</button>
+             <button @click="uniqueLines" class="w-full text-left px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-xs font-medium border border-transparent hover:border-primary/20 transition-all active:translate-x-1">Remove Duplicates</button>
+             <button @click="reverseLines" class="w-full text-left px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-xs font-medium border border-transparent hover:border-primary/20 transition-all active:translate-x-1">Reverse Lines</button>
+             <button @click="reverseText" class="w-full text-left px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-xs font-medium border border-transparent hover:border-primary/20 transition-all active:translate-x-1">Reverse Text</button>
           </div>
         </div>
 
@@ -170,7 +169,7 @@ function copyText() {
             <FileText :size="12" /> Generators
           </h3>
           <div class="grid grid-cols-1 gap-2">
-             <button @click="generateLorem" class="btn-list">Insert Lorem Ipsum</button>
+             <button @click="generateLorem" class="w-full text-left px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-xs font-medium border border-transparent hover:border-primary/20 transition-all active:translate-x-1">Insert Lorem Ipsum</button>
           </div>
         </div>
         
@@ -206,10 +205,5 @@ function copyText() {
 </template>
 
 <style scoped>
-.btn-tool {
-  @apply flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-[10px] font-bold uppercase tracking-wide border border-transparent hover:border-primary/20 transition-all active:scale-95;
-}
-.btn-list {
-  @apply w-full text-left px-3 py-2 bg-muted/40 hover:bg-primary/10 hover:text-primary rounded-lg text-xs font-medium border border-transparent hover:border-primary/20 transition-all active:translate-x-1;
-}
+/* No scoped styles needed as we use Tailwind classes directly */
 </style>

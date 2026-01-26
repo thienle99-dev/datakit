@@ -1,6 +1,5 @@
-<script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type } from 'lucide-vue-next';
 
 const searchQuery = ref('');
 
@@ -182,6 +181,96 @@ const tools = [
     description: 'Start from a ready-made CSV or Excel template. No upload required.',
     path: '/templates',
     icon: FileDown,
+    color: 'text-slate-500',
+    bgColor: 'bg-slate-500/10'
+  },
+  {
+    id: 'json-formatter',
+    name: 'JSON Formatter',
+    description: 'Beautify, minify, and validate JSON data.',
+    path: '/json-formatter',
+    icon: FileJson,
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-500/10'
+  },
+  {
+    id: 'json-diff',
+    name: 'JSON Diff',
+    description: 'Compare two JSON objects side by side.',
+    path: '/json-diff',
+    icon: GitCompare,
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10'
+  },
+  {
+    id: 'json-path',
+    name: 'JSON Path',
+    description: 'Query and extract data from JSON using JSONPath.',
+    path: '/json-path',
+    icon: Search,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10'
+  },
+  {
+    id: 'xml-converter',
+    name: 'XML Converter',
+    description: 'Convert between XML and JSON formats.',
+    path: '/xml-converter',
+    icon: Code2,
+    color: 'text-cyan-500',
+    bgColor: 'bg-cyan-500/10'
+  },
+  {
+    id: 'encoder',
+    name: 'Encoder Suite',
+    description: 'Base64, URL, HTML encoding/decoding and Hashing.',
+    path: '/encoder',
+    icon: Binary,
+    color: 'text-indigo-500',
+    bgColor: 'bg-indigo-500/10'
+  },
+  {
+    id: 'jwt-debugger',
+    name: 'JWT Debugger',
+    description: 'Decode and inspect JSON Web Tokens.',
+    path: '/jwt-debugger',
+    icon: Shield,
+    color: 'text-pink-500',
+    bgColor: 'bg-pink-500/10'
+  },
+  {
+    id: 'epoch-converter',
+    name: 'Epoch Converter',
+    description: 'Convert between Epoch timestamps and human-readable dates.',
+    path: '/epoch-converter',
+    icon: History,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10'
+  },
+  {
+    id: 'uuid-generator',
+    name: 'UUID Generator',
+    description: 'Generate version 4 UUIDs (Guids).',
+    path: '/uuid-generator',
+    icon: Key,
+    color: 'text-violet-500',
+    bgColor: 'bg-violet-500/10'
+  },
+  {
+    id: 'regex-tester',
+    name: 'Regex Tester',
+    description: 'Test and debug regular expressions.',
+    path: '/regex-tester',
+    icon: Code,
+    color: 'text-rose-500',
+    bgColor: 'bg-rose-500/10'
+  },
+  {
+    id: 'text-tools',
+    name: 'Text Utils',
+    description: 'Case conversion, sorting, deduplication, and string manipulation.',
+    path: '/text-tools',
+    icon: Type,
     color: 'text-slate-500',
     bgColor: 'bg-slate-500/10'
   }
