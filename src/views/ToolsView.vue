@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ArrowRight, Zap, ShieldCheck, Cpu, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon } from 'lucide-vue-next';
 
 const searchQuery = ref('');
 
@@ -274,6 +274,15 @@ const tools = [
     icon: Type,
     color: 'text-slate-500',
     bgColor: 'bg-slate-500/10'
+  },
+  { 
+    id: 'image-studio', 
+    name: 'Image Studio', 
+    description: 'The all-in-one suite: Compress, Convert, Resize, Rotate, and Crop images with a professional editor.',
+    path: '/image-studio', 
+    icon: ImageIcon,
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/10'
   }
 ];
 
@@ -287,13 +296,33 @@ interface Tool {
   bgColor: string;
 }
 
-const filteredTools = computed(() => {
-  if (!searchQuery.value) return tools as Tool[];
-  const q = searchQuery.value.toLowerCase();
-  return (tools as Tool[]).filter(t => 
-    t.name.toLowerCase().includes(q) || 
-    t.description.toLowerCase().includes(q)
-  );
+const categories = [
+    {
+        title: "Image Studio",
+        tools: tools.filter(t => ['image-studio'].includes(t.id))
+    },
+    {
+        title: "All-in-One Data Tools",
+        tools: tools.filter(t => ['universal-converter', 'merge-data', 'split-data', 'compare-data', 'csv-viewer', 'csv-cleaner', 'column-selector', 'filter-sort', 'transpose-data', 'data-stats', 'mock-generator', 'data-to-chart', 'skip-rows', 'random-sample', 'mask-data', 'validate-data', 'reshape-data', 'find-replace', 'summarize-data', 'templates'].includes(t.id))
+    },
+     {
+        title: "Developer Utilities",
+        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools'].includes(t.id))
+    }
+];
+
+const filteredCategories = computed(() => {
+    if (!searchQuery.value) return categories;
+    const q = searchQuery.value.toLowerCase();
+    
+    // Filter categories to only include matching tools
+    return categories.map(cat => ({
+        ...cat,
+        tools: cat.tools.filter(t => 
+             t.name.toLowerCase().includes(q) || 
+             t.description.toLowerCase().includes(q)
+        )
+    })).filter(cat => cat.tools.length > 0);
 });
 </script>
 

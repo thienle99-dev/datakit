@@ -42,6 +42,7 @@
 | Styling     | Tailwind CSS                    |
 | CSV         | PapaParse                       |
 | Excel       | SheetJS (xlsx)                  |
+| Images      | Browser Canvas API, Sharp.js (WASM) hoặc browser-image-compression |
 | Xử lý nặng | Web Workers                     |
 | Deploy      | Vercel                          |
 | DB          | Không cần cho MVP               |
@@ -68,8 +69,9 @@
 ```
 
 **Shared components**
-- `FileUploader` — drag & drop, chọn file, validation
+- `FileUploader` — drag & drop, chọn file, validation (hỗ trợ CSV/Excel/Images)
 - `DataTable` — xem dữ liệu, sticky header, virtual scroll (file lớn)
+- `ImagePreview` — xem trước ảnh, zoom, pan, so sánh before/after
 - `ToolbarActions` — Undo/Redo, filters, sorts
 - `ExportPanel` — chọn format, options, nút Download
 
@@ -90,8 +92,9 @@
 **Yêu cầu chung cho mỗi tool**
 - User flow rõ (upload → chỉnh → download)
 - Input/output và UI layout được mô tả
-- Xử lý trong Web Worker khi ≥ ~10k dòng
+- Xử lý trong Web Worker khi ≥ ~10k dòng (data) hoặc ảnh lớn (>5MB)
 - Xử lý lỗi và feedback cho user (toast/message)
+- Preview trước khi download (đặc biệt cho image tools)
 
 ---
 
@@ -131,6 +134,36 @@
 - **Compare two CSVs** — diff theo hàng/cột (highlight khác biệt)
 - **Column reorder** — kéo thả đổi thứ tự cột
 - **Transpose** — hàng thành cột, cột thành hàng
+
+**Xử lý hình ảnh (Image Tools)**
+- **Image Compress** — nén ảnh (JPEG, PNG, WebP) giảm dung lượng, giữ chất lượng
+- **Image Resize** — thay đổi kích thước (theo pixel, %, hoặc preset: thumbnail, medium, large)
+- **Image Format Converter** — chuyển đổi PNG ↔ JPEG ↔ WebP ↔ AVIF ↔ BMP ↔ GIF
+- **Image Crop** — cắt ảnh theo vùng chọn (tự do hoặc tỷ lệ cố định)
+- **Image Rotate & Flip** — xoay 90°/180°/270°, lật ngang/dọc
+- **Image Watermark** — thêm watermark (text hoặc logo) vào ảnh
+- **Image Optimize** — tối ưu hóa tự động (compress + format conversion)
+- **Batch Process Images** — xử lý nhiều ảnh cùng lúc (compress/resize/convert)
+- **Image Metadata Viewer** — xem EXIF, GPS, camera info, kích thước file
+- **Image Metadata Remover** — xóa metadata để bảo vệ privacy
+- **Image Quality Adjust** — điều chỉnh chất lượng (brightness, contrast, saturation, sharpness)
+- **Image Filters** — áp dụng filter (grayscale, sepia, blur, sharpen)
+- **Image to Base64** — chuyển ảnh sang Base64 string (cho embedding)
+- **Base64 to Image** — chuyển Base64 string về file ảnh
+- **Image Splitter** — tách ảnh thành nhiều phần (grid)
+- **Image Merger** — gộp nhiều ảnh thành một (grid layout hoặc collage)
+- **Image Background Remover** — xóa nền tự động (AI-based hoặc color-based)
+- **Image Color Picker** — lấy mã màu từ pixel trên ảnh
+- **Image to PDF** — chuyển một hoặc nhiều ảnh thành PDF
+- **PDF to Images** — tách PDF thành các ảnh (mỗi trang một ảnh)
+- **Image Resize by Dimensions** — resize theo width/height cụ thể, giữ tỷ lệ hoặc crop
+- **Image Aspect Ratio** — thay đổi tỷ lệ khung hình (16:9, 4:3, 1:1, custom)
+- **Image Canvas Resize** — thay đổi kích thước canvas, thêm padding/border
+- **Image Color Replace** — thay thế màu cụ thể bằng màu khác
+- **Image Transparency** — điều chỉnh độ trong suốt (alpha channel)
+- **Image to Icon** — tạo favicon/icon từ ảnh (16x16, 32x32, 48x48, etc.)
+- **Image QR Code Generator** — tạo QR code từ text/URL và xuất ảnh
+- **Image QR Code Reader** — đọc QR code từ ảnh upload
 
 ---
 
@@ -186,15 +219,54 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 | Trung bình | Mở rộng đã liệt kê | JSON→CSV, Merge, Split, Pivot/Unpivot, Find&Replace, Column stats, Schema infer |
 | Thấp | Làm thêm | XML/YAML, Chart, Mask sensitive, Group by, Template download |
 
+### D. Image Tools — Ưu tiên triển khai
+
+**MVP Image Tools (ưu tiên cao)**
+| Tool | Mô tả | Lý do ưu tiên |
+|------|--------|---------------|
+| **Image Compress** | Nén ảnh giảm dung lượng | Nhu cầu phổ biến nhất, tiết kiệm băng thông |
+| **Image Resize** | Thay đổi kích thước ảnh | Cần thiết cho web, email, social media |
+| **Image Format Converter** | PNG ↔ JPEG ↔ WebP | Tối ưu format cho từng use case |
+| **Image Crop** | Cắt ảnh theo vùng | Chỉnh sửa cơ bản, cắt ảnh profile/thumbnail |
+| **Image Rotate & Flip** | Xoay và lật ảnh | Chỉnh hướng ảnh từ camera |
+| **Batch Process Images** | Xử lý nhiều ảnh cùng lúc | Tiết kiệm thời gian cho user |
+
+**Image Tools mở rộng (ưu tiên trung bình)**
+| Tool | Mô tả | Use case |
+|------|--------|----------|
+| **Image Watermark** | Thêm watermark | Bảo vệ bản quyền ảnh |
+| **Image Optimize** | Tối ưu tự động | One-click optimization |
+| **Image to PDF** | Chuyển ảnh thành PDF | Tạo tài liệu từ ảnh |
+| **Image Metadata Viewer/Remover** | Xem/xóa EXIF | Privacy protection |
+| **Image Quality Adjust** | Brightness, contrast, saturation | Chỉnh sửa cơ bản |
+| **Image Filters** | Grayscale, sepia, blur | Hiệu ứng nhanh |
+| **Image to Base64** | Chuyển sang Base64 | Embedding trong code/HTML |
+| **Image Merger** | Gộp nhiều ảnh | Tạo collage, grid layout |
+| **Image Background Remover** | Xóa nền tự động | E-commerce, marketing |
+
+**Image Tools nâng cao (ưu tiên thấp)**
+| Tool | Mô tả | Use case |
+|------|--------|----------|
+| **Image Splitter** | Tách ảnh thành grid | Chia nhỏ ảnh lớn |
+| **Image Color Picker** | Lấy mã màu | Design, development |
+| **PDF to Images** | Tách PDF thành ảnh | Extract images từ PDF |
+| **Image Aspect Ratio** | Thay đổi tỷ lệ khung hình | Social media formats |
+| **Image Canvas Resize** | Thay đổi canvas với padding | Thêm border, frame |
+| **Image Color Replace** | Thay thế màu | Design, branding |
+| **Image to Icon** | Tạo favicon/icon | Web development |
+| **Image QR Code Generator/Reader** | Tạo/đọc QR code | Marketing, utilities |
+
 ---
 
 ## 6. UI / UX
 
-- Drag & drop upload, hỗ trợ multi-file khi tool cần (vd. Merge).
+- Drag & drop upload, hỗ trợ multi-file khi tool cần (vd. Merge, Batch Process Images).
 - Table: sticky header, virtual scroll cho 10k+ dòng.
+- Image preview: zoom, pan, before/after comparison slider.
 - CTA rõ: Upload, Apply/Convert, Download.
 - Desktop-first, responsive.
 - Giao diện tối giản, ít bước.
+- Progress indicator cho batch processing (images, files lớn).
 
 ---
 
@@ -215,11 +287,11 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 ## 8. Deliverables (khi triển khai)
 
 1. **Cấu trúc repo** — thư mục cho shared components, từng tool, utils, workers.
-2. **Shared components** — `FileUploader`, `DataTable`, `ToolbarActions`, `ExportPanel` (và contract/chỉ dẫn dùng).
+2. **Shared components** — `FileUploader`, `DataTable`, `ImagePreview`, `ToolbarActions`, `ExportPanel` (và contract/chỉ dẫn dùng).
 3. **Từng tool MVP** — user flow, input/output, layout, component Vue, logic xử lý (kể cả worker), xử lý lỗi.
-4. **Ví dụ code** — 1–2 tools mẫu đủ để copy pattern cho tools còn lại.
+4. **Ví dụ code** — 1–2 tools mẫu đủ để copy pattern cho tools còn lại (1 data tool + 1 image tool).
 5. **Cấu trúc trang & routing** — danh sách routes, layout chung, SEO (title/description) cho từng tool.
-6. **Backlog** — danh sách tools mở rộng (như mục 5) và thứ tự ưu tiên đề xuất.
+6. **Backlog** — danh sách tools mở rộng (như mục 5) và thứ tự ưu tiên đề xuất, bao gồm Image Tools.
 
 ---
 

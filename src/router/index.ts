@@ -54,6 +54,36 @@ const router = createRouter({
             component: () => import('../views/CompareTool.vue'),
         },
         {
+            path: '/image-studio', // Main Entry
+            name: 'image-studio',
+            component: () => import('../views/ImageEditor.vue'),
+        },
+        {
+             path: '/image-compress',
+             name: 'image-compress',
+             component: () => import('../views/ImageEditor.vue'), 
+        },
+        {
+             path: '/image-converter',
+             name: 'image-converter',
+             component: () => import('../views/ImageEditor.vue'), 
+        },
+        {
+             path: '/image-editor',
+             name: 'image-resize',
+             component: () => import('../views/ImageEditor.vue'),
+        },
+        {
+             path: '/image-rotate',
+             name: 'image-rotate',
+             component: () => import('../views/ImageEditor.vue'),
+        },
+        {
+             path: '/image-crop',
+             name: 'image-crop',
+             component: () => import('../views/ImageEditor.vue'),
+        },
+        {
             path: '/transpose-data',
             name: 'transpose-data',
             component: () => import('../views/TransposeTool.vue'),
