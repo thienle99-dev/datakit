@@ -286,16 +286,7 @@ const tools = [
   }
 ];
 
-interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  path: string;
-  icon: any;
-  color: string;
-  bgColor: string;
-}
-
+// Categories definition
 const categories = [
     {
         title: "Image Studio",
@@ -400,50 +391,55 @@ const filteredCategories = computed(() => {
       </div>
     </div>
 
-    <!-- Tools Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <router-link 
-        v-for="(tool, index) in filteredTools" 
-        :key="tool.id" 
-        :to="tool.path"
-        class="group relative h-full animate-in fade-in slide-in-from-bottom-10 duration-1000"
-        :style="{ transitionDelay: `${index * 50}ms` }"
-      >
-        <div class="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 border border-white/10 pointer-events-none"></div>
-        
-        <div class="h-full glass-card p-4 rounded-2xl border border-border/50 flex flex-col transition-all duration-500 group-hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 group-hover:border-primary/40 relative overflow-hidden bg-card">
-          <div class="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          
-          <div class="flex items-center gap-3 mb-3 relative z-10">
-            <div :class="[tool.bgColor, tool.color]" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-105 shadow-sm relative overflow-hidden ring-1 ring-white/10 shrink-0">
-               <component :is="tool.icon" :size="18" stroke-width="2.5" />
-            </div>
+    <!-- Categories Grid -->
+    <div class="space-y-12">
+        <div v-for="(category, catIndex) in filteredCategories" :key="category.title" class="space-y-6">
+            <h2 class="text-xl font-black uppercase tracking-widest text-muted-foreground/50 border-b border-border/30 pb-2 animate-in fade-in slide-in-from-left-4 duration-700" :style="{ animationDelay: `${catIndex * 100}ms` }">
+                {{ category.title }}
+            </h2>
             
-            <h3 class="text-base font-bold tracking-tight group-hover:text-primary transition-colors truncate">
-              {{ tool.name }}
-            </h3>
-          </div>
-          
-          <p class="text-muted-foreground leading-relaxed text-sm font-medium opacity-70 group-hover:opacity-100 transition-opacity line-clamp-2">
-            {{ tool.description }}
-          </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <router-link 
+                v-for="(tool, index) in category.tools" 
+                :key="tool.id" 
+                :to="tool.path"
+                class="group relative h-full animate-in fade-in slide-in-from-bottom-10 duration-1000"
+                :style="{ transitionDelay: `${index * 50}ms` }"
+              >
+                <div class="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 border border-white/10 pointer-events-none"></div>
+                
+                <div class="h-full glass-card p-4 rounded-2xl border border-border/50 flex flex-col transition-all duration-500 group-hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 group-hover:border-primary/40 relative overflow-hidden bg-card">
+                  <div class="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  <div class="flex items-center gap-3 mb-3 relative z-10">
+                    <div :class="[tool.bgColor, tool.color]" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-105 shadow-sm relative overflow-hidden ring-1 ring-white/10 shrink-0">
+                       <component :is="tool.icon" :size="18" stroke-width="2.5" />
+                    </div>
+                    
+                    <h3 class="text-base font-bold tracking-tight group-hover:text-primary transition-colors truncate">
+                      {{ tool.name }}
+                    </h3>
+                  </div>
+                  
+                  <p class="text-muted-foreground leading-relaxed text-sm font-medium opacity-70 group-hover:opacity-100 transition-opacity line-clamp-2">
+                    {{ tool.description }}
+                  </p>
 
-          <div class="absolute right-3 bottom-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-3 transition-all duration-500">
-            <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-sm ring-1 ring-primary/20">
-              <ArrowRight :size="14" />
+                  <div class="mt-auto pt-4 flex items-center justify-end opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0 text-primary">
+                    <ArrowRight :size="16" stroke-width="3" />
+                  </div>
+                </div>
+              </router-link>
             </div>
-          </div>
         </div>
-      </router-link>
-    </div>
 
-    <!-- Empty State -->
-    <div v-if="filteredTools.length === 0" class="text-center py-14 animate-in fade-in zoom-in-95 duration-500">
-      <div class="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-        <Search :size="32" class="text-muted-foreground/20" />
-      </div>
-      <h3 class="text-xl font-bold mb-1.5">No tools found</h3>
-      <p class="text-sm text-muted-foreground">Adjust your search to find what you're looking for.</p>
+        <div v-if="filteredCategories.length === 0" class="text-center py-20 text-muted-foreground">
+             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted/40 mb-4 animate-bounce">
+                <Search :size="24" />
+             </div>
+             <h3 class="text-lg font-bold">No tools found</h3>
+             <p>Try searching for something else</p>
+        </div>
     </div>
   </div>
 </template>
