@@ -125,3 +125,64 @@ export async function convertImageFormat(file: File, format: string): Promise<Bl
         }, format);
     });
 }
+
+/**
+ * Preset aspect ratios for image upscaling
+ */
+export const ASPECT_RATIO_PRESETS = {
+  '1:1': { width: 1, height: 1, label: 'Square (1:1)' },
+  '16:9': { width: 16, height: 9, label: 'Landscape (16:9)' },
+  '9:16': { width: 9, height: 16, label: 'Portrait (9:16)' },
+  '4:3': { width: 4, height: 3, label: 'Classic (4:3)' },
+  '21:9': { width: 21, height: 9, label: 'Ultrawide (21:9)' },
+} as const;
+
+/**
+ * Upscale image với các phương pháp interpolation khác nhau
+ */
+export async function upscaleImage(
+  file: File,
+  scaleFactor: number = 2,
+  method: 'bicubic' | 'lanczos' | 'nearest' | 'bilinear' = 'bicubic',
+  targetAspectRatio?: { width: number; height: number }
+): Promise<Blob> {
+  const dataUrl = await fileToDataURL(file);
+  const img = await loadImage(dataUrl);
+  
+  let targetWidth = Math.round(img.width * scaleFactor);
+  let targetHeight = Math.round(img.height * scaleFactor);
+  
+  // Apply aspect ratio nếu có
+  if (targetAspectRatio && targetAspectRatio.width > 0 && targetAspectRatio.height > 0) {
+    const targetRatio = targetAspectRatio.width / targetAspectRatio.height;
+    const currentRatio = targetWidth / targetHeight;
+    
+    if (currentRatio > targetRatio) {
+      targetHeight = Math.round(targetWidth / targetRatio);
+    } else {
+      targetWidth = Math.round(targetHeight * targetRatio);
+    }
+  }
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  
+  const ctx = canvas.getContext('2d', {
+    imageSmoothingEnabled: method !== 'nearest',
+    imageSmoothingQuality: method === 'lanczos' ? 'high' : 
+                          method === 'bicubic' ? 'high' : 'medium'
+  }) as CanvasRenderingContext2D | null;
+  
+  if (!ctx) throw new Error('Could not get canvas context');
+  
+  // Draw với interpolation
+  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+  
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Upscaling failed'));
+    }, file.type, 1.0); // Maximum quality
+  });
+}

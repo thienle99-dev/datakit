@@ -85,6 +85,11 @@ const router = createRouter({
              component: () => import('@views/ImageEditor.vue'),
         },
         {
+             path: '/image-upscaler',
+             name: 'image-upscaler',
+             component: () => import('@views/ImageUpscaler.vue'),
+        },
+        {
             path: '/transpose-data',
             name: 'transpose-data',
             component: () => import('@views/TransposeTool.vue'),

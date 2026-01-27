@@ -12,9 +12,11 @@
 |------|------------------------|
 | **MVP** | CSV/Excel Viewer, CSV↔Excel (Universal Converter), CSV Cleaner, Column Selector, Filter & Sort, CSV→JSON/SQL/Markdown (Universal Converter) |
 | **Mở rộng** | Merge, Split, Validate, Compare, Transpose, Pivot/Unpivot, Find & Replace, Column Stats, Aggregate (Summarize) |
-| **Bổ sung** | Skip Rows / Set Header, Random Sample, Mask Sensitive Data, Download Templates |
+| **Bổ sung** | Skip Rows / Set Header, Random Sample, Mask Sensitive Data, Download Templates, Data to Chart |
+| **Developer Tools** | UUID Generator (v1-v8), Hash Generator, Base64/URL Encode-Decode, JSON Formatter, JSON Diff, JSON Path, Regex Tester, JWT Debugger, Epoch Converter, XML Converter, Text Tools |
+| **Image Tools** | Image Editor (Compress, Resize, Convert, Crop, Rotate), Image Converter |
 
-**Backlog (chưa làm):** XML/YAML, Excel→PDF, CSV→Chart, Format phone/address, Excel formula→values, Group by nâng cao, v.v. — xem mục 5.1 và 5.
+**Backlog (chưa làm):** YAML converter, Excel→PDF, Format phone/address, Excel formula→values, Group by nâng cao, Image tools mở rộng, v.v. — xem mục 5.1 và 5.
 
 📋 **Checklist theo dõi tiến độ:** [CHECKLIST.md](./CHECKLIST.md) — danh sách tools & deliverables dạng `- [ ]` / `- [x]` để tick khi xong.
 
@@ -132,16 +134,29 @@
 - **Validate CSV** — kiểm tra encoding, delimiter, quoting, số cột
 
 **Developer Tools & Utilities**
-- **UUID Generator** — tạo UUID với nhiều version (v1, v4, v5, v6, v7, v8), batch generate, copy to clipboard
-- **Hash Generator** — tạo hash (MD5, SHA-1, SHA-256, SHA-512) từ text/file
-- **Base64 Encode/Decode** — mã hóa/giải mã Base64
-- **URL Encode/Decode** — mã hóa/giải mã URL
-- **JSON Formatter** — format và validate JSON
-- **Regex Tester** — test regex pattern với sample text
+- **UUID Generator** ✅ — tạo UUID với nhiều version (v1, v4, v5, v6, v7, v8), batch generate, copy to clipboard, export CSV/TXT
+- **Hash Generator** ✅ — tạo hash (MD5, SHA-1, SHA-256, SHA-512) từ text/file
+- **Base64 Encode/Decode** ✅ — mã hóa/giải mã Base64
+- **URL Encode/Decode** ✅ — mã hóa/giải mã URL
+- **JSON Formatter** ✅ — format và validate JSON
+- **JSON Diff** ✅ — so sánh 2 JSON objects, highlight differences
+- **JSON Path** ✅ — query và extract data từ JSON bằng JSONPath
+- **Regex Tester** ✅ — test regex pattern với sample text
+- **JWT Debugger** ✅ — decode và debug JWT tokens
+- **Epoch Converter** ✅ — chuyển đổi Unix timestamp ↔ date string
+- **XML Converter** ✅ — chuyển đổi XML ↔ JSON/CSV
+- **Text Tools** ✅ — các công cụ xử lý text (case converter, word counter, etc.)
 - **Color Converter** — chuyển đổi HEX ↔ RGB ↔ HSL ↔ CMYK
-- **Timestamp Converter** — chuyển đổi Unix timestamp ↔ date string
 - **QR Code Generator** — tạo QR code từ text/URL
 - **Password Generator** — tạo password ngẫu nhiên với options (length, symbols, numbers)
+- **Lorem Ipsum Generator** — tạo placeholder text với nhiều options
+- **Code Minifier** — minify CSS, JavaScript, HTML
+- **Code Beautifier** — format và beautify code (CSS, JS, HTML, JSON)
+- **SQL Formatter** — format SQL queries
+- **Markdown Editor** — preview và edit Markdown
+- **Diff Viewer** — so sánh text/files side-by-side
+- **CSV Validator** — validate CSV format và structure
+- **API Tester** — test REST API endpoints (client-side only)
 
 **Tiện ích**
 - **Compare two CSVs** — diff theo hàng/cột (highlight khác biệt)
@@ -220,22 +235,32 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 - **Unpivot / Pivot** — chuyển wide ↔ long
 
 **Tiện ích & trải nghiệm**
-- **CSV/Excel template** — tải file mẫu (template) theo mục đích
+- **CSV/Excel template** ✅ — tải file mẫu (template) theo mục đích
 - **Column reorder (drag)** — đổi thứ tự cột bằng kéo thả (bổ sung cho Column Selector)
 - **Preview N rows / Schema** — xem nhanh vài dòng + kiểu cột trước khi chọn tool
-
-**Developer Tools & Utilities (đã liệt kê ở mục 5)**
-- UUID Generator, Hash Generator, Base64/URL Encode-Decode, JSON Formatter, Regex Tester, Color Converter, Timestamp Converter, QR Code Generator, Password Generator
+- **Data Profiler** — phân tích nhanh dataset: missing values, outliers, distributions
+- **Data Quality Score** — đánh giá chất lượng data (completeness, consistency, accuracy)
+- **Column Rename** — đổi tên cột hàng loạt với regex/mapping
+- **Fill Empty Cells** — điền giá trị mặc định cho ô trống (forward fill, backward fill, constant)
+- **Normalize Whitespace** — chuẩn hóa khoảng trắng, line endings
+- **Date Parser** — nhận dạng và parse nhiều format date khác nhau
+- **Number Formatter** — format số (currency, percentage, decimal places)
+- **CSV Validator** — validate CSV structure, encoding, delimiter
+- **Excel Formula Evaluator** — evaluate Excel formulas (client-side)
+- **Data Sampling** — lấy mẫu ngẫu nhiên, stratified sampling
+- **Data Shuffle** — xáo trộn dữ liệu ngẫu nhiên
+- **Data Sort Advanced** — sort nhiều cột với custom comparators
 
 ### C. Bảng ưu tiên gợi ý (sau MVP)
 
 | Ưu tiên | Nhóm | Tools |
 |---------|------|------|
-| Cao | Còn thiếu | JSON→CSV, Merge, Split, Validate CSV, Compare, Transpose, TSV, Excel multi-sheet |
-| Cao | Developer Tools | UUID Generator, Hash Generator, Base64 Encode/Decode, JSON Formatter, URL Encode/Decode |
-| Trung bình | Mở rộng đã liệt kê | JSON→CSV, Merge, Split, Pivot/Unpivot, Find&Replace, Column stats, Schema infer |
-| Trung bình | Developer Tools mở rộng | Regex Tester, Color Converter, Timestamp Converter, QR Code Generator, Password Generator |
-| Thấp | Làm thêm | XML/YAML, Chart, Mask sensitive, Group by, Template download |
+| Cao | Còn thiếu | TSV support, Excel multi-sheet, Column Rename, Fill Empty Cells, Normalize Whitespace |
+| Cao | Developer Tools | Color Converter, QR Code Generator, Password Generator, Lorem Ipsum Generator |
+| Trung bình | Data Quality | Data Profiler, Data Quality Score, CSV Validator, Date Parser, Number Formatter |
+| Trung bình | Developer Tools mở rộng | Code Minifier/Beautifier, SQL Formatter, Markdown Editor, Diff Viewer |
+| Trung bình | Data Operations | Data Sampling, Data Shuffle, Data Sort Advanced, Excel Formula Evaluator |
+| Thấp | Làm thêm | YAML converter, Excel→PDF, Format phone/address, Group by nâng cao, API Tester |
 
 ### D. Developer Tools & Utilities — Ưu tiên triển khai
 
@@ -294,6 +319,7 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 **Image Tools mở rộng (ưu tiên trung bình)**
 | Tool | Mô tả | Use case |
 |------|--------|----------|
+| **Image Upscaler** ✅ | Tăng độ phân giải với preset aspect ratios (1:1, 16:9, 9:16, 4:3, 21:9), scale factors (2x-4x), và interpolation methods | Tăng chất lượng ảnh cho print, social media, thumbnails |
 | **Image Watermark** | Thêm watermark | Bảo vệ bản quyền ảnh |
 | **Image Optimize** | Tối ưu tự động | One-click optimization |
 | **Image to PDF** | Chuyển ảnh thành PDF | Tạo tài liệu từ ảnh |
@@ -394,3 +420,140 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 - [x] Giảm font-black xuống bold ở label/section (ToolsView, DataTable, AppHeader).
 - [x] Tăng tối thiểu size chữ bảng/label (DataTable: header/cell ≥ text-2xs, text-xs).
 - [x] Dùng CSS var `--header-h` và thống nhất height workspace (`h-screen-minus-header`).
+
+---
+
+## 11. Performance & Optimization
+
+**Mục tiêu:** Tối ưu hiệu suất, giảm bundle size, cải thiện thời gian load và xử lý.
+
+**Code Splitting & Lazy Loading**
+- [x] Route-based code splitting (đã có với dynamic imports)
+- [ ] Component-level lazy loading cho heavy components
+- [ ] Tree-shaking unused code từ libraries
+- [ ] Preload critical routes
+
+**Bundle Optimization**
+- [ ] Analyze bundle size với `vite-bundle-visualizer`
+- [ ] Optimize large dependencies (xlsx, papaparse) — có thể dùng CDN hoặc dynamic import
+- [ ] Code splitting cho image processing libraries
+- [ ] Compress assets (images, fonts)
+
+**Runtime Performance**
+- [x] Web Workers cho heavy processing (đã có cho file lớn)
+- [ ] Virtual scrolling cho tables lớn (đã có DataTable)
+- [ ] Debounce/throttle cho user inputs
+- [ ] Memoization cho expensive computations
+- [ ] Lazy load images trong Image tools
+
+**Caching Strategy**
+- [ ] Service Worker cho offline support (optional)
+- [ ] Browser cache cho static assets
+- [ ] LocalStorage cho user preferences
+- [ ] IndexedDB cho large datasets (optional)
+
+**Monitoring**
+- [ ] Performance metrics tracking (Core Web Vitals)
+- [ ] Error tracking và reporting
+- [ ] User analytics (privacy-friendly)
+
+---
+
+## 12. Accessibility (a11y)
+
+**Mục tiêu:** Đảm bảo ứng dụng có thể sử dụng được cho mọi người, bao gồm người dùng với disabilities.
+
+**Keyboard Navigation**
+- [ ] Tab order hợp lý
+- [ ] Keyboard shortcuts cho các actions chính
+- [ ] Focus indicators rõ ràng
+- [ ] Skip to main content link
+
+**Screen Reader Support**
+- [ ] ARIA labels cho các interactive elements
+- [ ] ARIA live regions cho dynamic content
+- [ ] Semantic HTML (headings, landmarks)
+- [ ] Alt text cho images và icons
+
+**Visual Accessibility**
+- [ ] Color contrast đạt WCAG AA (4.5:1 cho text)
+- [ ] Không chỉ dựa vào màu sắc để truyền đạt thông tin
+- [ ] Font size có thể scale
+- [ ] Focus indicators visible
+
+**Forms & Inputs**
+- [ ] Labels rõ ràng cho tất cả inputs
+- [ ] Error messages accessible
+- [ ] Validation feedback real-time
+- [ ] Required fields được đánh dấu
+
+**Checklist**
+- [ ] Audit với axe DevTools
+- [ ] Test với screen reader (NVDA/JAWS/VoiceOver)
+- [ ] Test keyboard-only navigation
+- [ ] Test với high contrast mode
+
+---
+
+## 13. Testing Strategy
+
+**Mục tiêu:** Đảm bảo chất lượng code và giảm bugs.
+
+**Unit Tests**
+- [ ] Test utilities functions (fileParser, imageUtils)
+- [ ] Test UUID generation logic
+- [ ] Test data transformation functions
+- [ ] Test validation logic
+
+**Integration Tests**
+- [ ] Test file upload và parsing
+- [ ] Test data conversion workflows
+- [ ] Test export functionality
+- [ ] Test error handling
+
+**E2E Tests**
+- [ ] Test critical user flows
+- [ ] Test với real files (CSV, Excel, Images)
+- [ ] Test cross-browser compatibility
+- [ ] Test responsive design
+
+**Performance Tests**
+- [ ] Test với large files (10k+ rows, 10MB+ images)
+- [ ] Test memory usage
+- [ ] Test Web Worker performance
+- [ ] Test bundle size limits
+
+**Tools**
+- Vitest cho unit/integration tests
+- Playwright cho E2E tests
+- Lighthouse cho performance audits
+- axe DevTools cho accessibility tests
+
+---
+
+## 14. Documentation & Developer Experience
+
+**Mục tiêu:** Giúp developers dễ dàng contribute và maintain codebase.
+
+**Code Documentation**
+- [ ] JSDoc comments cho functions phức tạp
+- [ ] README cho từng major component
+- [ ] Architecture decision records (ADRs)
+- [ ] Code style guide
+
+**Developer Guides**
+- [ ] Setup instructions
+- [ ] How to add new tool
+- [ ] Component patterns và best practices
+- [ ] Testing guidelines
+
+**User Documentation**
+- [ ] Tool usage guides
+- [ ] FAQ
+- [ ] Video tutorials (optional)
+- [ ] Keyboard shortcuts reference
+
+**API Documentation**
+- [ ] Shared components API
+- [ ] Utilities API
+- [ ] Type definitions

@@ -2,27 +2,29 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { 
-  ArrowLeft, X, Download, RotateCw, RotateCcw, 
+  ArrowLeft, X, Download, RotateCw, RotateCw as RotateCcw, // Fix: basic RotateCcw import if needed or use Lucide's
   FlipHorizontal, FlipVertical, Image as ImageIcon,
-  Loader2, Check
+  Loader2, Check, ZoomIn
 } from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
-import { fileToDataURL, loadImage } from '../utils/imageUtils';
+import { fileToDataURL, loadImage, upscaleImage, ASPECT_RATIO_PRESETS } from '../utils/imageUtils';
 
 const route = useRoute();
-const activeTab = ref<'resize' | 'rotate' | 'compress' | 'convert'>('resize');
+const activeTab = ref<'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler'>('resize');
 
 // Initialize tab from route query or name
 onMounted(() => {
     if (route.path.includes('compress')) activeTab.value = 'compress';
     else if (route.path.includes('convert')) activeTab.value = 'convert';
     else if (route.path.includes('rotate')) activeTab.value = 'rotate';
+    else if (route.path.includes('crop')) activeTab.value = 'crop';
+    else if (route.path.includes('upscaler')) activeTab.value = 'upscaler';
     else if (route.query.tab) activeTab.value = route.query.tab as any;
 });
 
 const originalFile = ref<File | null>(null);
 const currentUrl = ref<string>(''); // The current working image URL (after edits)
-const previewUrl = ref<string>(''); // The preview for the current operation (e.g. while adjusting sliders)
+const previewUrl = ref<string>(''); // The preview for the current operation
 const processing = ref(false);
 const error = ref<string | null>(null);
 const successMessage = ref<string | null>(null);
@@ -43,6 +45,24 @@ const rotateAngle = ref(0);
 const scaleX = ref(1);
 const scaleY = ref(1);
 
+// --- CROP STATE ---
+const cropData = ref({ x: 0, y: 0, width: 0, height: 0 });
+const imageRef = ref<HTMLImageElement | null>(null);
+const displayMultiplier = ref(1);
+
+const updateDisplayMetrics = () => {
+    if (imageRef.value && imageRef.value.naturalWidth) {
+        displayMultiplier.value = imageRef.value.offsetWidth / imageRef.value.naturalWidth;
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('resize', updateDisplayMetrics);
+});
+onUnmounted(() => {
+    window.removeEventListener('resize', updateDisplayMetrics);
+});
+
 // --- COMPRESS STATE ---
 const compressQuality = ref(80);
 const compressedSize = ref(0); // Estimated
@@ -54,6 +74,13 @@ const formats = [
   { label: 'JPEG', mime: 'image/jpeg', ext: 'jpg' },
   { label: 'WEBP', mime: 'image/webp', ext: 'webp' },
 ];
+
+// --- UPSCALER STATE ---
+const upscaleFactor = ref(2);
+const upscaleMethod = ref<'bicubic' | 'lanczos' | 'nearest' | 'bilinear'>('bicubic');
+const selectedAspectRatio = ref<keyof typeof ASPECT_RATIO_PRESETS | 'custom'>('custom');
+const customAspectRatio = ref({ width: 1, height: 1 });
+const upscaledDimensions = ref({ width: 0, height: 0 });
 
 async function handleFile(file: File) {
   originalFile.value = file;
@@ -72,6 +99,7 @@ async function handleFile(file: File) {
     currentDimensions.value = { width: img.width, height: img.height };
     
     resetResizeState();
+    resetCropState(img.width, img.height);
     
     // Reset transforms
     rotateAngle.value = 0;
@@ -94,6 +122,10 @@ function resetResizeState() {
     aspectRatio.value = resizeWidth.value / resizeHeight.value;
 }
 
+function resetCropState(w: number, h: number) {
+    cropData.value = { x: 0, y: 0, width: w, height: h };
+}
+
 // Watchers for Resize Input
 function onWidthChange() {
     if (maintainAspectRatio.value && aspectRatio.value) {
@@ -107,25 +139,21 @@ function onHeightChange() {
 }
 
 // --- CORE IMAGE PROCESSING ---
-// This function takes current settings and creates a new Blob/URL
-// Used for Apply, Preview (debounced for compress), and Download
-async function processImage(operation: 'resize' | 'rotate' | 'compress' | 'convert'): Promise<Blob> {
+async function processImage(operation: 'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler'): Promise<Blob> {
     const img = await loadImage(currentUrl.value);
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error("Canvas not supported");
 
-    let finalW = img.width;
-    let finalH = img.height;
-    let quality = 0.92; // Default
-    let mime = originalFile.value?.type || 'image/png';
+    // const finalW = img.width;
+    // const finalH = img.height;
+    let type = originalFile.value?.type || 'image/png';
+    let quality = 0.92;
 
     if (operation === 'resize') {
-        finalW = resizeWidth.value;
-        finalH = resizeHeight.value;
-        canvas.width = finalW;
-        canvas.height = finalH;
-        ctx.drawImage(img, 0, 0, finalW, finalH);
+        canvas.width = resizeWidth.value;
+        canvas.height = resizeHeight.value;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     } 
     else if (operation === 'rotate') {
         const rad = rotateAngle.value * Math.PI / 180;
@@ -139,33 +167,45 @@ async function processImage(operation: 'resize' | 'rotate' | 'compress' | 'conve
         ctx.scale(scaleX.value, scaleY.value);
         ctx.drawImage(img, -img.width/2, -img.height/2);
     }
+    else if (operation === 'crop') {
+        canvas.width = cropData.value.width;
+        canvas.height = cropData.value.height;
+        ctx.drawImage(
+            img, 
+            cropData.value.x, cropData.value.y, cropData.value.width, cropData.value.height,
+            0, 0, cropData.value.width, cropData.value.height
+        );
+    }
     else if (operation === 'compress') {
         quality = compressQuality.value / 100;
-        mime = 'image/jpeg'; // Compress usually implies JPEG or WebP. Let's start with JPEG if not specified.
-        // If original was PNG, transparent parts become black in JPEG. 
-        // Ideally we should allow user to pick format here too, but simplifed:
-        if (originalFile.value?.type === 'image/webp') mime = 'image/webp';
-        
+        type = 'image/jpeg';
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
     }
     else if (operation === 'convert') {
-        mime = targetFormat.value;
+        type = targetFormat.value;
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
+    }
+    else if (operation === 'upscaler') {
+        if (!originalFile.value) throw new Error('No file loaded');
+        const aspectRatio = selectedAspectRatio.value === 'custom' 
+            ? undefined
+            : ASPECT_RATIO_PRESETS[selectedAspectRatio.value];
+        return await upscaleImage(originalFile.value, upscaleFactor.value, upscaleMethod.value, aspectRatio);
     }
 
     return new Promise((resolve, reject) => {
         canvas.toBlob((blob) => {
             if (blob) resolve(blob);
             else reject(new Error('Operation failed'));
-        }, mime, quality);
+        }, type, quality);
     });
 }
 
-async function applyChange(op: 'resize' | 'rotate' | 'compress' | 'convert') {
+async function applyChange(op: 'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler') {
     if (!originalFile.value) return;
     processing.value = true;
     error.value = null;
@@ -191,6 +231,10 @@ async function applyChange(op: 'resize' | 'rotate' | 'compress' | 'convert') {
         // Reset local state if needed
         if (op === 'resize') resetResizeState();
         if (op === 'rotate') { rotateAngle.value = 0; scaleX.value = 1; scaleY.value = 1; }
+        if (op === 'crop') resetCropState(img.width, img.height);
+        if (op === 'upscaler') {
+            upscaledDimensions.value = { width: img.width, height: img.height };
+        }
         
         successMessage.value = "Changes applied successfully!";
         setTimeout(() => successMessage.value = null, 2000);
@@ -228,6 +272,24 @@ watch(activeTab, async (newTab) => {
             const blob = await processImage('compress');
             compressedSize.value = blob.size;
         } catch(e) {}
+    }
+    if (newTab === 'upscaler') {
+        // Preview upscaled dimensions
+        const aspectRatio = selectedAspectRatio.value === 'custom' 
+            ? undefined
+            : ASPECT_RATIO_PRESETS[selectedAspectRatio.value];
+        let targetWidth = Math.round(currentDimensions.value.width * upscaleFactor.value);
+        let targetHeight = Math.round(currentDimensions.value.height * upscaleFactor.value);
+        if (aspectRatio) {
+            const targetRatio = aspectRatio.width / aspectRatio.height;
+            const currentRatio = targetWidth / targetHeight;
+            if (currentRatio > targetRatio) {
+                targetHeight = Math.round(targetWidth / targetRatio);
+            } else {
+                targetWidth = Math.round(targetHeight * targetRatio);
+            }
+        }
+        upscaledDimensions.value = { width: targetWidth, height: targetHeight };
     }
 });
 
@@ -285,7 +347,7 @@ function formatSize(bytes: number) {
           Image Studio
         </h2>
         <p class="text-muted-foreground text-lg max-w-xl">
-          Resize, Compress, Rotate, and Convert — all in one place.
+          Resize, Upscale, Compress, Rotate, Crop, and Convert — all in one place.
         </p>
       </div>
       
@@ -313,7 +375,7 @@ function formatSize(bytes: number) {
                 <!-- Tabs -->
                 <div class="flex border-b border-border/50 overflow-x-auto scrollbar-hide">
                     <button 
-                        v-for="tab in ['resize', 'rotate', 'compress', 'convert']" 
+                        v-for="tab in ['resize', 'rotate', 'crop', 'upscaler', 'compress', 'convert']" 
                         :key="tab"
                         @click="activeTab = tab as any"
                         class="flex-1 px-4 py-4 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-all whitespace-nowrap"
@@ -387,6 +449,39 @@ function formatSize(bytes: number) {
                         </div>
                     </div>
 
+                    <!-- CROP -->
+                     <div v-if="activeTab === 'crop'" class="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                 <label class="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 block">X</label>
+                                 <input type="number" v-model.number="cropData.x" class="w-full px-3 py-2.5 border border-border rounded-xl bg-background font-mono text-sm" />
+                            </div>
+                            <div>
+                                 <label class="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 block">Y</label>
+                                 <input type="number" v-model.number="cropData.y" class="w-full px-3 py-2.5 border border-border rounded-xl bg-background font-mono text-sm" />
+                            </div>
+                            <div>
+                                 <label class="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 block">Width</label>
+                                 <input type="number" v-model.number="cropData.width" class="w-full px-3 py-2.5 border border-border rounded-xl bg-background font-mono text-sm" />
+                            </div>
+                            <div>
+                                 <label class="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 block">Height</label>
+                                 <input type="number" v-model.number="cropData.height" class="w-full px-3 py-2.5 border border-border rounded-xl bg-background font-mono text-sm" />
+                            </div>
+                        </div>
+                        <div class="bg-muted/30 p-3 rounded-lg text-xs text-center border border-border/50 text-muted-foreground">
+                              Drag the box on the image or adjust values.
+                        </div>
+                        <div class="pt-4 border-t border-border/50 grid gap-3">
+                             <button @click="applyChange('crop')" class="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all">
+                                Apply Crop
+                             </button>
+                             <button @click="resetCropState(currentDimensions.width, currentDimensions.height)" class="w-full py-2 bg-secondary text-secondary-foreground rounded-lg font-bold text-xs hover:bg-secondary/80 transition-all">
+                                Reset Selection
+                             </button>
+                        </div>
+                     </div>
+
                     <!-- COMPRESS -->
                      <div v-if="activeTab === 'compress'" class="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
                         <div class="space-y-4">
@@ -440,6 +535,92 @@ function formatSize(bytes: number) {
                              </button>
                         </div>
                      </div>
+
+                     <!-- UPSCALER -->
+                     <div v-if="activeTab === 'upscaler'" class="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                        <!-- Scale Factor -->
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-muted-foreground mb-2 block">Scale Factor</label>
+                            <div class="grid grid-cols-4 gap-2 mb-2">
+                                <button
+                                    v-for="scale in [1.5, 2, 3, 4]"
+                                    :key="scale"
+                                    @click="upscaleFactor = scale"
+                                    class="px-3 py-2 rounded-xl border transition-all text-xs font-medium"
+                                    :class="upscaleFactor === scale ? 'bg-primary border-primary text-white' : 'bg-background border-border text-muted-foreground hover:bg-muted'"
+                                >
+                                    {{ scale }}x
+                                </button>
+                            </div>
+                            <input
+                                v-model.number="upscaleFactor"
+                                type="number"
+                                min="1"
+                                max="10"
+                                step="0.1"
+                                class="w-full px-3 py-2.5 border border-border rounded-xl bg-background font-mono text-sm"
+                            />
+                        </div>
+
+                        <!-- Upscale Method -->
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-muted-foreground mb-2 block">Method</label>
+                            <select
+                                v-model="upscaleMethod"
+                                class="w-full px-3 py-2.5 border border-border rounded-xl bg-background text-sm"
+                            >
+                                <option value="bicubic">Bicubic (Recommended)</option>
+                                <option value="lanczos">Lanczos (Sharpest)</option>
+                                <option value="bilinear">Bilinear (Fast)</option>
+                                <option value="nearest">Nearest (Pixel Art)</option>
+                            </select>
+                        </div>
+
+                        <!-- Aspect Ratio -->
+                        <div>
+                            <label class="text-[10px] font-bold uppercase text-muted-foreground mb-2 block">Aspect Ratio (Optional)</label>
+                            <select
+                                v-model="selectedAspectRatio"
+                                class="w-full px-3 py-2.5 border border-border rounded-xl bg-background text-sm mb-2"
+                            >
+                                <option value="custom">Custom (Keep Original)</option>
+                                <option v-for="(preset, key) in ASPECT_RATIO_PRESETS" :key="key" :value="key">
+                                    {{ preset.label }}
+                                </option>
+                            </select>
+                            <div v-if="selectedAspectRatio === 'custom'" class="grid grid-cols-2 gap-2">
+                                <input
+                                    v-model.number="customAspectRatio.width"
+                                    type="number"
+                                    min="1"
+                                    placeholder="Width"
+                                    class="px-3 py-2 border border-border rounded-xl bg-background font-mono text-sm"
+                                />
+                                <input
+                                    v-model.number="customAspectRatio.height"
+                                    type="number"
+                                    min="1"
+                                    placeholder="Height"
+                                    class="px-3 py-2 border border-border rounded-xl bg-background font-mono text-sm"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="bg-muted/30 p-3 rounded-lg text-xs border border-border/50 space-y-1">
+                            <div>Original: <span class="font-mono">{{ currentDimensions.width }} × {{ currentDimensions.height }}px</span></div>
+                            <div v-if="upscaledDimensions.width" class="text-primary">
+                                Upscaled: <span class="font-mono">{{ upscaledDimensions.width }} × {{ upscaledDimensions.height }}px</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-border/50">
+                            <button @click="applyChange('upscaler')" class="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                                <ZoomIn :size="16" />
+                                Upscale {{ upscaleFactor }}x
+                            </button>
+                        </div>
+                     </div>
                 </div>
 
                 <!-- Footer Info -->
@@ -451,14 +632,32 @@ function formatSize(bytes: number) {
 
             <!-- Canvas/Preview -->
             <div class="flex-1 bg-muted/10 flex items-center justify-center p-8 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] overflow-hidden relative">
-                 <img 
-                    :src="previewUrl" 
-                    class="max-w-full max-h-full object-contain shadow-2xl rounded-sm ring-1 ring-black/10 transition-transform duration-300" 
-                    :style="{ 
-                        transform: activeTab === 'rotate' ? `rotate(${rotateAngle}deg) scale(${scaleX}, ${scaleY})` : 'none',
-                        filter: processing ? 'blur(2px)' : 'none'
-                    }" 
-                />
+                 <div class="relative inline-block">
+                     <img 
+                        ref="imageRef"
+                        :src="previewUrl" 
+                        @load="updateDisplayMetrics"
+                        class="max-w-full max-h-[calc(100vh-14rem)] object-contain shadow-2xl rounded-sm ring-1 ring-black/10 transition-transform duration-300 block" 
+                        :style="{ 
+                            transform: activeTab === 'rotate' ? `rotate(${rotateAngle}deg) scale(${scaleX}, ${scaleY})` : 'none',
+                            filter: processing ? 'blur(2px)' : 'none'
+                        }" 
+                    />
+                    
+                    <!-- Crop Overlay -->
+                    <div 
+                        v-if="activeTab === 'crop'"
+                        class="absolute border-2 border-primary shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] cursor-move transition-none z-10"
+                        :style="{
+                            left: (cropData.x * displayMultiplier) + 'px',
+                            top: (cropData.y * displayMultiplier) + 'px',
+                            width: (cropData.width * displayMultiplier) + 'px',
+                            height: (cropData.height * displayMultiplier) + 'px',
+                            pointerEvents: 'none' /* For MVP, using inputs only initially to avoid drag complexity errors */
+                        }"
+                    >
+                    </div>
+                 </div>
             </div>
         </div>
     </div>

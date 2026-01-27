@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ShieldCheck, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ShieldCheck, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon, ZoomIn } from 'lucide-vue-next';
 
 const searchQuery = ref('');
 
@@ -251,7 +251,7 @@ const tools = [
   {
     id: 'uuid-generator',
     name: 'UUID Generator',
-    description: 'Generate version 4 UUIDs (Guids).',
+    description: 'Generate UUIDs in multiple versions (v1-v8) with batch processing, format options, and export capabilities.',
     path: '/uuid-generator',
     icon: Key,
     color: 'text-violet-500',
@@ -283,13 +283,22 @@ const tools = [
     icon: ImageIcon,
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10'
+  },
+  { 
+    id: 'image-upscaler', 
+    name: 'Image Upscaler', 
+    description: 'Increase image resolution with preset aspect ratios (1:1, 16:9, 9:16, 4:3, 21:9) and multiple upscale methods.',
+    path: '/image-upscaler', 
+    icon: ZoomIn,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-500/10'
   }
 ];
 
 const categories = [
     {
         title: "Image Studio",
-        tools: tools.filter(t => ['image-studio'].includes(t.id))
+        tools: tools.filter(t => ['image-studio', 'image-upscaler'].includes(t.id))
     },
     {
         title: "All-in-One Data Tools",
