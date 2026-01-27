@@ -2,15 +2,24 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { 
-  ArrowLeft, X, Download, RotateCw, RotateCw as RotateCcw, // Fix: basic RotateCcw import if needed or use Lucide's
+  ArrowLeft, X, Download, RotateCw, RotateCw as RotateCcw,
   FlipHorizontal, FlipVertical, Image as ImageIcon,
-  Loader2, Check, ZoomIn
+  Loader2, Check, Crop, Scaling, Minimize2, ArrowRightLeft, Sparkles
 } from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
 import { fileToDataURL, loadImage, upscaleImage, ASPECT_RATIO_PRESETS } from '../utils/imageUtils';
 
 const route = useRoute();
 const activeTab = ref<'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler'>('resize');
+
+const tools = [
+  { id: 'resize', label: 'Resize', icon: Scaling, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'hover:border-blue-500/50' },
+  { id: 'crop', label: 'Crop', icon: Crop, color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'hover:border-emerald-500/50' },
+  { id: 'rotate', label: 'Rotate', icon: RotateCw, color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'hover:border-orange-500/50' },
+  { id: 'upscaler', label: 'Upscale', icon: Sparkles, color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'hover:border-purple-500/50' },
+  { id: 'compress', label: 'Compress', icon: Minimize2, color: 'text-pink-500', bg: 'bg-pink-500/10', border: 'hover:border-pink-500/50' },
+  { id: 'convert', label: 'Convert', icon: ArrowRightLeft, color: 'text-cyan-500', bg: 'bg-cyan-500/10', border: 'hover:border-cyan-500/50' },
+];
 
 // Initialize tab from route query or name
 onMounted(() => {
@@ -372,16 +381,34 @@ function formatSize(bytes: number) {
         <div v-else class="flex flex-col md:flex-row h-full">
             <!-- Sidebar Controls -->
             <div class="w-full md:w-80 bg-card border-r border-border/50 flex flex-col z-20">
-                <!-- Tabs -->
-                <div class="flex border-b border-border/50 overflow-x-auto scrollbar-hide">
+                <!-- Tools Grid -->
+                <div class="p-4 grid grid-cols-3 md:grid-cols-2 gap-2 border-b border-border/50">
                     <button 
-                        v-for="tab in ['resize', 'rotate', 'crop', 'upscaler', 'compress', 'convert']" 
-                        :key="tab"
-                        @click="activeTab = tab as any"
-                        class="flex-1 px-4 py-4 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-all whitespace-nowrap"
-                        :class="activeTab === tab ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:bg-muted hover:text-foreground'"
+                        v-for="tool in tools" 
+                        :key="tool.id"
+                        @click="activeTab = tool.id as any"
+                        class="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border transition-all duration-200 group relative overflow-hidden"
+                        :class="[
+                            activeTab === tool.id 
+                                ? `border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm` 
+                                : `border-border/50 bg-transparent hover:bg-muted/50 ${tool.border}`
+                        ]"
                     >
-                        {{ tab }}
+                        <component 
+                            :is="tool.icon" 
+                            :size="20" 
+                            class="transition-colors duration-200"
+                            :class="activeTab === tool.id ? tool.color : 'text-muted-foreground group-hover:text-foreground'"
+                        />
+                        <span 
+                            class="text-[10px] font-bold uppercase tracking-wider transition-colors duration-200"
+                            :class="activeTab === tool.id ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'"
+                        >
+                            {{ tool.label }}
+                        </span>
+                        
+                        <!-- Active Indicator -->
+                        <div v-if="activeTab === tool.id" class="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 pointer-events-none"></div>
                     </button>
                 </div>
 
@@ -616,7 +643,7 @@ function formatSize(bytes: number) {
 
                         <div class="pt-4 border-t border-border/50">
                             <button @click="applyChange('upscaler')" class="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                                <ZoomIn :size="16" />
+                                <Sparkles :size="16" />
                                 Upscale {{ upscaleFactor }}x
                             </button>
                         </div>
