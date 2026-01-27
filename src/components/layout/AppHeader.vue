@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Sun, Moon, Github, Search } from 'lucide-vue-next';
+import { Sun, Moon, Github } from 'lucide-vue-next';
 import AppBreadcrumb from './AppBreadcrumb.vue';
-import Launchpad from './Launchpad.vue';
+import { useSpotlight } from '../../composables/useSpotlight';
+
+const { toggleSpotlight } = useSpotlight();
 
 const isDark = ref(false);
-const showLaunchpad = ref(false);
 const isScrolled = ref(false);
 
 function toggleTheme() {
@@ -22,7 +23,7 @@ function toggleTheme() {
 const handleGlobalKeys = (e: KeyboardEvent) => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
     e.preventDefault();
-    showLaunchpad.value = !showLaunchpad.value;
+    toggleSpotlight();
   }
 };
 
@@ -70,17 +71,7 @@ onUnmounted(() => {
           </span>
         </router-link>
 
-        <button 
-          @click="showLaunchpad = true" 
-          class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary/50 hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-300 group ring-1 ring-white/5"
-        >
-          <Search :size="14" class="group-hover:scale-110 transition-transform" />
-          <span class="text-2xs font-bold uppercase tracking-wider hidden md:block">Launchpad</span>
-          <div class="hidden md:flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded-md bg-background/50 border border-border/50 text-2xs font-bold opacity-40">
-            <span>⌘</span>
-            <span>K</span>
-          </div>
-        </button>
+
         
         <div class="h-6 w-px bg-border/40 hidden xl:block"></div>
         <AppBreadcrumb class="hidden lg:flex" />
@@ -109,11 +100,6 @@ onUnmounted(() => {
       </div>
     </div>
   </header>
-  
-  <Launchpad 
-    :is-visible="showLaunchpad" 
-    @close="showLaunchpad = false" 
-  />
 </template>
 
 <style scoped>

@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import AppHeader from './components/layout/AppHeader.vue';
+import AppHeader from '@components/layout/AppHeader.vue';
+import Spotlight from '@components/layout/Spotlight.vue';
+import { useSpotlight } from '@composables/useSpotlight';
+
+const { isSpotlightVisible, closeSpotlight } = useSpotlight();
 </script>
 
 <template>
@@ -24,6 +28,11 @@ import AppHeader from './components/layout/AppHeader.vue';
         </router-view>
       </main>
     </div>
+
+    <Spotlight 
+      :is-visible="isSpotlightVisible" 
+      @close="closeSpotlight" 
+    />
   </div>
 </template>
 

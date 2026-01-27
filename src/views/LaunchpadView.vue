@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ShieldCheck, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon, Zap, Cpu, ArrowRight } from 'lucide-vue-next';
-import { useSpotlight } from '../composables/useSpotlight';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ShieldCheck, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon } from 'lucide-vue-next';
 
-const { openSpotlight } = useSpotlight();
 const searchQuery = ref('');
 
 const tools = [
@@ -288,7 +286,6 @@ const tools = [
   }
 ];
 
-// Categories definition
 const categories = [
     {
         title: "Image Studio",
@@ -308,7 +305,6 @@ const filteredCategories = computed(() => {
     if (!searchQuery.value) return categories;
     const q = searchQuery.value.toLowerCase();
     
-    // Filter categories to only include matching tools
     return categories.map(cat => ({
         ...cat,
         tools: cat.tools.filter(t => 
@@ -320,135 +316,108 @@ const filteredCategories = computed(() => {
 </script>
 
 <template>
-  <div class="max-w-screen-2xl mx-auto py-10 md:py-12 px-4 md:px-8">
-    <!-- Hero Section -->
-    <div class="relative mb-14">
-      <div class="absolute inset-0 -top-16 -z-10 bg-[radial-gradient(45%_40%_at_50%_50%,var(--primary-rgb,theme(colors.primary.DEFAULT))_0%,transparent_100%)] opacity-[0.03] blur-3xl"></div>
+  <div class="min-h-screen relative overflow-hidden flex items-center justify-center p-4 sm:p-8">
+    
+    <!-- Abstract 3D/Gradient Wallpaper -->
+    <div class="fixed inset-0 -z-10 bg-[#0f172a]">
+        <div class="absolute -top-[10%] -right-[10%] w-[80%] h-[80%] rounded-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-400/20 via-blue-600/10 to-transparent blur-3xl opacity-50 animate-pulse-slow"></div>
+        <div class="absolute -bottom-[20%] -left-[10%] w-[80%] h-[80%] rounded-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-fuchsia-600/10 to-transparent blur-3xl opacity-50"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5"></div>
+    </div>
+
+    <!-- Main "Window" Container -->
+    <div class="w-full max-w-[1000px] max-h-[90vh] bg-background/40 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden relative animate-in zoom-in-95 duration-700">
       
-      <div class="text-center space-y-4">
-        
-        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-2xs font-bold uppercase tracking-[0.15em] animate-in fade-in slide-in-from-bottom-2 duration-700">
-          <Zap :size="10" fill="currentColor" /> v2.0 - Universal Data Toolkit
+      <!-- Window Header / Toolbar -->
+      <div class="h-16 px-8 flex items-center justify-between border-b border-white/5 shrink-0 z-20 bg-white/5 backdrop-blur-sm">
+        <div class="flex items-center gap-3">
+           <div class="flex items-center gap-2">
+             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+               <component :is="ImageIcon" :size="16" stroke-width="2.5" />
+             </div>
+             <span class="text-xl font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+               Apps
+             </span>
+           </div>
+           
+           <div class="h-6 w-px bg-white/10 mx-2"></div>
+           
+           <div class="relative group">
+              <Search class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input 
+                v-model="searchQuery"
+                type="text" 
+                placeholder="Search" 
+                class="w-48 bg-black/5 dark:bg-white/5 border border-transparent focus:border-white/10 rounded-lg pl-9 pr-3 py-1.5 text-sm transition-all focus:w-64 focus:outline-none placeholder:text-muted-foreground/50"
+              />
+           </div>
         </div>
         
-        <h1 class="text-3xl md:text-5xl font-black tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-100">
-          Supercharge your <br/>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-pink-500 pb-0.5">Data Workflow</span>
-        </h1>
-        
-        <p class="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-          A suite of premium, heavy-duty data utilities that run 100% in your browser. 
-          No uploads, no cloud, just raw speed and privacy.
-        </p>
-
-        <!-- Feature Badges -->
-        <div class="flex flex-wrap justify-center gap-4 pt-2 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-          <div class="flex items-center gap-1.5 text-2xs font-bold text-muted-foreground uppercase tracking-wider">
-            <ShieldCheck :size="14" class="text-emerald-500" /> Private by Design
-          </div>
-          <div class="flex items-center gap-1.5 text-2xs font-bold text-muted-foreground uppercase tracking-wider">
-            <Cpu :size="14" class="text-blue-500" /> Local Processing
-          </div>
-          <div class="flex items-center gap-1.5 text-2xs font-bold text-muted-foreground uppercase tracking-wider">
-            <ArrowRightLeft :size="14" class="text-amber-500" /> Multi-Format
-          </div>
+        <div class="flex items-center gap-4 text-muted-foreground">
+           <router-link to="/" class="hover:text-foreground transition-colors p-1.5 hover:bg-white/5 rounded-lg flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+             <Columns :size="16" /> Home
+           </router-link>
         </div>
       </div>
-    </div>
 
-    <!-- Toolbar: Search & View Options -->
-    <div class="max-w-4xl mx-auto mb-12 space-y-6">
-      <div class="relative group animate-in zoom-in-95 duration-1000 delay-300">
-        <div class="absolute -inset-1.5 bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-700"></div>
+      <!-- Scrollable Content Area -->
+      <div class="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-10 relative">
         
-        <div class="relative flex flex-col gap-4">
-          <div class="relative flex items-center">
-            <span class="absolute left-5 text-muted-foreground transition-all duration-300 group-focus-within:text-primary group-focus-within:scale-110">
-              <Search :size="20" stroke-width="2.5" />
-            </span>
-            
-            <input 
-              v-model="searchQuery"
-              @click="openSpotlight"
-              readonly
-              type="text" 
-              placeholder="What are we building today? (Press Click to Search)" 
-              class="w-full pl-12 pr-20 py-3.5 bg-card border border-border/80 rounded-xl text-base font-bold placeholder:text-muted-foreground/20 focus:outline-none focus:ring-4 focus:ring-primary/5 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.08)] group-hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.12)] transition-all tracking-tight cursor-pointer"
-            />
-
-            <div class="absolute right-5 flex items-center gap-1 px-2 py-1 bg-muted/50 border border-border/50 rounded-lg text-2xs font-bold tracking-tight text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex">
-              <span>⌘</span><span>K</span>
+        <div v-for="(category, index) in filteredCategories" :key="category.title" class="space-y-4">
+            <div class="flex items-center justify-between px-2" v-if="filteredCategories.length > 1">
+                <h3 class="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                    {{ category.title }}
+                </h3>
             </div>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-center gap-2 animate-in fade-in slide-in-from-top-4 duration-1000 delay-500">
-             <button 
-               v-for="cat in ['All', 'Converter', 'Viewer', 'Cleaner', 'Manager']" 
-               :key="cat"
-               @click="searchQuery = cat === 'All' ? '' : cat"
-               class="px-4 py-1.5 rounded-full border border-border/40 hover:border-primary/50 text-2xs font-bold uppercase tracking-wider transition-all hover:bg-primary/5 hover:text-primary active:scale-95 shadow-sm"
-               :class="{ 'bg-primary border-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md shadow-primary/20': searchQuery.toLowerCase() === cat.toLowerCase() }"
-             >
-               {{ cat }}
-             </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Categories Grid -->
-    <div class="space-y-12">
-        <div v-for="(category, index) in filteredCategories" :key="category.title" class="space-y-6">
-            <h2 class="text-xl font-black uppercase tracking-widest text-muted-foreground/50 border-b border-border/30 pb-2 animate-in fade-in slide-in-from-left-4 duration-700" :style="{ animationDelay: `${index * 100}ms` }">
-                {{ category.title }}
-            </h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <router-link 
-                v-for="(tool, index) in category.tools" 
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6">
+               <router-link 
+                v-for="(tool, tIndex) in category.tools" 
                 :key="tool.id" 
                 :to="tool.path"
-                class="group relative h-full animate-in fade-in slide-in-from-bottom-10 duration-1000"
-                :style="{ transitionDelay: `${index * 50}ms` }"
+                class="group flex flex-col items-center gap-3 animate-in fade-in fill-mode-backwards duration-500"
+                :style="{ animationDelay: `${(index * 100) + (tIndex * 30)}ms` }"
               >
-                <div class="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 border border-white/10 pointer-events-none"></div>
-                
-                <div class="h-full glass-card p-4 rounded-2xl border border-border/50 flex flex-col transition-all duration-500 group-hover:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.1)] group-hover:-translate-y-1 group-hover:border-primary/40 relative overflow-hidden bg-card">
-                  <div class="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
-                  <div class="flex items-center gap-3 mb-3 relative z-10">
-                    <div :class="[tool.bgColor, tool.color]" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-105 shadow-sm relative overflow-hidden ring-1 ring-white/10 shrink-0">
-                       <component :is="tool.icon" :size="18" stroke-width="2.5" />
-                    </div>
-                    
-                    <h3 class="text-base font-bold tracking-tight group-hover:text-primary transition-colors truncate">
-                      {{ tool.name }}
-                    </h3>
-                  </div>
-                  
-                  <p class="text-muted-foreground leading-relaxed text-sm font-medium opacity-70 group-hover:opacity-100 transition-opacity line-clamp-2">
-                    {{ tool.description }}
-                  </p>
-
-                  <div class="mt-auto pt-4 flex items-center justify-end opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0 text-primary">
-                    <ArrowRight :size="16" stroke-width="3" />
-                  </div>
+                <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-[1.5rem] shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-md group-active:scale-95 flex items-center justify-center overflow-hidden" 
+                     :class="[tool.bgColor]">
+                     <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent pointer-events-none"></div>
+                     <component :is="tool.icon" :size="36" stroke-width="2" :class="tool.color" class="drop-shadow-sm relative z-10" />
+                     <div class="absolute inset-0 border border-black/5 dark:border-white/10 rounded-[1.5rem] pointer-events-none"></div>
                 </div>
+
+                <span class="text-xs sm:text-sm font-medium text-foreground/80 text-center leading-tight truncate px-1 w-full group-hover:text-foreground transition-colors">
+                  {{ tool.name }}
+                </span>
               </router-link>
             </div>
         </div>
 
-        <div v-if="filteredCategories.length === 0" class="text-center py-20 text-muted-foreground">
-             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted/40 mb-4 animate-bounce">
-                <Search :size="24" />
-             </div>
-             <h3 class="text-lg font-bold">No tools found</h3>
-             <p>Try searching for something else</p>
+        <div v-if="filteredCategories.length === 0" class="flex flex-col items-center justify-center py-20 opacity-50">
+             <Search class="w-16 h-16 mb-4 opacity-50" />
+             <p class="text-lg font-medium">No results found</p>
         </div>
+
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* No specific style needed as Tailwind utils cover it */
+.animate-pulse-slow {
+  animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.2);
+  border-radius: 20px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.4);
+}
 </style>

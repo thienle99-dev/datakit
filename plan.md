@@ -43,6 +43,7 @@
 | CSV         | PapaParse                       |
 | Excel       | SheetJS (xlsx)                  |
 | Images      | Browser Canvas API, Sharp.js (WASM) hoặc browser-image-compression |
+| UUID        | crypto.randomUUID() (native) hoặc uuid library (npm) |
 | Xử lý nặng | Web Workers                     |
 | Deploy      | Vercel                          |
 | DB          | Không cần cho MVP               |
@@ -130,6 +131,18 @@
 - **SQL → CSV** — paste kết quả query dạng text → parse thành CSV (nếu có chuẩn format)
 - **Validate CSV** — kiểm tra encoding, delimiter, quoting, số cột
 
+**Developer Tools & Utilities**
+- **UUID Generator** — tạo UUID với nhiều version (v1, v4, v5, v6, v7, v8), batch generate, copy to clipboard
+- **Hash Generator** — tạo hash (MD5, SHA-1, SHA-256, SHA-512) từ text/file
+- **Base64 Encode/Decode** — mã hóa/giải mã Base64
+- **URL Encode/Decode** — mã hóa/giải mã URL
+- **JSON Formatter** — format và validate JSON
+- **Regex Tester** — test regex pattern với sample text
+- **Color Converter** — chuyển đổi HEX ↔ RGB ↔ HSL ↔ CMYK
+- **Timestamp Converter** — chuyển đổi Unix timestamp ↔ date string
+- **QR Code Generator** — tạo QR code từ text/URL
+- **Password Generator** — tạo password ngẫu nhiên với options (length, symbols, numbers)
+
 **Tiện ích**
 - **Compare two CSVs** — diff theo hàng/cột (highlight khác biệt)
 - **Column reorder** — kéo thả đổi thứ tự cột
@@ -211,15 +224,62 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 - **Column reorder (drag)** — đổi thứ tự cột bằng kéo thả (bổ sung cho Column Selector)
 - **Preview N rows / Schema** — xem nhanh vài dòng + kiểu cột trước khi chọn tool
 
+**Developer Tools & Utilities (đã liệt kê ở mục 5)**
+- UUID Generator, Hash Generator, Base64/URL Encode-Decode, JSON Formatter, Regex Tester, Color Converter, Timestamp Converter, QR Code Generator, Password Generator
+
 ### C. Bảng ưu tiên gợi ý (sau MVP)
 
 | Ưu tiên | Nhóm | Tools |
 |---------|------|------|
 | Cao | Còn thiếu | JSON→CSV, Merge, Split, Validate CSV, Compare, Transpose, TSV, Excel multi-sheet |
+| Cao | Developer Tools | UUID Generator, Hash Generator, Base64 Encode/Decode, JSON Formatter, URL Encode/Decode |
 | Trung bình | Mở rộng đã liệt kê | JSON→CSV, Merge, Split, Pivot/Unpivot, Find&Replace, Column stats, Schema infer |
+| Trung bình | Developer Tools mở rộng | Regex Tester, Color Converter, Timestamp Converter, QR Code Generator, Password Generator |
 | Thấp | Làm thêm | XML/YAML, Chart, Mask sensitive, Group by, Template download |
 
-### D. Image Tools — Ưu tiên triển khai
+### D. Developer Tools & Utilities — Ưu tiên triển khai
+
+**UUID Generator — Chi tiết các version**
+
+| Version | Mô tả | Use case | Implementation |
+|---------|--------|----------|----------------|
+| **UUID v1** | Time-based với MAC address | Cần timestamp + unique per machine | `uuid` library (node-uuid) |
+| **UUID v4** | Random (pseudo-random) | Phổ biến nhất, không cần timestamp | `crypto.randomUUID()` hoặc `uuid` |
+| **UUID v5** | Name-based SHA-1 (namespace + name) | Deterministic từ namespace + name | `uuid` library với namespace |
+| **UUID v6** | Time-ordered (reordered v1) | Cải thiện v1, sortable theo time | `uuid` library (nếu hỗ trợ) |
+| **UUID v7** | Time-ordered với random | Best practice mới, sortable + random | `uuid` library hoặc custom |
+| **UUID v8** | Custom/experimental | Experimental, custom format | Custom implementation |
+
+**UUID Generator Features:**
+- Chọn version (v1, v4, v5, v6, v7, v8)
+- Batch generate (1, 10, 100, 1000 UUIDs)
+- Format options: standard (with hyphens), no hyphens, uppercase, lowercase
+- Copy individual hoặc copy all
+- Export to CSV/TXT
+- For v5: chọn namespace (DNS, URL, OID, X.500) và nhập name
+- For v1: optional MAC address override
+- Validation: verify UUID format
+- History: lưu UUIDs đã generate trong session
+
+**MVP Developer Tools (ưu tiên cao)**
+| Tool | Mô tả | Lý do ưu tiên |
+|------|--------|---------------|
+| **UUID Generator** | Tạo UUID nhiều version | Developer tool phổ biến nhất |
+| **Hash Generator** | MD5, SHA-1, SHA-256, SHA-512 | Security, checksum verification |
+| **Base64 Encode/Decode** | Mã hóa/giải mã Base64 | API, embedding data |
+| **JSON Formatter** | Format và validate JSON | Developer workflow |
+| **URL Encode/Decode** | Mã hóa/giải mã URL | Web development |
+
+**Developer Tools mở rộng (ưu tiên trung bình)**
+| Tool | Mô tả | Use case |
+|------|--------|----------|
+| **Regex Tester** | Test regex pattern | Development, validation |
+| **Color Converter** | HEX ↔ RGB ↔ HSL ↔ CMYK | Design, CSS |
+| **Timestamp Converter** | Unix timestamp ↔ date | API, logging |
+| **QR Code Generator** | Tạo QR code | Marketing, utilities |
+| **Password Generator** | Tạo password ngẫu nhiên | Security, accounts |
+
+### E. Image Tools — Ưu tiên triển khai
 
 **MVP Image Tools (ưu tiên cao)**
 | Tool | Mô tả | Lý do ưu tiên |

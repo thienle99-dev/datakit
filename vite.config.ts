@@ -1,5 +1,9 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -16,5 +20,15 @@ export default defineConfig(({ mode }) => {
         },
       },
     ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+        '@components': path.resolve(__dirname, './src/components'),
+        '@views': path.resolve(__dirname, './src/views'),
+        '@utils': path.resolve(__dirname, './src/utils'),
+        '@composables': path.resolve(__dirname, './src/composables'),
+        '@router': path.resolve(__dirname, './src/router'),
+      },
+    },
   }
 })
