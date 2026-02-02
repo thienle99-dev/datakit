@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Sun, Moon, Github } from 'lucide-vue-next';
+import { Sun, Moon, Github, Search, Layers } from 'lucide-vue-next';
 import AppBreadcrumb from './AppBreadcrumb.vue';
 import { useSpotlight } from '../../composables/useSpotlight';
 
@@ -50,66 +50,78 @@ onUnmounted(() => {
 
 <template>
   <header 
-    class="h-20 flex items-center px-4 md:px-8 sticky top-0 z-[9999] transition-all duration-500"
-    :class="{ 'h-16': isScrolled }"
+    class="sticky top-0 w-full z-[50] transition-all duration-500 ease-in-out px-4 md:px-6"
+    :class="isScrolled ? 'py-3' : 'py-5'"
   >
-    <!-- Floating Glass Container -->
     <div 
-      class="absolute inset-x-2 md:inset-x-4 rounded-2xl bg-background border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] flex items-center px-4 justify-between transition-all duration-500 z-[9999] hover:border-white/30"
-      :class="isScrolled ? 'top-1 bottom-1 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.2)]' : 'top-2 bottom-2'"
+      class="max-w-screen-2xl mx-auto rounded-2xl transition-all duration-500 border border-transparent"
+      :class="[
+        isScrolled 
+          ? 'bg-background/80 backdrop-blur-xl border-border/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] px-4 py-2.5' 
+          : 'bg-transparent px-0 py-0'
+      ]"
     >
-      
-      <!-- Left: Logo & Nav -->
-      <div class="flex items-center gap-4 md:gap-8">
-        <router-link to="/" class="flex items-center gap-3 group shrink-0">
-          <div class="relative w-10 h-10 flex items-center justify-center bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl overflow-hidden group-hover:scale-105 transition-all duration-300 ring-1 ring-white/20 dark:ring-white/10">
-             <img src="/logo.svg?v=2" alt="Logo" class="w-6 h-6 object-contain z-10" />
-             <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </div>
-          <span class="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 group-hover:to-primary transition-all duration-300 tracking-tight hidden lg:block">
-            Data Kit
-          </span>
-        </router-link>
-
-
+      <div class="flex items-center justify-between gap-4">
         
-        <div class="h-6 w-px bg-border/40 hidden xl:block"></div>
-        <AppBreadcrumb class="hidden lg:flex" />
-      </div>
+        <!-- Left: Logo & Breadcrumbs -->
+        <div class="flex items-center gap-4 md:gap-6">
+          <router-link to="/" class="flex items-center gap-3 group shrink-0 select-none">
+            <div class="relative w-10 h-10 flex items-center justify-center bg-gradient-to-tr from-blue-600 to-violet-600 rounded-xl shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
+               <Layers class="text-white w-6 h-6" stroke-width="2.5" />
+               <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
+            <div class="flex flex-col leading-none">
+              <span class="font-bold text-lg tracking-tight group-hover:text-primary transition-colors">DataKit</span>
+              <span class="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Universal</span>
+            </div>
+          </router-link>
 
-      <!-- Right: Actions -->
-      <div class="flex items-center gap-3">
-        <button 
-          @click="toggleTheme" 
-          class="relative p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary/50 transition-all duration-300 group"
-          title="Toggle Theme"
-        >
-          <div class="absolute inset-0 bg-primary/10 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-          <Moon v-if="isDark" :size="18" class="relative z-10 animate-fade-in" />
-          <Sun v-else :size="18" class="relative z-10 animate-fade-in" />
-        </button>
+          <div class="hidden md:block w-px h-5 bg-border/60"></div>
+          
+          <AppBreadcrumb class="hidden lg:flex" />
+        </div>
 
-        <a 
-          href="https://github.com/thienle99-dev/datakit" 
-          target="_blank" 
-          class="hidden sm:flex items-center gap-2 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-foreground bg-secondary hover:bg-secondary/80 rounded-full border border-border/50 shadow-sm hover:shadow-md transition-all duration-300"
-        >
-          <Github :size="14" />
-          <span>Star</span>
-        </a>
+
+
+        <!-- Right: Actions -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Search Icon -->
+          <button 
+            @click="toggleSpotlight"
+            class="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full transition-colors"
+          >
+            <Search :size="20" />
+          </button>
+
+          <button 
+            @click="toggleTheme" 
+            class="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary transition-all duration-300 relative overflow-hidden group"
+            aria-label="Toggle Theme"
+          >
+            <Sun v-if="!isDark" :size="20" class="transition-transform duration-500 group-hover:rotate-45" />
+            <Moon v-else :size="20" class="transition-transform duration-500 group-hover:-rotate-12" />
+          </button>
+
+          <div class="hidden sm:block w-px h-5 bg-border/60"></div>
+
+          <a 
+            href="https://github.com/thienle99-dev/datakit" 
+            target="_blank" 
+            class="flex items-center gap-2 px-3 py-1.5 bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold rounded-full transition-all duration-300 group"
+          >
+            <Github :size="16" class="transition-transform group-hover:scale-110" />
+            <span class="hidden sm:inline">Star on GitHub</span>
+          </a>
+        </div>
       </div>
     </div>
   </header>
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+/* Ensure the header text doesn't clash with content when transparent */
+header {
+  -webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
 }
 </style>
