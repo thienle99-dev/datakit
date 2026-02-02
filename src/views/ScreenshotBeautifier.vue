@@ -20,7 +20,7 @@ interface BeautifySettings {
   inset: number;
   rotation: number;
   scale: number;
-  browserFrame: 'none' | 'safari' | 'chrome';
+  browserFrame: 'none' | 'safari' | 'chrome' | 'windows' | 'arc';
   noise: boolean;
   exportFormat: 'png' | 'jpeg' | 'webp';
   exportQuality: number;
@@ -318,7 +318,7 @@ const reset = () => {
                   
                   <div class="grid grid-cols-3 gap-2 px-1">
                     <button 
-                      v-for="frame in (['none', 'safari', 'chrome'] as const)" :key="frame"
+                      v-for="frame in (['none', 'safari', 'chrome', 'windows', 'arc'] as const)" :key="frame"
                       @click="settings.browserFrame = frame"
                       class="py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all"
                       :class="settings.browserFrame === frame ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-[1.02]' : 'bg-background border-border hover:border-primary/50'"

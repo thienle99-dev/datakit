@@ -639,7 +639,7 @@ export function drawBeautifiedImage(
     inset: number;
     rotation: number;
     scale: number;
-    browserFrame: 'none' | 'safari' | 'chrome';
+    browserFrame: 'none' | 'safari' | 'chrome' | 'windows' | 'arc';
     noise: boolean;
   }
 ) {
@@ -726,21 +726,139 @@ export function drawBeautifiedImage(
   if (options.browserFrame !== 'none') {
     ctx.save();
     ctx.clip();
-    ctx.fillStyle = options.browserFrame === 'safari' ? 'rgba(255,255,255,0.9)' : 'rgba(40,40,40,0.9)';
-    ctx.fillRect(drawX, drawY - frameHeight, drawW, frameHeight);
     
-    const dotColors = ['#ff5f57', '#ffbd2e', '#28c940'];
-    dotColors.forEach((color, i) => {
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(drawX + 16 + i * 18, drawY - frameHeight / 2, 5, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    
+    // Header Background
     if (options.browserFrame === 'safari') {
-       ctx.fillStyle = 'rgba(0,0,0,0.05)';
+      ctx.fillStyle = '#f1f1f1';
+    } else if (options.browserFrame === 'chrome') {
+      ctx.fillStyle = '#ebedef';
+    } else if (options.browserFrame === 'arc') {
+      ctx.fillStyle = '#1c1c1e';
+    } else if (options.browserFrame === 'windows') {
+      ctx.fillStyle = '#ffffff';
+    } else if (options.browserFrame === 'mobile' || options.browserFrame === 'tablet') {
+      ctx.fillStyle = '#000000';
+    } else if (options.browserFrame === 'desktop') {
+      ctx.fillStyle = '#222222';
+    }
+    
+    // Draw Header area for Browsers
+    const isBrowser = ['safari', 'chrome', 'arc', 'windows'].includes(options.browserFrame);
+    if (isBrowser) {
+      ctx.fillRect(drawX, drawY - frameHeight, drawW, frameHeight);
+    }
+    
+    // Traffic lights / Control buttons
+    if (options.browserFrame === 'windows') {
+      // Windows 11 style controls (Right side)
+      const btnW = 46;
+      const centerY = drawY - frameHeight / 2;
+      
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 1;
+      
+      // Close (X)
+      const xRight = drawX + drawW - 23;
+      ctx.beginPath();
+      ctx.moveTo(xRight - 4, centerY - 4);
+      ctx.lineTo(xRight + 4, centerY + 4);
+      ctx.moveTo(xRight + 4, centerY - 4);
+      ctx.lineTo(xRight - 4, centerY + 4);
+      ctx.stroke();
+      
+      // Max (Square)
+      const mRight = drawX + drawW - 23 - btnW;
+      ctx.strokeRect(mRight - 5, centerY - 5, 10, 10);
+      
+      // Min (Dash)
+      const minRight = drawX + drawW - 23 - btnW * 2;
+      ctx.beginPath();
+      ctx.moveTo(minRight - 5, centerY);
+      ctx.lineTo(minRight + 5, centerY);
+      ctx.stroke();
+    } else if (['safari', 'chrome', 'arc'].includes(options.browserFrame)) {
+      // Mac-style traffic lights
+      const dotColors = ['#ff5f57', '#ffbd2e', '#28c940'];
+      dotColors.forEach((color, i) => {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(drawX + 16 + i * 20, drawY - frameHeight / 2, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      });
+    }
+    
+    // Frames for Mobile / Tablet / Desktop
+    if (options.browserFrame === 'mobile' || options.browserFrame === 'tablet') {
+       const bezel = options.browserFrame === 'mobile' ? 12 : 16;
+       ctx.fillStyle = '#1a1a1a';
+       // Outer Bezel
        ctx.beginPath();
-       ctx.roundRect(drawX + 80, drawY - frameHeight + 6, drawW - 100, frameHeight - 12, 6);
+       ctx.roundRect(drawX - bezel, drawY - bezel, drawW + bezel * 2, drawH + bezel * 2, r + bezel);
+       ctx.fill();
+       
+       // Notch / Speaker
+       ctx.fillStyle = '#000000';
+       const notchW = options.browserFrame === 'mobile' ? drawW * 0.3 : drawW * 0.15;
+       const notchH = 6;
+       ctx.beginPath();
+       ctx.roundRect(drawX + drawW / 2 - notchW / 2, drawY - bezel + 4, notchW, notchH, 3);
+       ctx.fill();
+    } else if (options.browserFrame === 'desktop') {
+       const bezel = 20;
+       // Frame
+       ctx.fillStyle = '#222222';
+       ctx.beginPath();
+       ctx.roundRect(drawX - bezel, drawY - bezel, drawW + bezel * 2, drawH + bezel * 2, 12);
+       ctx.fill();
+       
+       // Monitor Stand
+       const standW = drawW * 0.2;
+       const standH = 40;
+       ctx.fillStyle = '#333333';
+       ctx.fillRect(drawX + drawW / 2 - standW / 2, drawY + drawH + bezel, standW, standH);
+       // Base
+       const baseW = standW * 1.5;
+       const baseH = 8;
+       ctx.beginPath();
+       ctx.roundRect(drawX + drawW / 2 - baseW / 2, drawY + drawH + bezel + standH - 4, baseW, baseH, 4);
+       ctx.fill();
+    }
+    
+    // Specific UI Elements for each browser
+    if (options.browserFrame === 'safari') {
+       ctx.fillStyle = '#ffffff';
+       ctx.beginPath();
+       ctx.roundRect(drawX + 100, drawY - frameHeight + 6, drawW - 200, frameHeight - 12, 6);
+       ctx.fill();
+       ctx.fillStyle = 'rgba(0,0,0,0.3)';
+       ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+       ctx.textAlign = 'center';
+       ctx.fillText('safari-browser.com', drawX + drawW/2, drawY - frameHeight/2 + 3);
+    } else if (options.browserFrame === 'chrome') {
+       const tabW = 140;
+       ctx.fillStyle = '#ffffff';
+       ctx.beginPath();
+       ctx.roundRect(drawX + 80, drawY - frameHeight + 5, tabW, frameHeight - 5, [8, 8, 0, 0]);
+       ctx.fill();
+       ctx.fillStyle = '#3c4043';
+       ctx.font = '10px sans-serif';
+       ctx.textAlign = 'left';
+       ctx.fillText('Google Chrome', drawX + 95, drawY - frameHeight / 2 + 3);
+    } else if (options.browserFrame === 'arc') {
+       const sidebarW = 40;
+       ctx.fillStyle = 'rgba(255,255,255,0.05)';
+       ctx.fillRect(drawX, drawY, sidebarW, drawH);
+       ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+       ctx.beginPath();
+       ctx.moveTo(drawX + sidebarW, drawY);
+       ctx.lineTo(drawX + sidebarW, drawY + drawH);
+       ctx.stroke();
+       ctx.fillStyle = 'rgba(255,255,255,0.1)';
+       ctx.beginPath();
+       ctx.roundRect(drawX + 80, drawY - frameHeight + 6, drawW - 120, frameHeight - 12, 8);
        ctx.fill();
     }
     ctx.restore();
@@ -772,7 +890,7 @@ export async function beautifyImage(
     inset: number;
     rotation: number;
     scale: number;
-    browserFrame: 'none' | 'safari' | 'chrome';
+    browserFrame: 'none' | 'safari' | 'chrome' | 'windows' | 'arc';
     noise: boolean;
     exportFormat?: 'png' | 'jpeg' | 'webp';
     exportQuality?: number;
