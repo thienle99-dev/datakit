@@ -460,7 +460,7 @@ export async function extractPalette(
     for (let i = 0; i < centroids.length; i++) {
       const cluster = clusters[i];
       if (!cluster || cluster.length === 0) continue;
-      const newCentroid = [0, 0, 0];
+      const newCentroid: any = [0, 0, 0];
       for (const p of cluster) {
         newCentroid[0] += p[0] || 0;
         newCentroid[1] += p[1] || 0;
@@ -640,6 +640,7 @@ export function drawBeautifiedImage(
     rotation: number;
     scale: number;
     browserFrame: 'none' | 'safari' | 'chrome' | 'windows' | 'arc';
+    frameTheme: 'light' | 'dark';
     noise: boolean;
   }
 ) {
@@ -728,18 +729,15 @@ export function drawBeautifiedImage(
     ctx.clip();
     
     // Header Background
+    const isDark = options.frameTheme === 'dark';
     if (options.browserFrame === 'safari') {
-      ctx.fillStyle = '#f1f1f1';
+      ctx.fillStyle = isDark ? '#2b2b2b' : '#f1f1f1';
     } else if (options.browserFrame === 'chrome') {
-      ctx.fillStyle = '#ebedef';
+      ctx.fillStyle = isDark ? '#35363a' : '#ebedef';
     } else if (options.browserFrame === 'arc') {
-      ctx.fillStyle = '#1c1c1e';
+      ctx.fillStyle = isDark ? '#1c1c1e' : '#f9f9f9';
     } else if (options.browserFrame === 'windows') {
-      ctx.fillStyle = '#ffffff';
-    } else if (options.browserFrame === 'mobile' || options.browserFrame === 'tablet') {
-      ctx.fillStyle = '#000000';
-    } else if (options.browserFrame === 'desktop') {
-      ctx.fillStyle = '#222222';
+      ctx.fillStyle = isDark ? '#202020' : '#ffffff';
     }
     
     // Draw Header area for Browsers
@@ -754,20 +752,20 @@ export function drawBeautifiedImage(
       const btnW = 46;
       const centerY = drawY - frameHeight / 2;
       
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 1;
-      
       // Close (X)
       const xRight = drawX + drawW - 23;
+      ctx.strokeStyle = isDark ? '#ffffff' : '#000000';
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
-      ctx.moveTo(xRight - 4, centerY - 4);
-      ctx.lineTo(xRight + 4, centerY + 4);
-      ctx.moveTo(xRight + 4, centerY - 4);
-      ctx.lineTo(xRight - 4, centerY + 4);
+      ctx.moveTo(xRight - 5, centerY - 5);
+      ctx.lineTo(xRight + 5, centerY + 5);
+      ctx.moveTo(xRight + 5, centerY - 5);
+      ctx.lineTo(xRight - 5, centerY + 5);
       ctx.stroke();
       
       // Max (Square)
       const mRight = drawX + drawW - 23 - btnW;
+      ctx.lineWidth = 1;
       ctx.strokeRect(mRight - 5, centerY - 5, 10, 10);
       
       // Min (Dash)
@@ -776,6 +774,12 @@ export function drawBeautifiedImage(
       ctx.moveTo(minRight - 5, centerY);
       ctx.lineTo(minRight + 5, centerY);
       ctx.stroke();
+      
+      // Windows Title text
+      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+      ctx.font = '10px Segoe UI, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('Google Chrome', drawX + 12, drawY - frameHeight/2 + 4);
     } else if (['safari', 'chrome', 'arc'].includes(options.browserFrame)) {
       // Mac-style traffic lights
       const dotColors = ['#ff5f57', '#ffbd2e', '#28c940'];
@@ -790,73 +794,37 @@ export function drawBeautifiedImage(
       });
     }
     
-    // Frames for Mobile / Tablet / Desktop
-    if (options.browserFrame === 'mobile' || options.browserFrame === 'tablet') {
-       const bezel = options.browserFrame === 'mobile' ? 12 : 16;
-       ctx.fillStyle = '#1a1a1a';
-       // Outer Bezel
-       ctx.beginPath();
-       ctx.roundRect(drawX - bezel, drawY - bezel, drawW + bezel * 2, drawH + bezel * 2, r + bezel);
-       ctx.fill();
-       
-       // Notch / Speaker
-       ctx.fillStyle = '#000000';
-       const notchW = options.browserFrame === 'mobile' ? drawW * 0.3 : drawW * 0.15;
-       const notchH = 6;
-       ctx.beginPath();
-       ctx.roundRect(drawX + drawW / 2 - notchW / 2, drawY - bezel + 4, notchW, notchH, 3);
-       ctx.fill();
-    } else if (options.browserFrame === 'desktop') {
-       const bezel = 20;
-       // Frame
-       ctx.fillStyle = '#222222';
-       ctx.beginPath();
-       ctx.roundRect(drawX - bezel, drawY - bezel, drawW + bezel * 2, drawH + bezel * 2, 12);
-       ctx.fill();
-       
-       // Monitor Stand
-       const standW = drawW * 0.2;
-       const standH = 40;
-       ctx.fillStyle = '#333333';
-       ctx.fillRect(drawX + drawW / 2 - standW / 2, drawY + drawH + bezel, standW, standH);
-       // Base
-       const baseW = standW * 1.5;
-       const baseH = 8;
-       ctx.beginPath();
-       ctx.roundRect(drawX + drawW / 2 - baseW / 2, drawY + drawH + bezel + standH - 4, baseW, baseH, 4);
-       ctx.fill();
-    }
     
     // Specific UI Elements for each browser
     if (options.browserFrame === 'safari') {
-       ctx.fillStyle = '#ffffff';
+       ctx.fillStyle = isDark ? 'rgba(255,255,255,0.05)' : '#ffffff';
        ctx.beginPath();
        ctx.roundRect(drawX + 100, drawY - frameHeight + 6, drawW - 200, frameHeight - 12, 6);
        ctx.fill();
-       ctx.fillStyle = 'rgba(0,0,0,0.3)';
+       ctx.fillStyle = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
        ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
        ctx.textAlign = 'center';
        ctx.fillText('safari-browser.com', drawX + drawW/2, drawY - frameHeight/2 + 3);
     } else if (options.browserFrame === 'chrome') {
        const tabW = 140;
-       ctx.fillStyle = '#ffffff';
+       ctx.fillStyle = isDark ? '#35363a' : '#ffffff';
        ctx.beginPath();
        ctx.roundRect(drawX + 80, drawY - frameHeight + 5, tabW, frameHeight - 5, [8, 8, 0, 0]);
        ctx.fill();
-       ctx.fillStyle = '#3c4043';
+       ctx.fillStyle = isDark ? '#ffffff' : '#3c4043';
        ctx.font = '10px sans-serif';
        ctx.textAlign = 'left';
        ctx.fillText('Google Chrome', drawX + 95, drawY - frameHeight / 2 + 3);
     } else if (options.browserFrame === 'arc') {
        const sidebarW = 40;
-       ctx.fillStyle = 'rgba(255,255,255,0.05)';
+       ctx.fillStyle = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
        ctx.fillRect(drawX, drawY, sidebarW, drawH);
-       ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+       ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
        ctx.beginPath();
        ctx.moveTo(drawX + sidebarW, drawY);
        ctx.lineTo(drawX + sidebarW, drawY + drawH);
        ctx.stroke();
-       ctx.fillStyle = 'rgba(255,255,255,0.1)';
+       ctx.fillStyle = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
        ctx.beginPath();
        ctx.roundRect(drawX + 80, drawY - frameHeight + 6, drawW - 120, frameHeight - 12, 8);
        ctx.fill();
@@ -891,6 +859,7 @@ export async function beautifyImage(
     rotation: number;
     scale: number;
     browserFrame: 'none' | 'safari' | 'chrome' | 'windows' | 'arc';
+    frameTheme: 'light' | 'dark';
     noise: boolean;
     exportFormat?: 'png' | 'jpeg' | 'webp';
     exportQuality?: number;

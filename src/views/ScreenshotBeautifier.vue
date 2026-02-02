@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { Sparkles, Download, Trash2, ArrowLeft, RefreshCw, Layout, Maximize, Palette, RotateCw, Monitor, Zap, Plus, X } from 'lucide-vue-next';
+import { Sparkles, Download, Trash2, ArrowLeft, RefreshCw, Layout, Maximize, Palette, RotateCw, Monitor, Zap, Plus, X, Sun, Moon } from 'lucide-vue-next';
 import { drawBeautifiedImage, fileToDataURL, loadImage, beautifyImage } from '../utils/imageUtils';
 import { useRouter } from 'vue-router';
 
@@ -21,6 +21,7 @@ interface BeautifySettings {
   rotation: number;
   scale: number;
   browserFrame: 'none' | 'safari' | 'chrome' | 'windows' | 'arc';
+  frameTheme: 'light' | 'dark';
   noise: boolean;
   exportFormat: 'png' | 'jpeg' | 'webp';
   exportQuality: number;
@@ -37,6 +38,7 @@ const settings = ref<BeautifySettings>({
   rotation: 0,
   scale: 1,
   browserFrame: 'none',
+  frameTheme: 'light',
   noise: false,
   exportFormat: 'png',
   exportQuality: 0.9
@@ -311,20 +313,44 @@ const reset = () => {
 
                 <!-- Frame Style -->
                 <div class="space-y-6">
-                  <div class="flex items-center gap-2">
-                    <Monitor :size="14" class="text-primary" />
-                    <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Frame Style</h4>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                       <Monitor :size="14" class="text-primary" />
+                       <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Frame Style</h4>
+                    </div>
+                    
+                    <!-- Light/Dark Toggle -->
+                    <div v-if="settings.browserFrame !== 'none'" class="flex bg-muted/30 p-1 rounded-lg border border-border/20">
+                      <button 
+                        @click="settings.frameTheme = 'light'"
+                        class="p-1 px-2.5 rounded-md transition-all flex items-center gap-1.5"
+                        :class="settings.frameTheme === 'light' ? 'bg-background text-primary shadow-sm border border-border/50' : 'text-muted-foreground hover:text-foreground'"
+                      >
+                        <Sun :size="10" />
+                        <span class="text-[9px] font-black uppercase tracking-tighter">Light</span>
+                      </button>
+                      <button 
+                        @click="settings.frameTheme = 'dark'"
+                        class="p-1 px-2.5 rounded-md transition-all flex items-center gap-1.5"
+                        :class="settings.frameTheme === 'dark' ? 'bg-background text-primary shadow-sm border border-border/50' : 'text-muted-foreground hover:text-foreground'"
+                      >
+                        <Moon :size="10" />
+                        <span class="text-[9px] font-black uppercase tracking-tighter">Dark</span>
+                      </button>
+                    </div>
                   </div>
                   
-                  <div class="grid grid-cols-3 gap-2 px-1">
-                    <button 
-                      v-for="frame in (['none', 'safari', 'chrome', 'windows', 'arc'] as const)" :key="frame"
-                      @click="settings.browserFrame = frame"
-                      class="py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all"
-                      :class="settings.browserFrame === frame ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-[1.02]' : 'bg-background border-border hover:border-primary/50'"
-                    >
-                      {{ frame }}
-                    </button>
+                  <div class="space-y-4">
+                    <div class="grid grid-cols-5 gap-2 px-1">
+                      <button 
+                        v-for="frame in (['none', 'safari', 'chrome', 'windows', 'arc'] as const)" :key="frame"
+                        @click="settings.browserFrame = frame"
+                        class="py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all capitalize"
+                        :class="settings.browserFrame === frame ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-[1.02]' : 'bg-background border-border hover:border-primary/50'"
+                      >
+                        {{ frame }}
+                      </button>
+                    </div>
                   </div>
 
                   <div class="space-y-4 px-1">
