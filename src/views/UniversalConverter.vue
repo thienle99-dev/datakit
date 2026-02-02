@@ -34,7 +34,7 @@ const processing = ref(false);
 const error = ref<string | null>(null);
 const copied = ref(false);
 
-const outputFormat = ref<'csv' | 'json' | 'yaml' | 'xlsx' | 'md' | 'sql' | 'html'>('json');
+const outputFormat = ref<'csv' | 'tsv' | 'json' | 'yaml' | 'xlsx' | 'md' | 'sql' | 'html'>('json');
 
 async function handleFile(selectedFile: File) {
   file.value = selectedFile;
@@ -148,6 +148,11 @@ function downloadFile() {
           blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
           filename = `${baseName}.csv`;
           break;
+        case 'tsv':
+          const tsv = Papa.unparse(data.value, { delimiter: '\t' });
+          blob = new Blob([tsv], { type: 'text/tab-separated-values;charset=utf-8;' });
+          filename = `${baseName}.tsv`;
+          break;
         case 'json':
           blob = new Blob([JSON.stringify(data.value, null, 2)], { type: 'application/json' });
           filename = `${baseName}.json`;
@@ -216,6 +221,7 @@ function copyPreview() {
     else if (outputFormat.value === 'yaml') text = yamlOutput.value;
     else if (outputFormat.value === 'html') text = htmlOutput.value;
     else if (outputFormat.value === 'csv') text = Papa.unparse(data.value.slice(0, 10));
+    else if (outputFormat.value === 'tsv') text = Papa.unparse(data.value.slice(0, 10), { delimiter: '\t' });
 
     navigator.clipboard.writeText(text).then(() => {
         copied.value = true;
@@ -235,6 +241,7 @@ function resetTool() {
 const formats = [
   { id: 'json', label: 'JSON Object', icon: FileJson, color: 'text-amber-500' },
   { id: 'csv', label: 'CSV File', icon: Table, color: 'text-blue-500' },
+  { id: 'tsv', label: 'TSV File', icon: Table, color: 'text-teal-500' },
   { id: 'xlsx', label: 'Excel Sheet', icon: FileType, color: 'text-emerald-500' },
   { id: 'sql', label: 'SQL Inserts', icon: Database, color: 'text-indigo-500' },
   { id: 'yaml', label: 'YAML File', icon: Layers, color: 'text-rose-500' },
@@ -314,7 +321,7 @@ const formats = [
                </p>
             </div>
 
-            <FileUploader @files-selected="handleFile" accept=".csv,.xlsx,.xls,.json,.yaml,.yml,.txt" class="min-h-[400px]" />
+            <FileUploader @files-selected="handleFile" accept=".csv,.tsv,.xlsx,.xls,.json,.yaml,.yml,.txt" class="min-h-[400px]" />
             
             <div class="mt-12 grid grid-cols-5 gap-6 justify-center opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
                <div v-for="fmt in formats" :key="fmt.id" class="flex flex-col items-center gap-3">
@@ -401,6 +408,7 @@ const formats = [
                       outputFormat === 'md' ? markdownOutput : 
                       outputFormat === 'html' ? htmlOutput :
                       outputFormat === 'csv' ? Papa.unparse(data.slice(0, 5)) : 
+                      outputFormat === 'tsv' ? Papa.unparse(data.slice(0, 5), { delimiter: '\t' }) : 
                       'Ready for Excel Export...' 
                     }}</pre>
                  </div>

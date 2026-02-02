@@ -41,7 +41,7 @@
 
 ### Backlog — ưu tiên cao
 
-- [ ] TSV support (đọc/ghi rõ ràng trong từng tool)
+- [x] TSV support (đọc/ghi rõ ràng trong từng tool)
 - [ ] Excel multi-sheet (chọn sheet, gộp sheet)
 
 ### Backlog — chuyển đổi & xuất

@@ -4,13 +4,13 @@ import { useRoute } from 'vue-router';
 import { 
   ArrowLeft, X, Download, RotateCw, RotateCw as RotateCcw,
   FlipHorizontal, FlipVertical, Image as ImageIcon,
-  Loader2, Check, Crop, Scaling, Minimize2, ArrowRightLeft, Sparkles
+  Loader2, Check, Crop, Scaling, Minimize2, ArrowRightLeft, Sparkles, FileCode
 } from 'lucide-vue-next';
 import FileUploader from '../components/shared/FileUploader.vue';
 import { fileToDataURL, loadImage, upscaleImage, ASPECT_RATIO_PRESETS } from '../utils/imageUtils';
 
 const route = useRoute();
-const activeTab = ref<'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler'>('resize');
+const activeTab = ref<'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler' | 'watermark'>('resize');
 
 const tools = [
   { id: 'resize', label: 'Resize', icon: Scaling, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'hover:border-blue-500/50' },
@@ -18,6 +18,7 @@ const tools = [
   { id: 'rotate', label: 'Rotate', icon: RotateCw, color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'hover:border-orange-500/50' },
   { id: 'upscaler', label: 'Upscale', icon: Sparkles, color: 'text-purple-500', bg: 'bg-purple-500/10', border: 'hover:border-purple-500/50' },
   { id: 'compress', label: 'Compress', icon: Minimize2, color: 'text-pink-500', bg: 'bg-pink-500/10', border: 'hover:border-pink-500/50' },
+  { id: 'watermark', label: 'Watermark', icon: FileCode, color: 'text-indigo-500', bg: 'bg-indigo-500/10', border: 'hover:border-indigo-500/50' },
   { id: 'convert', label: 'Convert', icon: ArrowRightLeft, color: 'text-cyan-500', bg: 'bg-cyan-500/10', border: 'hover:border-cyan-500/50' },
 ];
 
@@ -91,6 +92,14 @@ const selectedAspectRatio = ref<keyof typeof ASPECT_RATIO_PRESETS | 'custom'>('c
 const customAspectRatio = ref({ width: 1, height: 1 });
 const upscaledDimensions = ref({ width: 0, height: 0 });
 
+// --- WATERMARK STATE ---
+const watermarkText = ref('Confidential');
+const watermarkColor = ref('#ffffff');
+const watermarkOpacity = ref(50);
+const watermarkSize = ref(48);
+const watermarkPosition = ref('center'); // center, top-left, top-right, bottom-left, bottom-right
+const watermarkRotation = ref(0);
+
 async function handleFile(file: File) {
   originalFile.value = file;
   processing.value = true;
@@ -148,7 +157,7 @@ function onHeightChange() {
 }
 
 // --- CORE IMAGE PROCESSING ---
-async function processImage(operation: 'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler'): Promise<Blob> {
+async function processImage(operation: 'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler' | 'watermark'): Promise<Blob> {
     const img = await loadImage(currentUrl.value);
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -205,6 +214,39 @@ async function processImage(operation: 'resize' | 'rotate' | 'compress' | 'conve
             : ASPECT_RATIO_PRESETS[selectedAspectRatio.value];
         return await upscaleImage(originalFile.value, upscaleFactor.value, upscaleMethod.value, aspectRatio);
     }
+    else if (operation === 'watermark') {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        
+        ctx.save();
+        ctx.globalAlpha = watermarkOpacity.value / 100;
+        ctx.font = `${watermarkSize.value}px sans-serif`;
+        ctx.fillStyle = watermarkColor.value;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        let x = canvas.width / 2;
+        let y = canvas.height / 2;
+        
+        const padding = watermarkSize.value; // Approximate padding
+        
+        if (watermarkPosition.value.includes('left')) x = padding;
+        if (watermarkPosition.value.includes('right')) x = canvas.width - padding;
+        if (watermarkPosition.value.includes('top')) y = padding;
+        if (watermarkPosition.value.includes('bottom')) y = canvas.height - padding;
+        
+        // Adjust if it's strictly center
+        if (watermarkPosition.value === 'center') {
+            x = canvas.width / 2;
+            y = canvas.height / 2;
+        }
+
+        ctx.translate(x, y);
+        ctx.rotate(watermarkRotation.value * Math.PI / 180);
+        ctx.fillText(watermarkText.value, 0, 0);
+        ctx.restore();
+    }
 
     return new Promise((resolve, reject) => {
         canvas.toBlob((blob) => {
@@ -214,7 +256,7 @@ async function processImage(operation: 'resize' | 'rotate' | 'compress' | 'conve
     });
 }
 
-async function applyChange(op: 'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler') {
+async function applyChange(op: 'resize' | 'rotate' | 'compress' | 'convert' | 'crop' | 'upscaler' | 'watermark') {
     if (!originalFile.value) return;
     processing.value = true;
     error.value = null;
@@ -646,6 +688,70 @@ function formatSize(bytes: number) {
                                 <Sparkles :size="16" />
                                 Upscale {{ upscaleFactor }}x
                             </button>
+                        </div>
+                     </div>
+
+                     <!-- WATERMARK -->
+                     <div v-if="activeTab === 'watermark'" class="space-y-6 animate-in fade-in slide-in-from-left-4 duration-300">
+                        <!-- Text & Color -->
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 block">Text</label>
+                                <input v-model="watermarkText" type="text" class="w-full px-3 py-2.5 border border-border rounded-xl bg-background font-mono text-sm" placeholder="Watermark Text" />
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 block">Color</label>
+                                <div class="flex items-center gap-2">
+                                    <input v-model="watermarkColor" type="color" class="h-10 w-16 p-1 border border-border rounded-lg bg-background cursor-pointer" />
+                                    <input v-model="watermarkColor" type="text" class="flex-1 px-3 py-2.5 border border-border rounded-xl bg-background font-mono text-sm uppercase" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sliders -->
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-end mb-1.5">
+                                    <label class="text-[10px] font-bold uppercase text-muted-foreground block">Size</label>
+                                    <span class="text-xs font-mono font-bold text-primary">{{ watermarkSize }}px</span>
+                                </div>
+                                <input type="range" v-model.number="watermarkSize" min="10" max="200" class="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer" />
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-end mb-1.5">
+                                    <label class="text-[10px] font-bold uppercase text-muted-foreground block">Opacity</label>
+                                    <span class="text-xs font-mono font-bold text-primary">{{ watermarkOpacity }}%</span>
+                                </div>
+                                <input type="range" v-model.number="watermarkOpacity" min="0" max="100" class="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer" />
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-end mb-1.5">
+                                    <label class="text-[10px] font-bold uppercase text-muted-foreground block">Rotation</label>
+                                    <span class="text-xs font-mono font-bold text-primary">{{ watermarkRotation }}°</span>
+                                </div>
+                                <input type="range" v-model.number="watermarkRotation" min="-180" max="180" class="w-full accent-primary h-2 bg-muted rounded-lg appearance-none cursor-pointer" />
+                            </div>
+                        </div>
+
+                        <!-- Position Grid -->
+                        <div>
+                             <label class="text-[10px] font-bold uppercase text-muted-foreground mb-2 block">Position</label>
+                             <div class="grid grid-cols-3 gap-2 w-32 mx-auto">
+                                <button v-for="pos in ['top-left', 'top-center', 'top-right', 'center-left', 'center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right']" 
+                                    :key="pos"
+                                    @click="watermarkPosition = pos.replace('center-', '').replace('-center', '') === 'top' ? 'top' : pos.replace('center-', '').replace('-center', '')" 
+                                    class="w-8 h-8 rounded border flex items-center justify-center transition-all"
+                                    :class="watermarkPosition === (pos === 'center' ? 'center' : pos) ? 'bg-primary border-primary text-white' : 'bg-muted border-border hover:bg-muted/80'"
+                                >
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="watermarkPosition === (pos === 'center' ? 'center' : pos) ? 'bg-white' : 'bg-muted-foreground/50'"></div>
+                                </button>
+                             </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-border/50">
+                             <button @click="applyChange('watermark')" class="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all">
+                                Apply Watermark
+                             </button>
                         </div>
                      </div>
                 </div>
