@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import viteCompression from 'vite-plugin-compression'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -13,6 +14,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       vue(),
+      viteCompression({
+        algorithm: 'gzip',
+        ext: '.gz',
+      }),
       {
         name: 'html-transform-seo',
         transformIndexHtml(html) {
@@ -35,15 +40,35 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id: string) {
             if (id.includes('node_modules')) {
-              if (id.includes('vue') || id.includes('vue-router')) {
-                return 'vendor';
+              // Vendor Core
+              if (id.includes('vue') && !id.includes('vue-router') && !id.includes('lucide') && !id.includes('apexcharts')) {
+                return 'vue-core';
               }
+              if (id.includes('vue-router')) {
+                return 'vue-router';
+              }
+
+              // UI Libs
               if (id.includes('lucide-vue-next')) {
-                return 'lucide';
+                return 'ui-icons';
               }
-              if (id.includes('xlsx') || id.includes('papaparse') || id.includes('js-yaml') || id.includes('jszip') || id.includes('uuid')) {
-                return 'utils';
+
+              // Heavy Data Libs - Split individually
+              if (id.includes('xlsx')) {
+                return 'lib-xlsx'; // Very large, keep isolated
               }
+              if (id.includes('@faker-js')) {
+                return 'lib-faker'; // Very large, keep isolated
+              }
+              if (id.includes('apexcharts') || id.includes('vue3-apexcharts')) {
+                return 'lib-charts'; // Very large, catch both core and vue wrapper
+              }
+
+              // Data Utilities - Split for finer granularity
+              if (id.includes('papaparse')) return 'lib-papaparse';
+              if (id.includes('jszip')) return 'lib-jszip';
+              if (id.includes('js-yaml')) return 'lib-yaml';
+              if (id.includes('uuid')) return 'lib-uuid';
             }
           }
         }

@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import '@/style.css'
-import '@fontsource/outfit'
 import '@fontsource/outfit/100.css'
 import '@fontsource/outfit/200.css'
 import '@fontsource/outfit/300.css'

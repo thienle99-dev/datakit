@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker/locale/en';
 import { 
   Plus, 
   Trash2, 
