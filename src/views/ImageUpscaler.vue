@@ -25,17 +25,25 @@ const cropScale = ref(100); // 10-100%
 const isDraggingCrop = ref(false);
 const isResizingCrop = ref(false);
 
+let dragStartPos = { x: 0, y: 0 };
+let frameStartPos = { x: 50, y: 50 };
+
 function startDraggingCrop(e: MouseEvent | TouchEvent) {
-  if (selectedAspectRatio.value === 'original') return;
+  if (selectedAspectRatio.value === 'original' || !sourceContainerRef.value) return;
   
+  const clientX = 'touches' in e ? (e.touches[0]?.clientX ?? 0) : (e as MouseEvent).clientX;
+  const clientY = 'touches' in e ? (e.touches[0]?.clientY ?? 0) : (e as MouseEvent).clientY;
+
   // Check if we hit a resize handle
   if ((e.target as HTMLElement).classList.contains('resize-handle')) {
     isResizingCrop.value = true;
+    dragStartPos = { x: clientX, y: clientY };
     return;
   }
 
   isDraggingCrop.value = true;
-  updateCropPosition(e);
+  dragStartPos = { x: clientX, y: clientY };
+  frameStartPos = { ...cropPosition.value };
 }
 
 function stopDraggingCrop() {
@@ -44,38 +52,33 @@ function stopDraggingCrop() {
 }
 
 function updateCropPosition(e: MouseEvent | TouchEvent) {
-  if (isResizingCrop.value) {
-    handleResizing(e);
-    return;
-  }
-  if (!isDraggingCrop.value || !sourceContainerRef.value) return;
-  
+  if (!isDraggingCrop.value && !isResizingCrop.value) return;
+  if (!sourceContainerRef.value) return;
+
   const rect = sourceContainerRef.value.getBoundingClientRect();
   const clientX = 'touches' in e ? (e.touches[0]?.clientX ?? 0) : (e as MouseEvent).clientX;
   const clientY = 'touches' in e ? (e.touches[0]?.clientY ?? 0) : (e as MouseEvent).clientY;
-  
-  const x = ((clientX - rect.left) / rect.width) * 100;
-  const y = ((clientY - rect.top) / rect.height) * 100;
+
+  if (isResizingCrop.value) {
+    // Handle resizing (relative to center)
+    const centerX = rect.left + (rect.width * cropPosition.value.x) / 100;
+    const distance = Math.abs(clientX - centerX);
+    const newScale = (distance / (rect.width / 2)) * 100;
+    cropScale.value = Math.max(10, Math.min(100, newScale));
+    return;
+  }
+
+  // Handle Relative Dragging
+  const deltaX = ((clientX - dragStartPos.x) / rect.width) * 100;
+  const deltaY = ((clientY - dragStartPos.y) / rect.height) * 100;
   
   cropPosition.value = {
-    x: Math.max(0, Math.min(100, x)),
-    y: Math.max(0, Math.min(100, y))
+    x: Math.max(0, Math.min(100, frameStartPos.x + deltaX)),
+    y: Math.max(0, Math.min(100, frameStartPos.y + deltaY))
   };
 }
 
-function handleResizing(e: MouseEvent | TouchEvent) {
-  if (!isResizingCrop.value || !sourceContainerRef.value) return;
-  
-  const rect = sourceContainerRef.value.getBoundingClientRect();
-  const clientX = 'touches' in e ? (e.touches[0]?.clientX ?? 0) : (e as MouseEvent).clientX;
-  
-  // Pivot resizing based on distance from center
-  const centerX = rect.left + (rect.width * cropPosition.value.x) / 100;
-  const distance = Math.abs(clientX - centerX);
-  const newScale = (distance / (rect.width / 2)) * 100;
-  
-  cropScale.value = Math.max(10, Math.min(100, newScale));
-}
+
 
 function triggerChooseAnother() {
   if (hiddenInputRef.value) hiddenInputRef.value.value = '';
@@ -280,8 +283,11 @@ function handlePaste(e: ClipboardEvent) {
                        
                        <!-- Clear Viewport (The Frame) -->
                        <div 
-                        class="absolute border-2 border-primary shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]"
-                        :class="{ 'transition-all duration-500': !isDraggingCrop && !isResizingCrop }"
+                        class="absolute border-2 border-primary shadow-[0_0_0_9999px_rgba(0,0,0,0.4)] pointer-events-auto cursor-grab active:cursor-grabbing"
+                        :class="[
+                          { 'transition-all duration-500': !isDraggingCrop && !isResizingCrop },
+                          isDraggingCrop ? 'scale-[1.02] shadow-[0_0_30px_rgba(var(--color-primary-rgb),0.5)] border-white' : ''
+                        ]"
                         :style="{
                           aspectRatio: `${ASPECT_RATIO_PRESETS[selectedAspectRatio as keyof typeof ASPECT_RATIO_PRESETS].width} / ${ASPECT_RATIO_PRESETS[selectedAspectRatio as keyof typeof ASPECT_RATIO_PRESETS].height}`,
                           height: 'auto',
@@ -292,20 +298,22 @@ function handlePaste(e: ClipboardEvent) {
                           top: `${cropPosition.y}%`,
                           transform: 'translate(-50%, -50%)'
                         }"
+                        @mousedown.stop="startDraggingCrop"
+                        @touchstart.stop="startDraggingCrop"
                        >
                           <!-- Frame Corners/Handles -->
-                          <div class="resize-handle absolute -top-2 -left-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nwse-resize pointer-events-auto"></div>
-                          <div class="resize-handle absolute -top-2 -right-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nesw-resize pointer-events-auto"></div>
-                          <div class="resize-handle absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nesw-resize pointer-events-auto"></div>
-                          <div class="resize-handle absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nwse-resize pointer-events-auto"></div>
+                          <div class="resize-handle absolute -top-2 -left-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nwse-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
+                          <div class="resize-handle absolute -top-2 -right-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nesw-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
+                          <div class="resize-handle absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nesw-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
+                          <div class="resize-handle absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nwse-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
                           
                           <!-- Center Crosshair -->
-                          <div class="absolute inset-0 flex items-center justify-center opacity-20">
+                          <div class="absolute inset-0 flex items-center justify-center opacity-20 group-hover/original:opacity-40 transition-opacity">
                              <div class="w-4 h-px bg-white"></div>
                              <div class="h-4 w-px bg-white absolute"></div>
                           </div>
 
-                          <div class="absolute -top-6 left-0 right-0 text-center animate-in slide-in-from-top-2">
+                          <div class="absolute -top-6 left-0 right-0 text-center pointer-events-none select-none">
                              <span class="text-[8px] font-black uppercase tracking-[0.3em] text-white bg-primary px-2 py-0.5 rounded-full shadow-lg">Active Frame</span>
                           </div>
                        </div>
