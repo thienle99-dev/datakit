@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ShieldCheck, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon, Zap, Cpu, ArrowRight, ZoomIn, Palette } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ShieldCheck, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon, Zap, Cpu, ArrowRight, ZoomIn, Palette, Braces } from 'lucide-vue-next';
 import { useSpotlight } from '../composables/useSpotlight';
 
 const { openSpotlight } = useSpotlight();
@@ -312,6 +312,15 @@ const tools = [
     icon: Sparkles,
     color: 'text-amber-600',
     bgColor: 'bg-amber-500/10'
+  },
+  {
+    id: 'array-converter',
+    name: 'ArrayThis+',
+    description: 'The ultimate tool to transform any list into code-ready arrays for JS, Python, PHP, SQL, and more.',
+    path: '/array-converter',
+    icon: Braces,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10'
   }
 ];
 
@@ -327,7 +336,7 @@ const categories = [
     },
      {
         title: "Developer Utilities",
-        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools'].includes(t.id))
+        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools', 'array-converter'].includes(t.id))
     }
 ];
 

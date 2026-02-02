@@ -204,6 +204,11 @@ const router = createRouter({
             name: 'screenshot-beautifier',
             component: () => import('@views/ScreenshotBeautifier.vue'),
         },
+        {
+            path: '/array-converter',
+            name: 'array-converter',
+            component: () => import('@views/ArrayConverter.vue'),
+        },
     ],
 });
 
