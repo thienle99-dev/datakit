@@ -647,17 +647,44 @@ export function drawBeautifiedImage(
   const targetHeight = ctx.canvas.height;
 
   // 1. Draw Background
-  if (options.background.includes('gradient')) {
+  if (options.background.startsWith('mesh:')) {
+    const colors = options.background.replace('mesh:', '').split(',').map(c => c.trim());
+    ctx.fillStyle = colors[0] || '#000';
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+    // Add multiple radial "blobs" for mesh effect
+    const spots = [
+      { x: 0, y: 0, r: targetWidth * 1.2 },
+      { x: targetWidth, y: 0, r: targetWidth * 1.2 },
+      { x: 0, y: targetHeight, r: targetWidth * 1.2 },
+      { x: targetWidth, y: targetHeight, r: targetWidth * 1.2 },
+      { x: targetWidth / 2, y: targetHeight / 2, r: targetWidth }
+    ];
+
+    spots.forEach((s, i) => {
+      const color = colors[i % colors.length] || colors[0]!;
+      const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r);
+      grad.addColorStop(0, color);
+      grad.addColorStop(1, 'transparent');
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, targetWidth, targetHeight);
+      ctx.restore();
+    });
+  } else if (options.background.includes('gradient')) {
     const grad = ctx.createLinearGradient(0, 0, targetWidth, targetHeight);
-    const colors = options.background.match(/#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}/g) || ['#6366f1', '#a855f7'];
+    const colors = options.background.match(/#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}|rgba?\([^)]+\)/g) || ['#6366f1', '#a855f7'];
     colors.forEach((color, i) => {
       grad.addColorStop(i / (colors.length - 1), color);
     });
     ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
   } else {
     ctx.fillStyle = options.background;
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
   }
-  ctx.fillRect(0, 0, targetWidth, targetHeight);
 
   // Add Noise texture if enabled
   if (options.noise) {
@@ -747,6 +774,8 @@ export async function beautifyImage(
     scale: number;
     browserFrame: 'none' | 'safari' | 'chrome';
     noise: boolean;
+    exportFormat?: 'png' | 'jpeg' | 'webp';
+    exportQuality?: number;
   }
 ): Promise<Blob> {
   let img: HTMLImageElement;
@@ -767,9 +796,10 @@ export async function beautifyImage(
   drawBeautifiedImage(ctx, img, options);
 
   return new Promise((resolve, reject) => {
+    const mimeType = options.exportFormat === 'jpeg' ? 'image/jpeg' : options.exportFormat === 'webp' ? 'image/webp' : 'image/png';
     canvas.toBlob((blob) => {
       if (blob) resolve(blob);
       else reject(new Error('Beautification failed'));
-    }, 'image/png', 1.0);
+    }, mimeType, options.exportQuality ?? 1.0);
   });
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { Sparkles, Download, Trash2, ArrowLeft, RefreshCw, Layout, Maximize, Settings2, Palette, RotateCw, Monitor, Zap } from 'lucide-vue-next';
+import { Sparkles, Download, Trash2, ArrowLeft, RefreshCw, Layout, Maximize, Palette, RotateCw, Monitor, Zap, Plus, X } from 'lucide-vue-next';
 import { drawBeautifiedImage, fileToDataURL, loadImage, beautifyImage } from '../utils/imageUtils';
 import { useRouter } from 'vue-router';
 
@@ -22,6 +22,8 @@ interface BeautifySettings {
   scale: number;
   browserFrame: 'none' | 'safari' | 'chrome';
   noise: boolean;
+  exportFormat: 'png' | 'jpeg' | 'webp';
+  exportQuality: number;
 }
 
 const settings = ref<BeautifySettings>({
@@ -35,19 +37,72 @@ const settings = ref<BeautifySettings>({
   rotation: 0,
   scale: 1,
   browserFrame: 'none',
-  noise: false
+  noise: false,
+  exportFormat: 'png',
+  exportQuality: 0.9
 });
 
+const activeTab = ref<'studio' | 'scene'>('studio');
+const meshColors = ref(['#4f46e5', '#7c3aed', '#06b6d4']);
+
 const backgroundPresets = [
-  { label: 'Indigo Purple', value: 'linear-gradient(to right, #6366f1, #a855f7)' },
-  { label: 'Ocean Blue', value: 'linear-gradient(to right, #0ea5e9, #2dd4bf)' },
-  { label: 'Sunset Orange', value: 'linear-gradient(to right, #f59e0b, #ef4444)' },
-  { label: 'Midnight', value: 'linear-gradient(to right, #0f172a, #334155)' },
-  { label: 'Rose Pink', value: 'linear-gradient(to right, #f43f5e, #fb923c)' },
-  { label: 'Emerald', value: 'linear-gradient(to right, #10b981, #3b82f6)' },
+  { label: 'Aurora', value: 'mesh:#4f46e5,#7c3aed,#06b6d4' },
+  { label: 'Tokyo Night', value: 'mesh:#1a1b26,#bb9af7,#7aa2f7' },
+  { label: 'Cyberpunk', value: 'mesh:#ff007c,#00eaff,#7000ff' },
+  { label: 'Cotton Candy', value: 'mesh:#f472b6,#60a5fa,#ffffff' },
+  { label: 'Golden Hour', value: 'mesh:#f59e0b,#ef4444,#db2777' },
+  { label: 'Deep Sea', value: 'mesh:#0f172a,#1e40af,#06b6d4' },
+  { label: 'Soft Velvet', value: 'mesh:#881337,#4c0519,#9f1239' },
+  { label: 'Forest', value: 'mesh:#064e3b,#059669,#34d399' },
+  { label: 'Minimal Grey', value: 'mesh:#1f2937,#4b5563,#9ca3af' },
+  { label: 'Glassy Blue', value: 'linear-gradient(to right, #e0f2fe, #7dd3fc)' },
   { label: 'Clean White', value: '#ffffff' },
-  { label: 'Dark Card', value: '#1e293b' }
+  { label: 'Dark Card', value: '#0f172a' }
 ];
+
+const addColor = () => {
+  if (meshColors.value.length < 6) {
+    meshColors.value.push('#ffffff');
+    updateMeshFromCustom();
+  }
+};
+
+const removeColor = (index: number) => {
+  if (meshColors.value.length > 1) {
+    meshColors.value.splice(index, 1);
+    updateMeshFromCustom();
+  }
+};
+
+const updateMeshFromCustom = () => {
+  if (meshColors.value.length === 1) {
+    settings.value.background = meshColors.value[0]!;
+  } else {
+    settings.value.background = `mesh:${meshColors.value.join(',')}`;
+  }
+};
+
+const getPresetStyle = (value: string) => {
+  if (value.startsWith('mesh:')) {
+    const colors = value.replace('mesh:', '').split(',');
+    if (colors.length === 1) return { backgroundColor: colors[0] };
+    
+    const gradients = colors.map((color, i) => {
+      const positions = [
+        'at 0% 0%', 'at 100% 0%', 'at 0% 100%', 
+        'at 100% 100%', 'at 50% 50%', 'at 50% 0%', 'at 50% 100%'
+      ];
+      return `radial-gradient(${positions[i % positions.length]}, ${color}, transparent)`;
+    });
+    
+    return {
+      background: gradients.join(', '),
+      backgroundColor: colors[0]
+    };
+  }
+  if (value.includes('gradient')) return { background: value };
+  return { backgroundColor: value };
+};
 
 const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -97,7 +152,8 @@ const downloadImage = async () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `beautified-${Date.now()}.png`;
+    const extension = settings.value.exportFormat;
+    a.download = `beautified-${Date.now()}.${extension}`;
     a.click();
     URL.revokeObjectURL(url);
   } catch (error) {
@@ -180,104 +236,233 @@ const reset = () => {
         
         <!-- Sidebar Controls -->
         <div class="lg:col-span-4 space-y-6">
-          <div class="bg-card/50 backdrop-blur-xl shadow-2xl border border-border/40 rounded-[2.5rem] p-8 space-y-8 animate-in slide-in-from-left-4 duration-700">
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-3">
-                <Settings2 :size="18" class="text-primary" />
-                <h3 class="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Studio Settings</h3>
-              </div>
-              <Zap :size="14" class="text-amber-500 animate-pulse" />
+          <div class="bg-card/50 backdrop-blur-xl shadow-2xl border border-border/40 rounded-[2.5rem] p-7 space-y-7 animate-in slide-in-from-left-4 duration-700">
+            
+            <!-- Tab Switcher -->
+            <div class="flex bg-muted/30 p-1 rounded-2xl border border-border/20">
+               <button 
+                 @click="activeTab = 'studio'"
+                 class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                 :class="activeTab === 'studio' ? 'bg-card text-primary shadow-lg' : 'text-muted-foreground opacity-50 hover:opacity-100'"
+               >
+                 <Maximize :size="14" />
+                 Studio
+               </button>
+               <button 
+                 @click="activeTab = 'scene'"
+                 class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                 :class="activeTab === 'scene' ? 'bg-card text-primary shadow-lg' : 'text-muted-foreground opacity-50 hover:opacity-100'"
+               >
+                 <Palette :size="14" />
+                 Scene
+               </button>
             </div>
 
-            <!-- Canvas Section -->
-            <div class="space-y-6 p-4 bg-muted/30 rounded-3xl border border-border/20">
-               <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Canvas Control</h4>
-               
-               <div class="space-y-4">
-                  <div class="flex justify-between items-center text-[10px] font-black uppercase">
-                    <span class="text-muted-foreground">Padding</span>
-                    <span class="text-primary">{{ settings.paddingX }}px</span>
+            <!-- TAB 1: STUDIO (Subject Controls) -->
+            <div v-if="activeTab === 'studio'" class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <!-- Canvas Section -->
+                <div class="space-y-6">
+                  <div class="flex items-center gap-2">
+                    <Layout :size="14" class="text-primary" />
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Subject Control</h4>
                   </div>
-                  <input type="range" v-model.number="settings.paddingX" @input="settings.paddingY = settings.paddingX" min="40" max="300" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
-               </div>
-
-               <div class="space-y-4">
-                  <div class="flex justify-between items-center text-[10px] font-black uppercase">
-                    <span class="text-muted-foreground">Inset</span>
-                    <span class="text-primary">{{ settings.inset }}%</span>
+                  
+                  <div class="space-y-4 px-1">
+                      <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                        <span class="text-muted-foreground">Padding</span>
+                        <span class="text-primary">{{ settings.paddingX }}px</span>
+                      </div>
+                      <input type="range" v-model.number="settings.paddingX" @input="settings.paddingY = settings.paddingX" min="40" max="300" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
                   </div>
-                  <input type="range" v-model.number="settings.inset" min="0" max="30" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
-               </div>
-            </div>
 
-            <!-- Transformation Section -->
-            <div class="space-y-6 p-4 bg-muted/30 rounded-3xl border border-border/20">
-               <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Transform</h4>
-               
-               <div class="grid grid-cols-2 gap-4">
-                 <div class="space-y-3">
-                    <div class="flex justify-between items-center text-[10px] font-black uppercase">
-                      <span class="text-muted-foreground">Tilt</span>
-                      <span class="text-primary">{{ settings.rotation }}°</span>
+                  <div class="space-y-4 px-1">
+                      <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                        <span class="text-muted-foreground">Inset</span>
+                        <span class="text-primary">{{ settings.inset }}%</span>
+                      </div>
+                      <input type="range" v-model.number="settings.inset" min="0" max="30" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
+                  </div>
+                </div>
+
+                <!-- Transformation Section -->
+                <div class="space-y-6">
+                  <div class="flex items-center gap-2">
+                    <RotateCw :size="14" class="text-primary" />
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Transform</h4>
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-4 px-1">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                          <span class="text-muted-foreground">Tilt</span>
+                          <span class="text-primary">{{ settings.rotation }}°</span>
+                        </div>
+                        <input type="range" v-model.number="settings.rotation" min="-15" max="15" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
                     </div>
-                    <input type="range" v-model.number="settings.rotation" min="-15" max="15" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
-                 </div>
-                 <div class="space-y-3">
-                    <div class="flex justify-between items-center text-[10px] font-black uppercase">
-                      <span class="text-muted-foreground">Scale</span>
-                      <span class="text-primary">{{ settings.scale.toFixed(1) }}x</span>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                          <span class="text-muted-foreground">Scale</span>
+                          <span class="text-primary">{{ settings.scale.toFixed(1) }}x</span>
+                        </div>
+                        <input type="range" v-model.number="settings.scale" min="0.5" max="1.5" step="0.1" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
                     </div>
-                    <input type="range" v-model.number="settings.scale" min="0.5" max="1.5" step="0.1" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
-                 </div>
-               </div>
+                  </div>
+                </div>
+
+                <!-- Frame Style -->
+                <div class="space-y-6">
+                  <div class="flex items-center gap-2">
+                    <Monitor :size="14" class="text-primary" />
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Frame Style</h4>
+                  </div>
+                  
+                  <div class="grid grid-cols-3 gap-2 px-1">
+                    <button 
+                      v-for="frame in (['none', 'safari', 'chrome'] as const)" :key="frame"
+                      @click="settings.browserFrame = frame"
+                      class="py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all"
+                      :class="settings.browserFrame === frame ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-[1.02]' : 'bg-background border-border hover:border-primary/50'"
+                    >
+                      {{ frame }}
+                    </button>
+                  </div>
+
+                  <div class="space-y-4 px-1">
+                    <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                      <span class="text-muted-foreground">Border Radius</span>
+                      <span class="text-primary">{{ settings.borderRadius }}px</span>
+                    </div>
+                    <input type="range" v-model.number="settings.borderRadius" min="0" max="100" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
+                  </div>
+                </div>
+
+                <!-- Export Settings -->
+                <div class="space-y-6 pt-4 border-t border-border/20">
+                  <div class="flex items-center gap-2">
+                    <Download :size="14" class="text-primary" />
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Export Settings</h4>
+                  </div>
+                  
+                  <div class="space-y-6 px-1">
+                    <div class="grid grid-cols-3 gap-2">
+                      <button 
+                        v-for="format in (['png', 'jpeg', 'webp'] as const)" :key="format"
+                        @click="settings.exportFormat = format"
+                        class="py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all"
+                        :class="settings.exportFormat === format ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-[1.02]' : 'bg-background border-border hover:border-primary/50'"
+                      >
+                        {{ format }}
+                      </button>
+                    </div>
+
+                    <div v-if="settings.exportFormat !== 'png'" class="space-y-4">
+                      <div class="flex justify-between items-center text-[10px] font-black uppercase">
+                        <span class="text-muted-foreground">Quality</span>
+                        <span class="text-primary">{{ (settings.exportQuality * 100).toFixed(0) }}%</span>
+                      </div>
+                      <input type="range" v-model.number="settings.exportQuality" min="0.1" max="1.0" step="0.05" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
+                    </div>
+                  </div>
+                </div>
             </div>
 
-            <!-- Frame & Details -->
-            <div class="space-y-6 p-4 bg-muted/30 rounded-3xl border border-border/20">
-               <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Frame Style</h4>
-               
-               <div class="grid grid-cols-3 gap-2">
-                 <button 
-                  v-for="frame in (['none', 'safari', 'chrome'] as const)" :key="frame"
-                  @click="settings.browserFrame = frame"
-                  class="py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all"
-                  :class="settings.browserFrame === frame ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-[1.02]' : 'bg-background border-border hover:border-primary/50'"
-                 >
-                   {{ frame }}
-                 </button>
+            <!-- TAB 2: SCENE (Background Controls) -->
+            <div v-else class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+               <!-- Mesh Presets -->
+               <div class="space-y-6">
+                  <div class="flex items-center gap-2">
+                    <Sparkles :size="14" class="text-primary" />
+                    <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mesh Presets</h4>
+                  </div>
+                  
+                  <div class="grid grid-cols-4 gap-3">
+                    <button 
+                      v-for="preset in backgroundPresets" 
+                      :key="preset.value"
+                      @click="settings.background = preset.value"
+                      class="aspect-square rounded-2xl border-4 transition-all hover:scale-110 active:scale-90 relative group"
+                      :class="settings.background === preset.value ? 'border-primary ring-4 ring-primary/20' : 'border-transparent shadow-xl'"
+                      :style="getPresetStyle(preset.value)"
+                      :title="preset.label"
+                    >
+                      <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                         <div class="bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded text-[7px] text-white font-bold">{{ preset.label }}</div>
+                      </div>
+                    </button>
+                  </div>
                </div>
 
-               <div class="flex items-center justify-between pt-2">
-                  <label class="text-[10px] font-black uppercase text-muted-foreground select-none cursor-pointer flex items-center gap-2">
-                     <input type="checkbox" v-model="settings.noise" class="rounded border-border text-primary focus:ring-primary h-3 w-3" />
-                     Subtle Noise Texture
+               <!-- Custom Mesh Builder -->
+               <div class="space-y-6">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                       <Palette :size="14" class="text-primary" />
+                       <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Mesh Builder</h4>
+                    </div>
+                    <button 
+                      v-if="meshColors.length < 7"
+                      @click="addColor" 
+                      class="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-lg text-[8px] font-black uppercase hover:bg-primary/20 transition-colors"
+                    >
+                       <Plus :size="10" /> Add Color
+                    </button>
+                  </div>
+
+                  <div class="space-y-4">
+                     <p class="text-[9px] text-muted-foreground font-medium uppercase tracking-tighter italic opacity-60">
+                        Select 1 to 7 colors to create your custom {{ meshColors.length > 1 ? 'mesh' : 'solid' }} background.
+                     </p>
+                     
+                     <div class="grid grid-cols-4 gap-3 bg-muted/20 p-4 rounded-3xl border border-border/20">
+                        <div v-for="(c, i) in meshColors" :key="i" class="relative group/color">
+                           <div class="flex flex-col items-center gap-2">
+                              <div class="relative">
+                                 <input 
+                                   type="color" 
+                                   v-model="meshColors[i]" 
+                                   @input="updateMeshFromCustom" 
+                                   class="w-10 h-10 rounded-xl border-0 bg-transparent cursor-pointer hover:scale-110 transition-transform" 
+                                 />
+                                 <button 
+                                   v-if="meshColors.length > 1"
+                                   @click="removeColor(i)"
+                                   class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/color:opacity-100 transition-opacity shadow-lg"
+                                 >
+                                    <X :size="8" />
+                                 </button>
+                              </div>
+                              <span class="text-[7px] font-mono opacity-40">{{ c.toUpperCase() }}</span>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <div class="space-y-3 pt-2">
+                        <label class="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Raw Output / Solid Override</label>
+                        <div class="flex gap-2">
+                           <input 
+                             type="text" 
+                             v-model="settings.background" 
+                             placeholder="#hex or linear-gradient..."
+                             class="flex-1 bg-muted/30 border border-border/40 rounded-xl px-4 py-3 text-[10px] font-mono focus:outline-none focus:border-primary/50 transition-colors"
+                           />
+                           <div class="w-10 h-10 rounded-xl border border-border/40 shadow-inner" :style="getPresetStyle(settings.background)"></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- Effects -->
+               <div class="space-y-4 px-1 pt-2">
+                  <label class="w-full flex items-center justify-between p-4 bg-primary/5 rounded-2xl border border-primary/10 cursor-pointer group hover:bg-primary/10 transition-all">
+                     <div class="flex items-center gap-3">
+                        <Zap :size="16" class="text-primary" />
+                        <span class="text-[10px] font-black uppercase tracking-widest text-primary">Subtle Noise Texture</span>
+                     </div>
+                     <input type="checkbox" v-model="settings.noise" class="rounded border-primary text-primary focus:ring-primary h-4 w-4" />
                   </label>
-                  <label class="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-2">
-                    <Maximize :size="12" />
-                    Radius: {{ settings.borderRadius }}
-                  </label>
                </div>
-               <input type="range" v-model.number="settings.borderRadius" min="0" max="100" class="w-full h-1 bg-muted-foreground/20 rounded-full appearance-none accent-primary cursor-pointer" />
             </div>
 
-            <!-- Background Preset Grid -->
-            <div class="space-y-6">
-              <div class="flex items-center gap-2">
-                <Palette :size="14" class="text-primary" />
-                <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Stage Background</label>
-              </div>
-              <div class="grid grid-cols-4 gap-3">
-                <button 
-                  v-for="preset in backgroundPresets" 
-                  :key="preset.value"
-                  @click="settings.background = preset.value"
-                  class="aspect-square rounded-2xl border-4 transition-all hover:scale-110 active:scale-90"
-                  :class="settings.background === preset.value ? 'border-primary ring-4 ring-primary/20' : 'border-transparent shadow-xl'"
-                  :style="{ background: preset.value.includes('gradient') ? preset.value : preset.value, backgroundColor: preset.value.includes('#') ? preset.value : 'transparent' }"
-                  :title="preset.label"
-                ></button>
-              </div>
-            </div>
           </div>
         </div>
 
