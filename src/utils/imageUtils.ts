@@ -317,112 +317,12 @@ export function dataToImage(headers: string[], data: any[]): Promise<Blob> {
   });
 }
 
-/**
- * Trích xuất bảng màu từ ảnh bằng thuật toán K-Means Clustering để đảm bảo tính đa dạng và hài hòa.
- */
-export async function extractPalette(
-  file: File,
-  colorCount: number = 6
-): Promise<string[]> {
-  const dataUrl = await fileToDataURL(file);
-  const img = await loadImage(dataUrl);
-
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  if (!ctx) throw new Error('Could not get canvas context');
-
-  // Lấy mẫu ảnh nhỏ để tăng tốc độ xử lý
-  const sampleSize = 100;
-  canvas.width = sampleSize;
-  canvas.height = sampleSize;
-  ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
-
-  const imageData = ctx.getImageData(0, 0, sampleSize, sampleSize);
-  const pixels = imageData.data;
-  
-  // Chuẩn bị dữ liệu điểm ảnh (R, G, B)
-  const points: number[][] = [];
-  for (let i = 0; i < pixels.length; i += 4) {
-    if (pixels[i + 3]! < 128) continue; // Bỏ qua pixel trong suốt
-    points.push([pixels[i]!, pixels[i + 1]!, pixels[i + 2]!]);
-  }
-
-  if (points.length === 0) return [];
-
-  // Thuật toán K-Means đơn giản
-  let centroids = points.slice(0, colorCount).map(p => [...p]);
-  const maxIterations = 10;
-  
-  for (let iter = 0; iter < maxIterations; iter++) {
-    const clusters: number[][][] = Array.from({ length: colorCount }, () => []);
-    
-    // Gán điểm vào cluster gần nhất
-    for (const point of points) {
-      let minDist = Infinity;
-      let clusterIndex = 0;
-      for (let i = 0; i < centroids.length; i++) {
-        const centroid = centroids[i]!;
-        const dist = Math.sqrt(
-          Math.pow(point[0]! - centroid[0]!, 2) +
-          Math.pow(point[1]! - centroid[1]!, 2) +
-          Math.pow(point[2]! - centroid[2]!, 2)
-        );
-        if (dist < minDist) {
-          minDist = dist;
-          clusterIndex = i;
-        }
-      }
-      clusters[clusterIndex]!.push(point);
-    }
-    
-    // Cập nhật tâm (centroids)
-    let moved = false;
-    for (let i = 0; i < centroids.length; i++) {
-      const cluster = clusters[i]!;
-      if (cluster.length === 0) continue;
-      const newCentroid = [0, 0, 0];
-      for (const p of cluster) {
-        newCentroid[0] += p[0]!;
-        newCentroid[1] += p[1]!;
-        newCentroid[2] += p[2]!;
-      }
-      newCentroid[0] /= cluster.length;
-      newCentroid[1] /= cluster.length;
-      newCentroid[2] /= cluster.length;
-      
-      const currentCentroid = centroids[i]!;
-      if (Math.abs(newCentroid[0] - currentCentroid[0]!) > 1 ||
-          Math.abs(newCentroid[1] - currentCentroid[1]!) > 1 ||
-          Math.abs(newCentroid[2] - currentCentroid[2]!) > 1) {
-        moved = true;
-      }
-      centroids[i] = newCentroid;
-    }
-    if (!moved) break;
-  }
-
-  // Chuyển đổi centroids sang Hex và loại bỏ trùng lặp/màu rác
-  return centroids.map(c => rgbToHex(Math.round(c[0]!), Math.round(c[1]!), Math.round(c[2]!)));
-}
-
-export function rgbToHex(r: number, g: number, b: number): string {
-  const clamp = (n: number) => Math.max(0, Math.min(255, n));
-  return '#' + [clamp(r), clamp(g), clamp(b)].map(x => {
-    const hex = x.toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  }).join('');
-}
-
-export function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1]!, 16),
-    g: parseInt(result[2]!, 16),
-    b: parseInt(result[3]!, 16)
-  } : { r: 0, g: 0, b: 0 };
-}
-
 export function hexToHsl(hex: string): string {
+  const { h, s, l } = getHslData(hex);
+  return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+export function getHslData(hex: string): { h: number; s: number; l: number } {
   let { r, g, b } = hexToRgb(hex);
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -440,8 +340,132 @@ export function hexToHsl(hex: string): string {
     }
     h /= 6;
   }
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100)
+  };
+}
 
-  return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+export function rgbToHex(r: number, g: number, b: number): string {
+  const clamp = (n: number) => Math.max(0, Math.min(255, Math.max(0, n)));
+  const componentToHex = (c: number) => {
+    const hex = Math.round(clamp(c)).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+  return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+export function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1]!, 16),
+    g: parseInt(result[2]!, 16),
+    b: parseInt(result[3]!, 16)
+  } : { r: 0, g: 0, b: 0 };
+}
+
+/**
+ * Trích xuất bảng màu từ ảnh bằng thuật toán K-Means Clustering.
+ * Hỗ trợ các phong cách màu khác nhau: vibrant, muted, light, dark.
+ */
+export async function extractPalette(
+  file: File,
+  colorCount: number = 6,
+  style: 'all' | 'vibrant' | 'muted' | 'light' | 'dark' = 'all'
+): Promise<string[]> {
+  const dataUrl = await fileToDataURL(file);
+  const img = await loadImage(dataUrl);
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) throw new Error('Could not get canvas context');
+
+  const sampleSize = 100;
+  canvas.width = sampleSize;
+  canvas.height = sampleSize;
+  ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+
+  const imageData = ctx.getImageData(0, 0, sampleSize, sampleSize);
+  const pixels = imageData.data;
+  
+  let points: number[][] = [];
+  for (let i = 0; i < pixels.length; i += 4) {
+    const r = pixels[i]!;
+    const g = pixels[i + 1]!;
+    const b = pixels[i + 2]!;
+    const a = pixels[i + 3]!;
+    if (a < 128) continue;
+
+    // Lọc theo style ngay từ đầu để tăng độ chính xác của K-Means cho style đó
+    if (style !== 'all') {
+      const hex = rgbToHex(r, g, b);
+      const { s, l } = getHslData(hex);
+      if (style === 'vibrant' && s < 40) continue;
+      if (style === 'muted' && s > 40) continue;
+      if (style === 'light' && l < 60) continue;
+      if (style === 'dark' && l > 40) continue;
+    }
+    
+    points.push([r, g, b]);
+  }
+
+  // Nếu không đủ điểm cho style, lấy đại 1 số điểm gốc để K-Means không lỗi
+  if (points.length < colorCount) {
+    for (let i = 0; i < pixels.length; i += 4) {
+      if (pixels[i+3]! >= 128) points.push([pixels[i]!, pixels[i+1]!, pixels[i+2]!]);
+      if (points.length >= 100) break;
+    }
+  }
+
+  if (points.length === 0) return [];
+
+  let centroids = points.slice(0, colorCount).map(p => [...p]);
+  const maxIterations = 15;
+  
+  for (let iter = 0; iter < maxIterations; iter++) {
+    const clusters: number[][][] = Array.from({ length: centroids.length }, () => []);
+    
+    for (const point of points) {
+      let minDist = Infinity;
+      let clusterIndex = 0;
+      for (let i = 0; i < centroids.length; i++) {
+        const centroid = centroids[i]!;
+        const dist = Math.pow(point[0]! - centroid[0]!, 2) +
+                    Math.pow(point[1]! - centroid[1]!, 2) +
+                    Math.pow(point[2]! - centroid[2]!, 2);
+        if (dist < minDist) {
+          minDist = dist;
+          clusterIndex = i;
+        }
+      }
+      clusters[clusterIndex]!.push(point);
+    }
+    
+    let moved = false;
+    for (let i = 0; i < centroids.length; i++) {
+      const cluster = clusters[i]!;
+      if (cluster.length === 0) continue;
+      const newCentroid = [0, 0, 0];
+      for (const p of cluster) {
+        newCentroid[0] += p[0]!;
+        newCentroid[1] += p[1]!;
+        newCentroid[2] += p[2]!;
+      }
+      newCentroid[0] /= cluster.length;
+      newCentroid[1] /= cluster.length;
+      newCentroid[2] /= cluster.length;
+      
+      const currentCentroid = centroids[i]!;
+      if (Math.abs(newCentroid[0] - currentCentroid[0]!) > 0.5) {
+        moved = true;
+      }
+      centroids[i] = newCentroid;
+    }
+    if (!moved) break;
+  }
+
+  return centroids.map(c => rgbToHex(Math.round(c[0]!), Math.round(c[1]!), Math.round(c[2]!)));
 }
 
 /**
@@ -460,6 +484,129 @@ function getLuminance(hex: string): number {
     return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
   });
   return a[0]! * 0.2126 + a[1]! * 0.7152 + a[2]! * 0.0722;
+}
+
+/**
+ * Lấy các màu hài hòa (Harmony) dựa trên màu gốc.
+ */
+export function getHarmoniousColors(hex: string): { type: string; colors: string[] }[] {
+  const { h, s, l } = getHslData(hex);
+  
+  const toHex = (hue: number) => {
+    const nh = (hue + 360) % 360;
+    return hslToHex(nh, s, l);
+  };
+
+  return [
+    { type: 'Complementary', colors: [toHex(h + 180)] },
+    { type: 'Analogous', colors: [toHex(h - 30), toHex(h + 30)] },
+    { type: 'Triadic', colors: [toHex(h + 120), toHex(h + 240)] },
+    { type: 'Split Complementary', colors: [toHex(h + 150), toHex(h + 210)] }
+  ];
+}
+
+export function hslToHex(h: number, s: number, l: number): string {
+  l /= 100;
+  const a = s * Math.min(l, 1 - l) / 100;
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+/**
+ * Tạo một tấm ảnh Poster nghệ thuật bao gồm ảnh gốc và bảng màu.
+ */
+export async function generatePalettePoster(
+  file: File,
+  palette: string[]
+): Promise<Blob> {
+  const dataUrl = await fileToDataURL(file);
+  const img = await loadImage(dataUrl);
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not get canvas context');
+
+  // Kích thước Portrait (4:5) cho Social Media
+  const width = 1080;
+  const height = 1350;
+  canvas.width = width;
+  canvas.height = height;
+
+  // 1. Vẽ Background trắng tinh khôi
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, width, height);
+
+  // 2. Vẽ Ảnh gốc (Cropped/Centered)
+  const imgAreaHeight = height * 0.7;
+  const imgRatio = img.width / img.height;
+  const areaRatio = width / imgAreaHeight;
+  
+  let drawW, drawH, drawX, drawY;
+  if (imgRatio > areaRatio) {
+    drawH = imgAreaHeight;
+    drawW = imgAreaHeight * imgRatio;
+    drawX = (width - drawW) / 2;
+    drawY = 0;
+  } else {
+    drawW = width;
+    drawH = width / imgRatio;
+    drawX = 0;
+    drawY = (imgAreaHeight - drawH) / 2;
+  }
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, width, imgAreaHeight);
+  ctx.clip();
+  ctx.drawImage(img, drawX, drawY, drawW, drawH);
+  ctx.restore();
+
+  // 3. Vẽ Bảng màu bên dưới
+  const padding = 60;
+  const swatchAreaY = imgAreaHeight + padding;
+  const swatchSize = (width - padding * 2 - (palette.length - 1) * 20) / palette.length;
+
+  palette.forEach((color, i) => {
+    const x = padding + i * (swatchSize + 20);
+    const y = swatchAreaY;
+
+    // Vẽ Color Swatch
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.roundRect(x, y, swatchSize, swatchSize * 1.5, 20);
+    ctx.fill();
+
+    // Vẽ Hex Code (Dọc)
+    ctx.save();
+    ctx.translate(x + swatchSize / 2, y + swatchSize * 1.5 - 15);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = getContrastRatio(color, '#ffffff') > 4.5 ? '#ffffff' : '#000000';
+    ctx.font = 'bold 24px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(color.toUpperCase(), 0, 8);
+    ctx.restore();
+  });
+
+  // 4. Thêm Text trang trí
+  ctx.fillStyle = '#1e293b';
+  ctx.font = 'bold 32px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('COLOR PALETTE', padding, swatchAreaY + swatchSize * 1.5 + 80);
+  
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '500 20px Inter, sans-serif';
+  ctx.fillText('Generated by DataKit Image Studio', padding, swatchAreaY + swatchSize * 1.5 + 115);
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Poster generation failed'));
+    }, 'image/png', 1.0);
+  });
 }
 
 /**

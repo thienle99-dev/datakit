@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Palette, Copy, Check, Download, Image as ImageIcon, Trash2, ArrowLeft, RefreshCw, Layers } from 'lucide-vue-next';
-import { extractPalette, hexToRgb, hexToHsl, getContrastRatio } from '../utils/imageUtils';
+import { Palette, Copy, Check, Download, Image as ImageIcon, Trash2, ArrowLeft, RefreshCw, Layers, Layout } from 'lucide-vue-next';
+import { extractPalette, hexToRgb, hexToHsl, getContrastRatio, getHslData, getHarmoniousColors, generatePalettePoster } from '../utils/imageUtils';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -9,8 +9,22 @@ const file = ref<File | null>(null);
 const previewUrl = ref<string | null>(null);
 const palette = ref<string[]>([]);
 const isProcessing = ref(false);
-const copiedColor = ref<string | null>(null);
+const copiedText = ref<string | null>(null);
 const colorCount = ref(8);
+const selectedStyle = ref<'all' | 'vibrant' | 'muted' | 'light' | 'dark'>('all');
+const sortBy = ref<'none' | 'hue' | 'saturation' | 'luminance'>('none');
+const hasEyeDropper = ref(typeof window !== 'undefined' && 'EyeDropper' in window);
+const showPreview = ref(false);
+const activeColor = ref<string | null>(null);
+const harmonyColors = ref<{ type: string; colors: string[] }[]>([]);
+
+const styles = [
+  { id: 'all', label: 'All Colors' },
+  { id: 'vibrant', label: 'Vibrant' },
+  { id: 'muted', label: 'Muted' },
+  { id: 'light', label: 'Light' },
+  { id: 'dark', label: 'Dark' }
+];
 
 const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -25,7 +39,8 @@ const processImage = async () => {
   if (!file.value) return;
   isProcessing.value = true;
   try {
-    palette.value = await extractPalette(file.value, colorCount.value);
+    let result = await extractPalette(file.value, colorCount.value, selectedStyle.value);
+    palette.value = sortPalette(result);
   } catch (error) {
     console.error('Extraction failed:', error);
   } finally {
@@ -33,11 +48,40 @@ const processImage = async () => {
   }
 };
 
+const sortPalette = (colors: string[]) => {
+  if (sortBy.value === 'none') return colors;
+  
+  return [...colors].sort((a, b) => {
+    const hslA = getHslData(a);
+    const hslB = getHslData(b);
+    
+    if (sortBy.value === 'hue') return hslA.h - hslB.h;
+    if (sortBy.value === 'saturation') return hslB.s - hslA.s;
+    if (sortBy.value === 'luminance') return hslB.l - hslA.l;
+    return 0;
+  });
+};
+
+const handleEyedropper = async () => {
+  if (!hasEyeDropper.value) return;
+  try {
+    // @ts-ignore
+    const eyeDropper = new window.EyeDropper();
+    const result = await eyeDropper.open();
+    const newColor = result.sRGBHex;
+    if (!palette.value.includes(newColor)) {
+      palette.value = [newColor, ...palette.value].slice(0, 12);
+    }
+  } catch (e) {
+    console.log('Eyedropper cancelled or failed');
+  }
+};
+
 const copyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text);
-  copiedColor.value = text;
+  copiedText.value = text;
   setTimeout(() => {
-    copiedColor.value = null;
+    copiedText.value = null;
   }, 2000);
 };
 
@@ -76,6 +120,29 @@ const downloadPalette = (format: 'json' | 'css' | 'tailwind' | 'scss') => {
   a.href = url;
   a.download = filename;
   a.click();
+};
+
+const exportPoster = async () => {
+  if (!file.value || palette.value.length === 0) return;
+  isProcessing.value = true;
+  try {
+    const blob = await generatePalettePoster(file.value, palette.value);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `presentation-${Date.now()}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Poster generation failed:', error);
+  } finally {
+    isProcessing.value = false;
+  }
+};
+
+const openHarmonyLab = (color: string) => {
+  activeColor.value = color;
+  harmonyColors.value = getHarmoniousColors(color);
 };
 
 const reset = () => {
@@ -150,7 +217,8 @@ onUnmounted(() => {
                <button @click="downloadPalette('json')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">JSON Format</button>
                <button @click="downloadPalette('css')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">CSS Variables</button>
                <button @click="downloadPalette('tailwind')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">Tailwind Config</button>
-               <button @click="downloadPalette('scss')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors">SCSS Variables</button>
+               <button @click="downloadPalette('scss')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">SCSS Variables</button>
+               <button @click="exportPoster" class="w-full text-left px-4 py-3 text-xs font-bold bg-primary/5 text-primary hover:bg-primary/10 transition-colors">Presentation Poster</button>
             </div>
           </div>
           <button 
@@ -159,6 +227,23 @@ onUnmounted(() => {
             class="p-2 text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors"
           >
             <Trash2 :size="20" />
+          </button>
+          <button 
+            v-if="palette.length > 0"
+            @click="showPreview = !showPreview"
+            class="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20 transition-colors"
+            :class="{ 'bg-primary text-primary-foreground': showPreview }"
+            title="Toggle UI Preview"
+          >
+            <Layout :size="20" />
+          </button>
+          <button 
+            v-if="hasEyeDropper && previewUrl"
+            @click="handleEyedropper"
+            class="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20 transition-colors"
+            title="Pick a color from screen"
+          >
+            <ImageIcon :size="20" />
           </button>
         </div>
       </div>
@@ -221,6 +306,36 @@ onUnmounted(() => {
               <span>Minimal (4)</span>
               <span>Rich (12)</span>
             </div>
+
+            <!-- Styles & Sorting -->
+            <div class="mt-8 pt-8 border-t border-border/50 space-y-6">
+               <div class="space-y-3">
+                  <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Palette Style</label>
+                  <div class="flex flex-wrap gap-2">
+                    <button 
+                      v-for="s in styles" :key="s.id"
+                      @click="selectedStyle = s.id as any; processImage()"
+                      class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border"
+                      :class="selectedStyle === s.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/50 border-border/50 hover:border-primary/30'"
+                    >
+                      {{ s.label }}
+                    </button>
+                  </div>
+               </div>
+
+               <div class="space-y-3">
+                  <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sort By</label>
+                  <select 
+                    v-model="sortBy" @change="palette = sortPalette(palette)"
+                    class="w-full bg-muted/50 border border-border/50 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 ring-primary/30 transition-all"
+                  >
+                    <option value="none">Default (Frequency)</option>
+                    <option value="hue">Hue</option>
+                    <option value="saturation">Saturation</option>
+                    <option value="luminance">Luminance</option>
+                  </select>
+               </div>
+            </div>
           </div>
         </div>
 
@@ -233,7 +348,7 @@ onUnmounted(() => {
               class="animate-in fade-in slide-in-from-right-4 duration-500"
               :style="{ animationDelay: `${index * 100}ms` }"
             >
-              <div class="bg-card/80 backdrop-blur-md shadow-sm group/color p-4 rounded-3xl border border-border/50 bg-card hover:border-primary/40 transition-all hover:shadow-xl">
+              <div class="bg-card/80 backdrop-blur-md shadow-sm group/color p-4 rounded-3xl border border-border/50 bg-card hover:border-primary/40 transition-all hover:shadow-xl cursor-pointer" @click="openHarmonyLab(color)">
                 <div class="flex gap-4">
                   <!-- Color Swatch -->
                   <div 
@@ -248,22 +363,30 @@ onUnmounted(() => {
                     <div class="flex items-center justify-between">
                       <span class="text-lg font-black tracking-tight">{{ color.toUpperCase() }}</span>
                       <button 
-                        @click="copyToClipboard(color)"
+                        @click.stop="copyToClipboard(color)"
                         class="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-primary relative"
                       >
-                        <Check v-if="copiedColor === color" :size="16" class="text-emerald-500" />
+                        <Check v-if="copiedText === color" :size="16" class="text-emerald-500" />
                         <Copy v-else :size="16" />
                       </button>
                     </div>
 
                     <div class="space-y-1">
-                       <div class="flex items-center justify-between text-[10px] font-bold group/val" @click="copyToClipboard(getRgbString(color))">
+                       <div class="flex items-center justify-between text-[10px] font-bold group/val p-1 hover:bg-muted/50 rounded-lg transition-all" @click.stop="copyToClipboard(getRgbString(color))">
                          <span class="text-muted-foreground uppercase opacity-50">RGB</span>
-                         <span class="cursor-pointer group-hover/val:text-primary transition-colors">{{ getRgbString(color) }}</span>
+                         <div class="flex items-center gap-2">
+                           <span class="cursor-pointer group-hover/val:text-primary transition-colors">{{ getRgbString(color) }}</span>
+                           <Check v-if="copiedText === getRgbString(color)" :size="10" class="text-emerald-500" />
+                           <Copy v-else :size="10" class="opacity-0 group-hover/val:opacity-100 transition-opacity" />
+                         </div>
                        </div>
-                       <div class="flex items-center justify-between text-[10px] font-bold group/val" @click="copyToClipboard(hexToHsl(color))">
+                       <div class="flex items-center justify-between text-[10px] font-bold group/val p-1 hover:bg-muted/50 rounded-lg transition-all" @click.stop="copyToClipboard(hexToHsl(color))">
                          <span class="text-muted-foreground uppercase opacity-50">HSL</span>
-                         <span class="cursor-pointer group-hover/val:text-primary transition-colors">{{ hexToHsl(color) }}</span>
+                         <div class="flex items-center gap-2">
+                           <span class="cursor-pointer group-hover/val:text-primary transition-colors">{{ hexToHsl(color) }}</span>
+                           <Check v-if="copiedText === hexToHsl(color)" :size="10" class="text-emerald-500" />
+                           <Copy v-else :size="10" class="opacity-0 group-hover/val:opacity-100 transition-opacity" />
+                         </div>
                        </div>
                     </div>
 
@@ -301,6 +424,112 @@ onUnmounted(() => {
             <h3 class="text-lg font-bold">Analyzing Pixels...</h3>
             <p class="text-sm text-muted-foreground">Extracting the DNA of your image</p>
           </div>
+        </div>
+
+        <!-- Harmony Lab Section -->
+        <div v-if="activeColor && !showPreview" class="lg:col-span-12 animate-in slide-in-from-bottom-4 duration-500">
+           <div class="bg-card/80 backdrop-blur-md shadow-2xl border border-border/50 rounded-[2.5rem] p-8">
+              <div class="flex items-center justify-between mb-8">
+                <div>
+                   <h3 class="text-2xl font-black flex items-center gap-3">
+                     <span class="w-8 h-8 rounded-full shadow-lg" :style="{ backgroundColor: activeColor }"></span>
+                     Color Harmony Lab
+                   </h3>
+                   <p class="text-muted-foreground text-sm mt-1">Professional color theory suggestions for {{ activeColor.toUpperCase() }}</p>
+                </div>
+                <button @click="activeColor = null" class="p-2 hover:bg-muted rounded-full text-muted-foreground"><Trash2 :size="20" /></button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div v-for="harmony in harmonyColors" :key="harmony.type" class="space-y-4">
+                  <h4 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{{ harmony.type }}</h4>
+                  <div class="flex gap-2">
+                    <div 
+                      v-for="color in harmony.colors" :key="color"
+                      class="flex-1 group/h relative"
+                    >
+                      <div 
+                        class="aspect-square rounded-2xl shadow-sm cursor-pointer hover:scale-105 transition-transform"
+                        :style="{ backgroundColor: color }"
+                        @click="copyToClipboard(color)"
+                      >
+                        <div class="absolute inset-x-0 bottom-0 p-2 bg-black/20 backdrop-blur-sm opacity-0 group-hover/h:opacity-100 transition-opacity rounded-b-2xl">
+                          <span class="text-[10px] font-black text-white block text-center">{{ color.toUpperCase() }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+           </div>
+        </div>
+
+        <!-- UI Preview Section -->
+        <div v-if="showPreview && palette.length > 0" class="lg:col-span-12 animate-in fade-in zoom-in duration-500">
+           <!-- (Mockup content remains the same) -->
+           <div class="bg-card/80 backdrop-blur-md shadow-2xl border border-border/50 rounded-[2.5rem] p-8 md:p-12">
+              <div class="flex flex-col md:flex-row gap-12 items-center">
+                <!-- Mockup Device -->
+                <div class="w-full md:w-1/2 space-y-6">
+                  <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-black/5 max-w-sm mx-auto aspect-[9/16] flex flex-col" :style="{ backgroundColor: palette.length > 0 ? palette[palette.length - 1] : '#f8fafc' }">
+                      <!-- App Header -->
+                      <div class="p-6 flex items-center justify-between" :style="{ backgroundColor: palette[0] }">
+                         <div class="w-8 h-8 rounded-full bg-white/20"></div>
+                         <div class="w-24 h-3 rounded-full bg-white/30"></div>
+                         <div class="w-6 h-6 rounded-lg bg-white/20"></div>
+                      </div>
+                      <!-- Content -->
+                      <div class="p-8 flex-1 space-y-6">
+                         <div class="space-y-2">
+                            <div class="w-3/4 h-6 rounded-lg" :style="{ backgroundColor: palette[1] || palette[0] }"></div>
+                            <div class="w-1/2 h-4 rounded-lg opacity-40" :style="{ backgroundColor: palette[1] || palette[0] }"></div>
+                         </div>
+                         <div class="aspect-video rounded-2xl shadow-sm" :style="{ backgroundColor: palette[2] || palette[1] }"></div>
+                         <div class="space-y-3">
+                            <div class="w-full h-3 rounded-full opacity-20" :style="{ backgroundColor: palette[1] || palette[0] }"></div>
+                            <div class="w-full h-3 rounded-full opacity-20" :style="{ backgroundColor: palette[1] || palette[0] }"></div>
+                            <div class="w-2/3 h-3 rounded-full opacity-20" :style="{ backgroundColor: palette[1] || palette[0] }"></div>
+                         </div>
+                         <button 
+                           class="w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg transition-transform active:scale-95" 
+                           :style="{ 
+                             backgroundColor: palette[3] || palette[0], 
+                             color: getContrastRatio(palette[3] || palette[0], '#ffffff') > 4.5 ? '#ffffff' : '#000000' 
+                           }"
+                         >
+                           Action Button
+                         </button>
+                      </div>
+                      <!-- Tab Bar -->
+                      <div class="p-4 bg-white/80 border-t border-black/5 flex justify-around items-center backdrop-blur-md">
+                         <div v-for="i in 4" :key="i" class="w-8 h-8 rounded-xl opacity-40" :style="{ backgroundColor: i === 1 ? palette[0] : '#94a3b8' }"></div>
+                      </div>
+                  </div>
+                </div>
+                <!-- Explainer -->
+                <div class="w-full md:w-1/2 space-y-6">
+                  <h3 class="text-3xl font-black leading-tight">Live UI Preview</h3>
+                  <p class="text-muted-foreground text-lg">See how your extracted colors work together in a real application interface.</p>
+                  <div class="grid grid-cols-2 gap-4">
+                     <div class="p-4 rounded-2xl bg-muted/30 border border-border/50">
+                        <span class="text-[10px] uppercase font-black text-muted-foreground block mb-2">Primary Color</span>
+                        <div class="flex items-center gap-2">
+                           <div class="w-4 h-4 rounded-full" :style="{ backgroundColor: palette[0] }"></div>
+                           <span class="text-xs font-bold">{{ palette[0] }}</span>
+                        </div>
+                     </div>
+                     <div class="p-4 rounded-2xl bg-muted/30 border border-border/50">
+                        <span class="text-[10px] uppercase font-black text-muted-foreground block mb-2">Accent Color</span>
+                        <div class="flex items-center gap-2">
+                           <div class="w-4 h-4 rounded-full" :style="{ backgroundColor: palette[3] || palette[1] }"></div>
+                           <span class="text-xs font-bold">{{ palette[3] || palette[1] }}</span>
+                        </div>
+                     </div>
+                  </div>
+                  <button @click="showPreview = false" class="text-primary text-sm font-black uppercase tracking-widest hover:underline">Close Preview</button>
+                </div>
+              </div>
+           </div>
         </div>
 
       </div>
