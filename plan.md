@@ -161,7 +161,7 @@
 - **Color Converter** — chuyển đổi HEX ↔ RGB ↔ HSL ↔ CMYK
 - **QR Code Generator** — tạo QR code từ text/URL
 - **Password Generator** — tạo password ngẫu nhiên với options (length, symbols, numbers)
-- **Lorem Ipsum Generator** — tạo placeholder text với nhiều options
+- **Lorem Ipsum Generator** ✅ — tạo placeholder text với nhiều options
 - **Code Minifier** — minify CSS, JavaScript, HTML
 - **Code Beautifier** — format và beautify code (CSS, JS, HTML, JSON)
 - **SQL Formatter** — format SQL queries

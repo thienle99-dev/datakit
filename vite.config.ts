@@ -30,5 +30,24 @@ export default defineConfig(({ mode }) => {
         '@router': path.resolve(__dirname, './src/router'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (id.includes('node_modules')) {
+              if (id.includes('vue') || id.includes('vue-router')) {
+                return 'vendor';
+              }
+              if (id.includes('lucide-vue-next')) {
+                return 'lucide';
+              }
+              if (id.includes('xlsx') || id.includes('papaparse') || id.includes('js-yaml') || id.includes('jszip') || id.includes('uuid')) {
+                return 'utils';
+              }
+            }
+          }
+        }
+      }
+    }
   }
 })

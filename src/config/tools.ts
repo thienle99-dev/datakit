@@ -4,7 +4,7 @@ import {
     BarChart3, GitCompare, Sigma, Database, ListFilter, ListOrdered,
     Shuffle, EyeOff, FileDown, Search as SearchIcon, Braces,
     Search as SearchQuery, Code2, Binary, Clock, Fingerprint, Regex,
-    Type, Image as ImageIcon, ZoomIn, Palette, FileJson
+    Type, Image as ImageIcon, ZoomIn, Palette, FileJson, FileText
 } from 'lucide-vue-next';
 
 export interface Tool {
@@ -296,6 +296,15 @@ export const tools: Tool[] = [
         icon: ImageIcon,
         color: 'text-purple-500',
         bgColor: 'bg-purple-500/10'
+    },
+    {
+        id: 'lorem-ipsum-generator',
+        name: 'Lorem Ipsum',
+        description: 'Generate placeholder text',
+        path: '/lorem-ipsum-generator',
+        icon: FileText,
+        color: 'text-blue-500',
+        bgColor: 'bg-blue-500/10'
     },
     {
         id: 'image-upscaler',

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^10.2.0",
+    "@fontsource/outfit": "^5.2.8",
     "apexcharts": "^5.3.6",
     "js-yaml": "^4.1.1",
     "jszip": "^3.10.1",
