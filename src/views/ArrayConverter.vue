@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { 
   Clipboard, 
+  ArrowLeft,
   Check, 
   Trash2, 
   Settings2, 
@@ -11,13 +12,14 @@ import {
   FileCode,
   Search,
   Download,
-  Terminal,
   ChevronRight,
   Zap,
   LayoutGrid,
-  Monitor,
   SortAsc,
-  SortDesc
+  SortDesc,
+  Copy,
+  Scissors,
+  Filter
 } from 'lucide-vue-next';
 
 // Input State
@@ -321,277 +323,297 @@ const handleFileUpload = (e: Event) => {
 </script>
 
 <template>
-  <div class="h-[calc(100vh-64px)] overflow-hidden bg-background/50 flex flex-col">
-    <!-- Slim Top Bar -->
-    <div class="h-14 border-b border-border/50 bg-card/30 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary ring-1 ring-primary/20">
-          <Terminal :size="16" />
-        </div>
-        <div>
-          <h1 class="text-sm font-black tracking-tight flex items-center gap-1.5 uppercase">
-            ArrayThis
-            <span class="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">PRO</span>
-          </h1>
+  <div class="w-full h-[calc(100vh-var(--header-h))] flex flex-col p-2 md:p-4 gap-4">
+    <!-- Header Section -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 shrink-0 relative z-20">
+      <div class="flex items-center gap-4">
+        <router-link to="/" class="p-2.5 bg-card border border-border/50 rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 transition-all shadow-sm group">
+          <ArrowLeft :size="18" class="group-hover:-translate-x-0.5 transition-transform" />
+        </router-link>
+        
+        <div class="h-10 w-px bg-border/30 hidden lg:block"></div>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center ring-1 ring-emerald-500/20 shadow-lg shadow-emerald-500/5">
+            <Braces :size="20" stroke-width="2.5" />
+          </div>
+          <div>
+            <h1 class="text-lg md:text-xl font-black tracking-tight text-foreground bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+              Snap <span class="text-emerald-500">Array</span>
+            </h1>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Universal Array Converter</span>
+            </div>
+          </div>
         </div>
       </div>
       
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center bg-card p-1 rounded-lg border border-border/50 shadow-sm">
+          <button 
+            @click="livePreview = !livePreview"
+            :class="livePreview ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20' : 'text-muted-foreground hover:text-foreground'"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all"
+          >
+             <div class="w-1.5 h-1.5 rounded-full" :class="livePreview ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground/30'"></div>
+            {{ livePreview ? 'Live Sync' : 'Manual' }}
+          </button>
+        </div>
+
+        <div class="h-6 w-px bg-border/40 hidden sm:block"></div>
+        
         <button 
-          @click="livePreview = !livePreview"
-          :class="livePreview ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-muted/30 text-muted-foreground border-border/20'"
-          class="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border transition-all hover:scale-105 active:scale-95"
+          @click="generateArray"
+          v-if="!livePreview"
+          class="px-4 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs uppercase tracking-wide hover:bg-emerald-600 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2"
         >
-          <Check v-if="livePreview" :size="12" />
-          <RefreshCw v-else :size="12" :class="{ 'animate-spin': isProcessing }" />
-          Live Preview {{ livePreview ? 'Active' : 'Off' }}
+          <Zap :size="16" /> Compile
         </button>
-        <div class="h-4 w-px bg-border/50 hidden sm:block"></div>
+
         <button 
           @click="copyToClipboard"
-          :class="copied ? 'bg-emerald-500 text-white' : 'bg-primary text-primary-foreground hover:scale-[1.02] shadow-lg shadow-primary/20 active:scale-95 transition-all'"
-          class="px-5 py-1.5 rounded-lg text-[10px] font-black uppercase flex items-center gap-2"
+          :class="copied ? 'bg-emerald-500 text-white border-emerald-500 shadow-emerald-500/20' : 'bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-primary/20'"
+          class="px-5 py-2.5 rounded-xl border font-bold text-xs uppercase tracking-wide shadow-lg active:scale-95 transition-all flex items-center gap-2 min-w-[130px] justify-center"
         >
-          <Clipboard v-if="!copied" :size="14" />
-          <Check v-else :size="14" />
-          {{ copied ? 'Copied' : 'Copy Output' }}
-        </button>
-        <button 
-          v-if="!livePreview"
-          @click="generateArray"
-          class="px-5 py-1.5 rounded-lg text-[10px] font-black uppercase bg-emerald-500 text-white hover:scale-[1.02] shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center gap-2"
-        >
-          <Zap :size="14" />
-          Run
+          <Clipboard v-if="!copied" :size="16" />
+          <Check v-else :size="16" />
+          {{ copied ? 'Copied!' : 'Export Code' }}
         </button>
       </div>
     </div>
 
     <!-- Main Workspace -->
-    <div class="flex flex-1 overflow-hidden">
-      <!-- Sidebar Settings -->
-      <div class="w-64 border-r border-border/50 bg-card/20 backdrop-blur-sm overflow-y-auto p-4 space-y-6 scrollbar-hide shrink-0">
-        <!-- Language Group -->
-        <section class="space-y-2.5">
-          <h2 class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2">
-            <LayoutGrid :size="10" /> Target Environment
-          </h2>
-          <div class="grid grid-cols-3 gap-1.5">
-            <button 
-              v-for="lang in languages" 
-              :key="lang.id"
-              @click="language = lang.id"
-              :class="[
-                language === lang.id 
-                  ? `${lang.bg} ${lang.color} ring-1 ring-current border-transparent` 
-                  : 'bg-muted/10 hover:bg-muted/30 border-border/20 text-muted-foreground'
-              ]"
-              class="relative h-10 rounded-lg flex flex-col items-center justify-center transition-all duration-200 border group overflow-hidden active:scale-95"
-              :title="lang.name"
-            >
-              <div v-if="language === lang.id" class="absolute top-0 right-0 w-3 h-3 translate-x-1.5 -translate-y-1.5 bg-current rotate-45 opacity-20"></div>
-              <span class="text-[9px] font-black tracking-tighter shrink-0">{{ lang.icon }}</span>
-              <span class="text-[6px] font-bold uppercase opacity-60 shrink-0">{{ lang.name }}</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- Generation Rules -->
-        <section class="space-y-3">
-          <h2 class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2">
-             <Settings2 :size="10" /> Rules
-          </h2>
-          
-          <div class="space-y-2.5">
-            <div class="space-y-1">
-              <label class="text-[8px] font-bold text-muted-foreground uppercase flex items-center gap-1.5">
-                <Variable :size="10" /> Var Name
-              </label>
-              <input 
-                v-model="variableName" 
-                placeholder="items..." 
-                class="w-full bg-muted/20 border border-border/50 rounded-lg px-2.5 py-1.5 text-[10px] font-bold outline-none"
-              />
-            </div>
-
-            <div class="flex items-center justify-between group cursor-pointer" @click="isPretty = !isPretty">
-              <span class="text-[9px] font-bold text-muted-foreground uppercase group-hover:text-foreground">Pretty Print</span>
+    <div class="flex flex-1 overflow-hidden gap-4 lg:gap-6 relative">
+      <!-- Settings Sidebar -->
+      <div class="w-full lg:w-80 flex flex-col gap-4 shrink-0 overflow-y-auto scrollbar-hide pb-4">
+         
+         <!-- Language Card -->
+         <div class="bg-card border border-border/50 rounded-2xl p-4 shadow-sm space-y-3">
+             <h3 class="text-xs font-black uppercase tracking-widest text-muted-foreground/70 flex items-center gap-2">
+                <LayoutGrid :size="12" /> Target
+             </h3>
+             <div class="grid grid-cols-3 gap-2">
               <button 
-                :class="isPretty ? 'bg-primary' : 'bg-muted/50'"
-                class="w-6 h-3 rounded-full relative transition-all"
+                v-for="lang in languages" 
+                :key="lang.id"
+                @click="language = lang.id"
+                :class="[
+                  language === lang.id 
+                    ? `bg-primary/5 border-primary/50 ring-1 ring-primary/20 ${lang.color}` 
+                    : 'bg-muted/30 hover:bg-muted/50 border-transparent text-muted-foreground hover:text-foreground'
+                ]"
+                class="relative h-16 rounded-xl flex flex-col items-center justify-center gap-1 border transition-all duration-200 active:scale-95 group"
               >
-                <div :class="isPretty ? 'translate-x-3' : 'translate-x-0.5'" class="absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all"></div>
+                  <span class="text-sm font-black opacity-80 group-hover:opacity-100 transition-opacity">{{ lang.icon }}</span>
+                 <span class="text-[9px] font-bold uppercase tracking-tight opacity-70">{{ lang.name }}</span>
               </button>
-            </div>
+             </div>
+         </div>
 
-            <div class="flex items-center justify-between group cursor-pointer" @click="autoDetectNumbers = !autoDetectNumbers">
-              <span class="text-[9px] font-bold text-muted-foreground uppercase group-hover:text-foreground">Numbers</span>
-              <button 
-                :class="autoDetectNumbers ? 'bg-emerald-500' : 'bg-muted/50'"
-                class="w-6 h-3 rounded-full relative transition-all"
-              >
-                <div :class="autoDetectNumbers ? 'translate-x-3' : 'translate-x-0.5'" class="absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all"></div>
-              </button>
-            </div>
+         <!-- Config Card -->
+         <div class="bg-card border border-border/50 rounded-2xl p-4 shadow-sm space-y-4">
+            <h3 class="text-xs font-black uppercase tracking-widest text-muted-foreground/70 flex items-center gap-2">
+              <Settings2 :size="12" /> Config
+            </h3>
             
-            <div class="flex bg-muted/20 p-0.5 rounded-lg border border-border/50">
-              <button 
-                v-for="q in ['none', 'single', 'double']" 
-                :key="q"
-                @click="quoteType = q"
-                :class="quoteType === q ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground'"
-                class="flex-1 py-1 rounded-md text-[7px] font-black uppercase transition-all"
-              >
-                {{ q }}
-              </button>
-            </div>
-          </div>
-        </section>
+            <div class="space-y-3">
+              <!-- Variable Name -->
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold uppercase text-muted-foreground">Variable Name</label>
+                <div class="relative group">
+                  <Variable :size="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <input 
+                    v-model="variableName" 
+                    placeholder="e.g., items" 
+                    class="w-full bg-muted/30 border border-border/50 rounded-lg pl-9 pr-3 py-2 text-xs font-medium focus:border-primary/50 focus:ring-2 focus:ring-primary/10 outline-none transition-all placeholder:text-muted-foreground/40"
+                  />
+                </div>
+              </div>
 
-        <!-- Transformers -->
-        <section class="space-y-3">
-          <h2 class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2">
-            <Zap :size="10" /> Transformers
-          </h2>
-          
-          <div class="space-y-2.5">
-            <div class="grid grid-cols-2 gap-1">
-              <button 
-                v-for="c in ['none', 'camel', 'snake', 'kebab', 'constant']" 
-                :key="c"
-                @click="caseStyle = c"
-                :class="caseStyle === c ? 'bg-orange-500/10 text-orange-500 border-orange-500/30' : 'bg-muted/10 border-border/20 text-muted-foreground'"
-                class="px-1.5 py-1 rounded-md text-[7px] font-black uppercase border"
-              >
-                {{ c }}
-              </button>
+               <!-- Quote Style -->
+               <div class="space-y-1.5">
+                 <label class="text-[10px] font-bold uppercase text-muted-foreground">Quote Style</label>
+                 <div class="grid grid-cols-3 gap-1 p-1 bg-muted/30 rounded-lg border border-border/50">
+                    <button 
+                      v-for="q in ['none', 'single', 'double']" 
+                      :key="q"
+                      @click="quoteType = q"
+                      :class="quoteType === q ? 'bg-background text-foreground shadow-sm ring-1 ring-black/5 dark:ring-white/5' : 'text-muted-foreground hover:bg-background/50'"
+                      class="py-1.5 rounded-md text-[10px] font-bold uppercase transition-all"
+                    >
+                      {{ q }}
+                    </button>
+                 </div>
+               </div>
+
+               <!-- Toggles -->
+               <div class="grid grid-cols-2 gap-2">
+                  <button 
+                    @click="isPretty = !isPretty"
+                    class="flex items-center gap-2 p-2.5 rounded-lg border transition-all text-left hover:bg-muted/30"
+                    :class="isPretty ? 'bg-primary/5 border-primary/30 text-primary' : 'bg-transparent border-border/50 text-muted-foreground'"
+                  >
+                     <div class="w-3 h-3 rounded-full border border-current flex items-center justify-center shrink-0">
+                        <div v-if="isPretty" class="w-1.5 h-1.5 rounded-full bg-current"></div>
+                     </div>
+                     <span class="text-[10px] font-bold uppercase">Pretty</span>
+                  </button>
+
+                  <button 
+                     @click="autoDetectNumbers = !autoDetectNumbers"
+                     class="flex items-center gap-2 p-2.5 rounded-lg border transition-all text-left hover:bg-muted/30"
+                     :class="autoDetectNumbers ? 'bg-emerald-500/5 border-emerald-500/30 text-emerald-600 dark:text-emerald-400' : 'bg-transparent border-border/50 text-muted-foreground'"
+                  >
+                     <div class="w-3 h-3 rounded-full border border-current flex items-center justify-center shrink-0">
+                        <div v-if="autoDetectNumbers" class="w-1.5 h-1.5 rounded-full bg-current"></div>
+                     </div>
+                     <span class="text-[10px] font-bold uppercase">Numbers</span>
+                  </button>
+               </div>
+            </div>
+         </div>
+
+         <!-- Transformers Card -->
+         <div class="bg-card border border-border/50 rounded-2xl p-4 shadow-sm space-y-4">
+             <h3 class="text-xs font-black uppercase tracking-widest text-muted-foreground/70 flex items-center gap-2">
+              <Zap :size="12" /> Transform
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-2">
+                <button 
+                  @click="doTrim = !doTrim" 
+                  :class="doTrim ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' : 'bg-muted/20 text-muted-foreground border-transparent hover:bg-muted/40'"
+                  class="px-2 py-2 rounded-lg border text-[10px] font-bold uppercase flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Scissors v-if="doTrim" :size="12" /> Trim
+                </button>
+                <button 
+                  @click="doRemoveEmpty = !doRemoveEmpty" 
+                  :class="doRemoveEmpty ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' : 'bg-muted/20 text-muted-foreground border-transparent hover:bg-muted/40'"
+                  class="px-2 py-2 rounded-lg border text-[10px] font-bold uppercase flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Filter v-if="doRemoveEmpty" :size="12" /> Clean
+                </button>
+                <button 
+                  @click="handleSort" 
+                  :class="sortOrder !== 'none' ? 'bg-purple-500/10 text-purple-600 border-purple-500/20' : 'bg-muted/20 text-muted-foreground border-transparent hover:bg-muted/40'"
+                  class="px-2 py-2 rounded-lg border text-[10px] font-bold uppercase flex items-center justify-center gap-1.5 transition-all"
+                >
+                   <SortAsc v-if="sortOrder === 'asc'" :size="12" />
+                   <SortDesc v-else-if="sortOrder === 'desc'" :size="12" />
+                   <span v-else>Sort</span>
+                </button>
+                <button 
+                  @click="doDeduplicate = !doDeduplicate" 
+                  :class="doDeduplicate ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' : 'bg-muted/20 text-muted-foreground border-transparent hover:bg-muted/40'"
+                  class="px-2 py-2 rounded-lg border text-[10px] font-bold uppercase flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Copy :size="12" /> Unique
+                </button>
             </div>
 
-            <div class="relative">
-              <Search :size="10" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
-              <input 
-                v-model="extractRegex" 
-                placeholder="Regex extract..." 
-                class="w-full bg-muted/20 border border-border/50 rounded-lg pl-8 pr-2 py-1.5 text-[9px] font-mono outline-none"
-              />
+            <!-- Regex Extract -->
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-bold uppercase text-muted-foreground">Regex Extract</label>
+                <div class="relative group">
+                  <Search :size="14" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <input 
+                    v-model="extractRegex" 
+                    placeholder="Pattern (e.g. \d+)" 
+                    class="w-full bg-muted/30 border border-border/50 rounded-lg pl-9 pr-3 py-2 text-xs font-mono focus:border-primary/50 focus:ring-2 focus:ring-primary/10 outline-none transition-all placeholder:text-muted-foreground/40"
+                  />
+                </div>
             </div>
 
-            <div class="flex items-center justify-between group cursor-pointer" @click="objectMode = !objectMode">
-              <span class="text-[9px] font-bold text-muted-foreground uppercase">Object Mode</span>
-              <button 
-                :class="objectMode ? 'bg-indigo-500' : 'bg-muted/50'"
-                class="w-6 h-3 rounded-full relative transition-all"
-              >
-                <div :class="objectMode ? 'translate-x-3' : 'translate-x-0.5'" class="absolute top-0.5 w-2 h-2 bg-white rounded-full transition-all"></div>
-              </button>
-            </div>
-          </div>
-        </section>
+            <!-- Text Case -->
+            <div class="space-y-1.5">
+                 <label class="text-[10px] font-bold uppercase text-muted-foreground">Text Casing</label>
+                 <div class="relative">
+                   <select v-model="caseStyle" class="w-full appearance-none bg-muted/30 border border-border/50 rounded-lg px-3 py-2 text-xs font-medium outline-none focus:border-primary/50 transition-all">
+                      <option value="none">Original Case</option>
+                      <option value="camel">camelCase</option>
+                      <option value="snake">snake_case</option>
+                      <option value="kebab">kebab-case</option>
+                      <option value="constant">CONSTANT_CASE</option>
+                   </select>
+                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+                      <ChevronRight :size="12" class="rotate-90" />
+                   </div>
+                 </div>
+             </div>
+         </div>
       </div>
 
-      <!-- Main Editor Area -->
-      <div class="flex-1 flex flex-col md:flex-row overflow-hidden p-3 gap-3">
+      <!-- Editor Area -->
+      <div class="flex-1 flex flex-col md:flex-row min-w-0 gap-4 md:gap-6 h-full">
+        
         <!-- Input Panel -->
-        <div class="flex-1 flex flex-col glass-card rounded-xl border border-border/50 overflow-hidden bg-card/40 shadow-lg h-full">
-          <div class="h-8 px-3 border-b border-border/40 flex items-center justify-between bg-muted/5 shrink-0">
-            <div class="flex items-center gap-1.5">
-              <AlignLeft :size="10" class="text-primary" />
-              <span class="text-[8px] font-black uppercase tracking-widest text-muted-foreground/70">{{ processedLines.length }} Items</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <label title="Upload File" class="cursor-pointer p-1 text-muted-foreground hover:text-primary transition-colors">
-                <Download :size="10" class="rotate-180" />
-                <input type="file" class="hidden" @change="handleFileUpload" />
-              </label>
-              <button @click="inputText = ''" title="Clear All" class="p-1 text-muted-foreground hover:text-rose-500">
-                <Trash2 :size="10" />
-              </button>
-            </div>
-          </div>
-          <div class="flex-1 relative">
-            <textarea 
-              v-model="inputText"
-              placeholder="Paste data..."
-              class="w-full h-full bg-transparent p-4 outline-none resize-none font-mono text-[10px] leading-relaxed placeholder:opacity-30 scrollbar-hide"
-            ></textarea>
-            <div class="absolute inset-y-0 left-0 w-6 bg-primary/5 pointer-events-none border-r border-border/10"></div>
-          </div>
-          <div class="p-1.5 border-t border-border/40 flex gap-1 bg-muted/5 overflow-x-auto scrollbar-hide shrink-0">
-            <button @click="doTrim = !doTrim" :class="doTrim ? 'bg-primary text-white shadow-sm' : 'bg-muted/50 text-muted-foreground'" class="px-2 py-0.5 rounded-md text-[7px] font-black uppercase transition-all shrink-0">Trim</button>
-            <button @click="doRemoveEmpty = !doRemoveEmpty" :class="doRemoveEmpty ? 'bg-primary text-white shadow-sm' : 'bg-muted/50 text-muted-foreground'" class="px-2 py-0.5 rounded-md text-[7px] font-black uppercase transition-all shrink-0">Static</button>
-            <button @click="doDeduplicate = !doDeduplicate" :class="doDeduplicate ? 'bg-primary text-white shadow-sm' : 'bg-muted/50 text-muted-foreground'" class="px-2 py-0.5 rounded-md text-[7px] font-black uppercase transition-all shrink-0">Unique</button>
-            <button @click="handleSort" :class="sortOrder !== 'none' ? 'bg-primary text-white shadow-sm' : 'bg-muted/50 text-muted-foreground'" class="px-2 py-0.5 rounded-md text-[7px] font-black uppercase transition-all shrink-0 flex items-center gap-1">
-              Sort <SortAsc v-if="sortOrder==='asc'" :size="8" /> <SortDesc v-if="sortOrder==='desc'" :size="8" />
-            </button>
-          </div>
+        <div class="flex-1 flex flex-col bg-card border border-border/50 rounded-2xl shadow-xl overflow-hidden relative group">
+           <div class="h-12 px-4 flex items-center justify-between border-b border-border/40 bg-muted/20 shrink-0">
+             <div class="flex items-center gap-2">
+               <AlignLeft :size="16" class="text-primary" />
+               <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Input Data</span>
+               <span class="px-2 py-0.5 rounded-full bg-muted text-[10px] font-bold text-muted-foreground border border-border">{{ processedLines.length }} lines</span>
+             </div>
+             <div class="flex items-center gap-1">
+               <label title="Upload File" class="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+                  <Download :size="16" class="rotate-180" />
+                  <input type="file" class="hidden" @change="handleFileUpload" />
+               </label>
+               <button @click="inputText = ''" title="Clear All" class="p-2 rounded-lg hover:bg-rose-500/10 text-muted-foreground hover:text-rose-500 transition-colors">
+                 <Trash2 :size="16" />
+               </button>
+             </div>
+           </div>
+           
+           <div class="flex-1 relative">
+             <textarea 
+                v-model="inputText"
+                placeholder="Paste your list here..."
+                class="absolute inset-0 w-full h-full bg-transparent p-5 outline-none resize-none font-mono text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/30 scrollbar-thin"
+             ></textarea>
+           </div>
         </div>
 
         <!-- Output Panel -->
-        <div class="flex-1 flex flex-col glass-card rounded-xl border border-border/50 overflow-hidden bg-[#0a0c10]/95 shadow-xl h-full">
-          <div class="h-8 px-3 border-b border-white/5 flex items-center justify-between bg-white/[0.01] shrink-0">
-            <div class="flex items-center gap-1.5">
-              <FileCode :size="10" class="text-emerald-500" />
-              <span class="text-[8px] font-black uppercase tracking-widest text-emerald-500/60">Generated Code</span>
-            </div>
-            <button @click="copyToClipboard" class="text-[7px] font-black uppercase text-muted-foreground hover:text-emerald-400 flex items-center gap-1.5 bg-white/5 px-1.5 py-0.5 rounded">
-              <ChevronRight :size="8" /> {{ copied ? 'Copied' : 'Copy' }}
-            </button>
-          </div>
-          <div class="flex-1 p-4 overflow-auto scrollbar-thin">
-            <pre class="font-mono text-[10px] leading-relaxed text-emerald-50/80 whitespace-pre-wrap">{{ resultText }}</pre>
-            <div v-if="!resultText" class="h-full flex flex-col items-center justify-center text-white/5 gap-2 pointer-events-none">
-              <Braces :size="32" stroke-width="0.5" />
-              <span class="text-[8px] font-black uppercase tracking-[0.2em] opacity-30">Waiting...</span>
-            </div>
-          </div>
+        <div class="flex-1 flex flex-col bg-muted/10 border border-border/50 rounded-2xl shadow-xl overflow-hidden relative group">
+           <div class="h-12 px-4 flex items-center justify-between border-b border-border/40 bg-muted/20 shrink-0">
+             <div class="flex items-center gap-2">
+               <FileCode :size="16" class="text-emerald-500" />
+               <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Compiled Code</span>
+             </div>
+             <div class="flex items-center gap-2">
+               <span v-if="isProcessing" class="text-[10px] font-mono text-emerald-500/80 animate-pulse mr-2">Compiling...</span>
+               <button @click="copyToClipboard" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-emerald-500/10 text-[10px] font-bold uppercase text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors border border-border/50 hover:border-emerald-500/30">
+                 <ChevronRight :size="12" /> {{ copied ? 'Copied' : 'Copy' }}
+               </button>
+             </div>
+           </div>
+
+           <div class="flex-1 relative overflow-hidden bg-card/30">
+             <div class="absolute inset-0 overflow-auto scrollbar-thin p-5">
+               <pre class="font-mono text-sm leading-relaxed text-foreground whitespace-pre-wrap selection:bg-emerald-500/30">{{ resultText }}</pre>
+             </div>
+             
+             <!-- Empty State -->
+             <div v-if="!resultText" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+               <div class="w-16 h-16 rounded-2xl bg-muted/30 flex items-center justify-center mb-4 ring-1 ring-border/20">
+                 <Braces :size="32" class="text-muted-foreground/30" />
+               </div>
+               <p class="text-xs font-bold uppercase tracking-widest text-muted-foreground/40">Waiting for input...</p>
+             </div>
+           </div>
         </div>
-      </div>
-    </div>
-    
-    <!-- Ultra Slim Footer -->
-    <div class="h-8 border-t border-border/50 bg-card/30 px-6 flex items-center justify-between shrink-0 text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest">
-      <div class="flex items-center gap-4">
-        <span class="flex items-center gap-1.5 hover:text-muted-foreground transition-colors cursor-default"><Monitor :size="10" /> Client-Side Core</span>
-        <span class="flex items-center gap-1.5 hover:text-muted-foreground transition-colors cursor-default"><Zap :size="10" /> Instant Compilation</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-        System Operational
+
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.glass-card {
-  position: relative;
-}
-.glass-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent 50%, rgba(255,255,255,0.05));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
 .scrollbar-hide::-webkit-scrollbar { display: none; }
-.scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 2px; }
-.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
-
-pre {
-  text-shadow: 0 0 30px rgba(16, 185, 129, 0.05);
-}
-
-textarea::placeholder {
-  font-family: inherit;
-  font-weight: 500;
-}
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 99px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.4); }
 </style>

@@ -11,12 +11,12 @@ importers:
       '@faker-js/faker':
         specifier: ^10.2.0
         version: 10.2.0
-      '@types/papaparse':
-        specifier: ^5.5.2
-        version: 5.5.2
       apexcharts:
         specifier: ^5.3.6
         version: 5.3.6
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -26,6 +26,9 @@ importers:
       papaparse:
         specifier: ^5.5.3
         version: 5.5.3
+      uuid:
+        specifier: ^13.0.0
+        version: 13.0.0
       vue:
         specifier: ^3.5.24
         version: 3.5.27(typescript@5.9.3)
@@ -42,12 +45,21 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/jszip':
         specifier: ^3.4.1
         version: 3.4.1
       '@types/node':
         specifier: ^24.10.9
         version: 24.10.9
+      '@types/papaparse':
+        specifier: ^5.5.2
+        version: 5.5.2
+      '@types/uuid':
+        specifier: ^10.0.0
+        version: 10.0.0
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
         version: 6.0.3(rolldown-vite@7.2.5(@types/node@24.10.9)(jiti@2.6.1))(vue@3.5.27(typescript@5.9.3))
@@ -340,6 +352,9 @@ packages:
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
 
+  '@types/js-yaml@4.0.9':
+    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
+
   '@types/jszip@3.4.1':
     resolution: {integrity: sha512-TezXjmf3lj+zQ651r6hPqvSScqBLvyPI9FxdXBqpEwBijNGQ2NXpaFW/7joGzveYkKQUil7iiDHLo6LV71Pc0A==}
     deprecated: This is a stub types definition. jszip provides its own type definitions, so you do not need this installed.
@@ -349,6 +364,9 @@ packages:
 
   '@types/papaparse@5.5.2':
     resolution: {integrity: sha512-gFnFp/JMzLHCwRf7tQHrNnfhN4eYBVYYI897CGX4MY1tzY9l2aLkVyx2IlKZ/SAqDbB3I1AOZW5gTMGGsqWliA==}
+
+  '@types/uuid@10.0.0':
+    resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
 
   '@vitejs/plugin-vue@6.0.3':
     resolution: {integrity: sha512-TlGPkLFLVOY3T7fZrwdvKpjprR3s4fxRln0ORDo1VQ7HHyxJwTlrjKU3kpVWTlaAjIEuCTokmjkZnr8Tpc925w==}
@@ -424,6 +442,9 @@ packages:
 
   apexcharts@5.3.6:
     resolution: {integrity: sha512-sVEPw+J0Gp0IHQabKu8cfdsxlfME0e36Wid7RIaPclGM2OUt+O7O4+6mfAmTUYhy5bDk8cNHzEhPfVtLCIXEJA==}
+
+  argparse@2.0.1:
+    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
   autoprefixer@10.4.23:
     resolution: {integrity: sha512-YYTXSFulfwytnjAPlw8QHncHJmlvFKtczb8InXaAx9Q0LbfDnfEYDE55omerIJKihhmU61Ft+cAOSzQVaBUmeA==}
@@ -520,6 +541,10 @@ packages:
 
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
+    hasBin: true
+
+  js-yaml@4.1.1:
+    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
     hasBin: true
 
   jszip@3.10.1:
@@ -809,6 +834,10 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
+    hasBin: true
+
   vscode-uri@3.1.0:
     resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
 
@@ -1056,6 +1085,8 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@types/js-yaml@4.0.9': {}
+
   '@types/jszip@3.4.1':
     dependencies:
       jszip: 3.10.1
@@ -1067,6 +1098,8 @@ snapshots:
   '@types/papaparse@5.5.2':
     dependencies:
       '@types/node': 24.10.9
+
+  '@types/uuid@10.0.0': {}
 
   '@vitejs/plugin-vue@6.0.3(rolldown-vite@7.2.5(@types/node@24.10.9)(jiti@2.6.1))(vue@3.5.27(typescript@5.9.3))':
     dependencies:
@@ -1172,6 +1205,8 @@ snapshots:
       '@svgdotjs/svg.select.js': 4.0.3(@svgdotjs/svg.js@3.2.5)
       '@yr/monotone-cubic-spline': 1.0.3
 
+  argparse@2.0.1: {}
+
   autoprefixer@10.4.23(postcss@8.5.6):
     dependencies:
       browserslist: 4.28.1
@@ -1241,6 +1276,10 @@ snapshots:
   isarray@1.0.0: {}
 
   jiti@2.6.1: {}
+
+  js-yaml@4.1.1:
+    dependencies:
+      argparse: 2.0.1
 
   jszip@3.10.1:
     dependencies:
@@ -1466,6 +1505,8 @@ snapshots:
       picocolors: 1.1.1
 
   util-deprecate@1.0.2: {}
+
+  uuid@13.0.0: {}
 
   vscode-uri@3.1.0: {}
 

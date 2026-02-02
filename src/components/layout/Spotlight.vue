@@ -1,22 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { 
-  Table, ArrowRightLeft, Sparkles, Columns, ShieldCheck, Layers, Scissors, 
-  BarChart3, GitCompare, Sigma, Repeat, Database, ListFilter, ListOrdered, 
-  Shuffle, EyeOff, FileDown, Search as SearchIcon, Braces, 
-  Search as SearchQuery, FileCode, Binary, Clock, Fingerprint, Regex, Command
+  ArrowRightLeft, Search as SearchIcon, Command
 } from 'lucide-vue-next';
-
-interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  path: string;
-  icon: any;
-  color: string;
-  bgColor: string;
-}
+import { tools } from '../../config/tools';
 
 const props = defineProps<{
   isVisible: boolean;
@@ -29,38 +17,6 @@ const searchQuery = ref('');
 const searchInput = ref<HTMLInputElement | null>(null);
 const selectedIndex = ref(0);
 const resultsRef = ref<HTMLElement | null>(null);
-
-const tools: Tool[] = [
-  { id: 'universal-converter', name: 'Converter', description: 'Transform CSV/JSON/Excel/SQL', path: '/universal-converter', icon: ArrowRightLeft, color: 'text-emerald-500', bgColor: 'bg-emerald-500/10' },
-  { id: 'merge-data', name: 'Merge', description: 'Combine multiple files', path: '/merge-data', icon: Layers, color: 'text-indigo-500', bgColor: 'bg-indigo-500/10' },
-  { id: 'split-data', name: 'Splitter', description: 'Split large datasets', path: '/split-data', icon: Scissors, color: 'text-rose-500', bgColor: 'bg-rose-500/10' },
-  { id: 'data-stats', name: 'Statistics', description: 'Automated data insights', path: '/data-stats', icon: BarChart3, color: 'text-emerald-600', bgColor: 'bg-emerald-600/10' },
-  { id: 'compare-data', name: 'Visual Diff', description: 'Track dataset changes', path: '/compare-data', icon: GitCompare, color: 'text-blue-600', bgColor: 'bg-blue-600/10' },
-  { id: 'csv-viewer', name: 'Viewer', description: 'Instant read & sorting', path: '/csv-viewer', icon: Table, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-  { id: 'csv-cleaner', name: 'Cleaner', description: 'Fix messy datasets', path: '/csv-cleaner', icon: Sparkles, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-  { id: 'column-selector', name: 'Columns', description: 'Reorder & pick columns', path: '/column-selector', icon: Columns, color: 'text-pink-500', bgColor: 'bg-pink-500/10' },
-  { id: 'filter-sort', name: 'Filter', description: 'Professional sorting presets', path: '/filter-sort', icon: ListFilter, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
-  { id: 'transpose-data', name: 'Transpose', description: 'Flip rows and columns', path: '/transpose-data', icon: ArrowRightLeft, color: 'text-violet-500', bgColor: 'bg-violet-500/10' },
-  { id: 'validate-data', name: 'Validator', description: 'Audit file structure', path: '/validate-data', icon: ShieldCheck, color: 'text-emerald-500', bgColor: 'bg-emerald-500/10' },
-  { id: 'reshape-data', name: 'Pivot', description: 'Switch data formats', path: '/reshape-data', icon: ArrowRightLeft, color: 'text-violet-500', bgColor: 'bg-violet-500/10' },
-  { id: 'summarize-data', name: 'Summarizer', description: 'Aggregate and group', path: '/summarize-data', icon: Sigma, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-  { id: 'find-replace', name: 'Replace', description: 'Global text rewrite', path: '/find-replace', icon: Repeat, color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' },
-  { id: 'mock-generator', name: 'Mock Gen', description: 'Create fake datasets', path: '/mock-generator', icon: Database, color: 'text-indigo-600', bgColor: 'bg-indigo-500/10' },
-  { id: 'skip-rows', name: 'Skip Rows', description: 'Set header and skip rows', path: '/skip-rows', icon: ListOrdered, color: 'text-sky-500', bgColor: 'bg-sky-500/10' },
-  { id: 'random-sample', name: 'Sample', description: 'Take first/last/random N', path: '/random-sample', icon: Shuffle, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-  { id: 'mask-data', name: 'Masking', description: 'Hide sensitive data', path: '/mask-data', icon: EyeOff, color: 'text-rose-500', bgColor: 'bg-rose-500/10' },
-  { id: 'data-to-chart', name: 'Charts', description: 'Visualize data', path: '/data-to-chart', icon: BarChart3, color: 'text-purple-600', bgColor: 'bg-purple-500/10' },
-  { id: 'json-formatter', name: 'JSON Beautify', description: 'Format & Minify JSON', path: '/json-formatter', icon: Braces, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-  { id: 'json-diff', name: 'JSON Diff', description: 'Compare two JSONs', path: '/json-diff', icon: GitCompare, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-  { id: 'json-path', name: 'JSON Query', description: 'Extract data by path', path: '/json-path', icon: SearchQuery, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
-  { id: 'xml-converter', name: 'XML <> JSON', description: 'Convert XML and JSON', path: '/xml-converter', icon: FileCode, color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' },
-  { id: 'encoder', name: 'Encoder Suite', description: 'Base64, URL, Hash', path: '/encoder', icon: Binary, color: 'text-indigo-500', bgColor: 'bg-indigo-500/10' },
-  { id: 'jwt-debugger', name: 'JWT Debugger', description: 'Decode JWT Tokens', path: '/jwt-debugger', icon: ShieldCheck, color: 'text-pink-500', bgColor: 'bg-pink-500/10' },
-  { id: 'epoch-converter', name: 'Epoch Time', description: 'Timestamp Converter', path: '/epoch-converter', icon: Clock, color: 'text-teal-500', bgColor: 'bg-teal-500/10' },
-  { id: 'uuid-generator', name: 'UUID Gen', description: 'Generate UUIDs', path: '/uuid-generator', icon: Fingerprint, color: 'text-violet-500', bgColor: 'bg-violet-500/10' },
-  { id: 'regex-tester', name: 'Regex Tester', description: 'Test RegEx patterns', path: '/regex-tester', icon: Regex, color: 'text-yellow-500', bgColor: 'bg-yellow-500/10' },
-  { id: 'templates', name: 'Templates', description: 'Download CSV/Excel templates', path: '/templates', icon: FileDown, color: 'text-slate-500', bgColor: 'bg-slate-500/10' }
-];
 
 const filteredTools = computed(() => {
   if (!searchQuery.value) return tools.slice(0, 5); // Show top 5 default suggestions
@@ -121,7 +77,6 @@ onUnmounted(() => {
 });
 
 // Focus input when visible
-import { watch } from 'vue';
 watch(() => props.isVisible, (newVal) => {
   if (newVal) {
     searchQuery.value = '';
