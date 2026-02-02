@@ -315,7 +315,7 @@ const tools = [
   },
   {
     id: 'array-converter',
-    name: 'ArrayThis+',
+    name: 'ArrayThis',
     description: 'The ultimate tool to transform any list into code-ready arrays for JS, Python, PHP, SQL, and more.',
     path: '/array-converter',
     icon: Braces,
