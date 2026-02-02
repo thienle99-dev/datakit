@@ -144,45 +144,127 @@ export async function upscaleImage(
   file: File,
   scaleFactor: number = 2,
   method: 'bicubic' | 'lanczos' | 'nearest' | 'bilinear' = 'bicubic',
-  targetAspectRatio?: { width: number; height: number }
+  targetAspectRatio?: { width: number; height: number },
+  cropPosition: { x: number; y: number } = { x: 50, y: 50 },
+  cropSize: number = 100
 ): Promise<Blob> {
   const dataUrl = await fileToDataURL(file);
   const img = await loadImage(dataUrl);
   
-  let targetWidth = Math.round(img.width * scaleFactor);
-  let targetHeight = Math.round(img.height * scaleFactor);
-  
-  // Apply aspect ratio nếu có
+  // Calculate Source Rectangle
+  let sourceWidth = img.width;
+  let sourceHeight = img.height;
+  const imgRatio = img.width / img.height;
+
   if (targetAspectRatio && targetAspectRatio.width > 0 && targetAspectRatio.height > 0) {
     const targetRatio = targetAspectRatio.width / targetAspectRatio.height;
-    const currentRatio = targetWidth / targetHeight;
-    
-    if (currentRatio > targetRatio) {
-      targetHeight = Math.round(targetWidth / targetRatio);
+    if (imgRatio > targetRatio) {
+      sourceWidth = img.height * targetRatio;
     } else {
-      targetWidth = Math.round(targetHeight * targetRatio);
+      sourceHeight = img.width / targetRatio;
     }
   }
+
+  // Apply cropSize (zoom)
+  sourceWidth = (sourceWidth * cropSize) / 100;
+  sourceHeight = (sourceHeight * cropSize) / 100;
+
+  // Calculate Source Offsets based on cropPosition (focus)
+  const maxX = img.width - sourceWidth;
+  const maxY = img.height - sourceHeight;
+  const sourceX = Math.max(0, Math.min(maxX, maxX * (cropPosition.x / 100)));
+  const sourceY = Math.max(0, Math.min(maxY, maxY * (cropPosition.y / 100)));
+
+  // Target dimensions
+  const targetWidth = Math.round(sourceWidth * scaleFactor);
+  const targetHeight = Math.round(sourceHeight * scaleFactor);
   
   const canvas = document.createElement('canvas');
   canvas.width = targetWidth;
   canvas.height = targetHeight;
   
-  const ctx = canvas.getContext('2d', {
-    imageSmoothingEnabled: method !== 'nearest',
-    imageSmoothingQuality: method === 'lanczos' ? 'high' : 
-                          method === 'bicubic' ? 'high' : 'medium'
-  }) as CanvasRenderingContext2D | null;
+  const ctx = canvas.getContext('2d');
   
   if (!ctx) throw new Error('Could not get canvas context');
   
-  // Draw với interpolation
-  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+  // Set smoothing properties
+  ctx.imageSmoothingEnabled = method !== 'nearest';
+  if (ctx.imageSmoothingEnabled) {
+    ctx.imageSmoothingQuality = method === 'lanczos' ? 'high' : 
+                               method === 'bicubic' ? 'high' : 'medium';
+  }
+  
+  ctx.drawImage(
+    img, 
+    sourceX, sourceY, sourceWidth, sourceHeight, // Source
+    0, 0, targetWidth, targetHeight            // Destination
+  );
   
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (blob) resolve(blob);
       else reject(new Error('Upscaling failed'));
     }, file.type, 1.0); // Maximum quality
+  });
+}
+/**
+ * Renders table data (headers and rows) to a Blob representing an image.
+ */
+export function dataToImage(headers: string[], data: any[]): Promise<Blob> {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not get canvas context');
+
+  const cellWidth = 150;
+  const cellHeight = 30;
+  const padding = 20;
+  const maxRows = 50; // Limit rendering for performance
+  const displayData = data.slice(0, maxRows);
+
+  canvas.width = headers.length * cellWidth + padding * 2;
+  canvas.height = (displayData.length + 1) * cellHeight + padding * 2;
+
+  // Background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textBaseline = 'middle';
+
+  // Draw Headers
+  headers.forEach((header, i) => {
+    const x = padding + i * cellWidth;
+    const y = padding;
+    
+    ctx.fillStyle = '#f3f4f6';
+    ctx.fillRect(x, y, cellWidth, cellHeight);
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.strokeRect(x, y, cellWidth, cellHeight);
+    
+    ctx.fillStyle = '#374151';
+    ctx.fillText(header.toString().substring(0, 20), x + 10, y + cellHeight / 2);
+  });
+
+  // Draw Data
+  ctx.font = '12px sans-serif';
+  displayData.forEach((row, rowIndex) => {
+    headers.forEach((header, colIndex) => {
+      const x = padding + colIndex * cellWidth;
+      const y = padding + (rowIndex + 1) * cellHeight;
+      
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.strokeRect(x, y, cellWidth, cellHeight);
+      
+      ctx.fillStyle = '#4b5563';
+      const value = row[header] !== undefined ? row[header] : '';
+      ctx.fillText(value.toString().substring(0, 25), x + 10, y + cellHeight / 2);
+    });
+  });
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Failed to convert data to image'));
+    }, 'image/png');
   });
 }
