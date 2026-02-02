@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Palette, Copy, Check, Download, Image as ImageIcon, Trash2, ArrowLeft, RefreshCw, Layers, Layout } from 'lucide-vue-next';
+import { Palette, Copy, Check, Download, Image as ImageIcon, Trash2, ArrowLeft, RefreshCw, Layout, Layers } from 'lucide-vue-next';
 import { extractPalette, hexToRgb, hexToHsl, getContrastRatio, getHslData, getHarmoniousColors, generatePalettePoster } from '../utils/imageUtils';
 import { useRouter } from 'vue-router';
 
@@ -17,6 +17,12 @@ const hasEyeDropper = ref(typeof window !== 'undefined' && 'EyeDropper' in windo
 const showPreview = ref(false);
 const activeColor = ref<string | null>(null);
 const harmonyColors = ref<{ type: string; colors: string[] }[]>([]);
+
+const showExportModal = ref(false);
+const exportMode = ref<'code' | 'poster'>('code');
+const codeFormat = ref<'json' | 'css' | 'tailwind' | 'scss'>('json');
+const generatedCode = ref('');
+const posterPreviewUrl = ref<string | null>(null);
 
 const styles = [
   { id: 'all', label: 'All Colors' },
@@ -85,14 +91,12 @@ const copyToClipboard = (text: string) => {
   }, 2000);
 };
 
-const downloadPalette = (format: 'json' | 'css' | 'tailwind' | 'scss') => {
+const generateCode = (format: 'json' | 'css' | 'tailwind' | 'scss') => {
+  codeFormat.value = format;
   if (palette.value.length === 0) return;
   
-  let content = '';
-  let filename = `palette-${Date.now()}`;
-  
   if (format === 'json') {
-    content = JSON.stringify({
+    generatedCode.value = JSON.stringify({
       name: 'Extracted Palette',
       colors: palette.value.map(hex => ({
         hex,
@@ -100,43 +104,56 @@ const downloadPalette = (format: 'json' | 'css' | 'tailwind' | 'scss') => {
         hsl: hexToHsl(hex)
       }))
     }, null, 2);
-    filename += '.json';
   } else if (format === 'css') {
-    content = ':root {\n' + palette.value.map((hex, i) => `  --color-${i + 1}: ${hex};`).join('\n') + '\n}';
-    filename += '.css';
+    generatedCode.value = ':root {\n' + palette.value.map((hex, i) => `  --color-${i + 1}: ${hex};`).join('\n') + '\n}';
   } else if (format === 'tailwind') {
-    content = 'module.exports = {\n  theme: {\n    extend: {\n      colors: {\n' + 
+    generatedCode.value = 'module.exports = {\n  theme: {\n    extend: {\n      colors: {\n' + 
       palette.value.map((hex, i) => `        'brand-${i + 1}': '${hex}',`).join('\n') + 
       '\n      }\n    }\n  }\n}';
-    filename += '.js';
   } else if (format === 'scss') {
-    content = palette.value.map((hex, i) => `$color-${i + 1}: ${hex};`).join('\n');
-    filename += '.scss';
+    generatedCode.value = palette.value.map((hex, i) => `$color-${i + 1}: ${hex};`).join('\n');
   }
-
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
 };
 
-const exportPoster = async () => {
+const openExportPreview = (mode: 'code' | 'poster', format?: any) => {
+  exportMode.value = mode;
+  if (mode === 'code') {
+    generateCode(format || 'json');
+  } else {
+    updatePosterPreview();
+  }
+  showExportModal.value = true;
+};
+
+const updatePosterPreview = async () => {
   if (!file.value || palette.value.length === 0) return;
   isProcessing.value = true;
   try {
     const blob = await generatePalettePoster(file.value, palette.value);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `presentation-${Date.now()}.png`;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (posterPreviewUrl.value) URL.revokeObjectURL(posterPreviewUrl.value);
+    posterPreviewUrl.value = URL.createObjectURL(blob);
   } catch (error) {
     console.error('Poster generation failed:', error);
   } finally {
     isProcessing.value = false;
+  }
+};
+
+const downloadFromPreview = () => {
+  if (exportMode.value === 'code') {
+    const blob = new Blob([generatedCode.value], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const ext = codeFormat.value === 'json' ? 'json' : codeFormat.value === 'tailwind' ? 'js' : codeFormat.value;
+    a.download = `palette-${Date.now()}.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } else if (posterPreviewUrl.value) {
+    const a = document.createElement('a');
+    a.href = posterPreviewUrl.value;
+    a.download = `presentation-${Date.now()}.png`;
+    a.click();
   }
 };
 
@@ -185,7 +202,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background font-outfit">
+  <div class="min-h-screen bg-background font-outfit text-foreground">
     <!-- Header -->
     <header class="h-[var(--header-h)] border-b border-border/50 bg-card/50 backdrop-blur-xl sticky top-0 z-50">
       <div class="max-w-screen-2xl mx-auto h-full px-4 md:px-8 flex items-center justify-between">
@@ -213,12 +230,12 @@ onUnmounted(() => {
               Export
             </button>
             <!-- Dropdown Menu -->
-            <div class="absolute right-0 top-full mt-2 w-48 bg-card border border-border shadow-2xl rounded-2xl overflow-hidden opacity-0 invisible group-hover/export:opacity-100 group-hover/export:visible transition-all z-50">
-               <button @click="downloadPalette('json')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">JSON Format</button>
-               <button @click="downloadPalette('css')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">CSS Variables</button>
-               <button @click="downloadPalette('tailwind')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">Tailwind Config</button>
-               <button @click="downloadPalette('scss')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">SCSS Variables</button>
-               <button @click="exportPoster" class="w-full text-left px-4 py-3 text-xs font-bold bg-primary/5 text-primary hover:bg-primary/10 transition-colors">Presentation Poster</button>
+            <div class="absolute right-0 top-full mt-2 w-48 bg-card/95 backdrop-blur-xl border border-border shadow-2xl rounded-2xl overflow-hidden opacity-0 invisible group-hover/export:opacity-100 group-hover/export:visible transition-all z-50">
+               <button @click="openExportPreview('code', 'json')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">JSON Format</button>
+               <button @click="openExportPreview('code', 'css')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">CSS Variables</button>
+               <button @click="openExportPreview('code', 'tailwind')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">Tailwind Config</button>
+               <button @click="openExportPreview('code', 'scss')" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-primary/10 transition-colors border-b border-border/50">SCSS Variables</button>
+               <button @click="openExportPreview('poster')" class="w-full text-left px-4 py-3 text-xs font-bold bg-primary/5 text-primary hover:bg-primary/10 transition-colors">Presentation Poster</button>
             </div>
           </div>
           <button 
@@ -249,117 +266,104 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <main class="max-w-screen-2xl mx-auto p-4 md:p-8">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <main class="max-w-screen-2xl mx-auto p-4 md:p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- Selection & Preview Area -->
-        <div class="lg:col-span-12">
-           <div class="text-center mb-8">
-              <h2 class="text-2xl font-black mb-2 animate-in fade-in slide-in-from-bottom-2 duration-700">Extract Colors</h2>
-              <p class="text-muted-foreground text-sm max-w-xl mx-auto">
-                Generate a stunning color palette from any image. Our AI-powered sampling extracts the most prominent and harmonious colors.
-              </p>
-           </div>
-        </div>
-
-        <!-- Left: Upload/Image -->
-        <div class="lg:col-span-5 space-y-6">
-          <div class="bg-card/80 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden border border-border/50 bg-card min-h-[400px] flex items-center justify-center relative group">
+        <!-- Left: Upload & Settings (Sidebar style) -->
+        <div class="lg:col-span-4 space-y-6">
+          <!-- Compact Upload Area -->
+          <div 
+            class="bg-card/50 backdrop-blur-xl border border-border/40 rounded-3xl overflow-hidden transition-all duration-500"
+            :class="previewUrl ? 'min-h-[200px]' : 'min-h-[340px]'"
+          >
             <template v-if="!previewUrl">
-              <label class="w-full h-full flex flex-col items-center justify-center cursor-pointer p-12 text-center group">
-                <div class="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ring-1 ring-primary/20">
-                  <ImageIcon :size="40" />
+              <label class="w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 text-center group">
+                <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+                  <ImageIcon :size="32" />
                 </div>
-                <h3 class="text-xl font-bold mb-2">Drop or Paste your image here</h3>
-                <p class="text-muted-foreground text-sm mb-6 max-w-[240px]">Supporting JPEG, PNG, and WebP. Just Ctrl+V to paste!</p>
-                <div class="px-6 py-3 bg-primary text-primary-foreground rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
-                  Browse Files
-                </div>
+                <h3 class="text-sm font-black uppercase tracking-widest mb-2">Upload Image</h3>
+                <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-tight opacity-60">Paste (Ctrl+V) or click</p>
                 <input type="file" @change="handleFileUpload" accept="image/*" class="hidden" />
               </label>
             </template>
             <template v-else>
-              <img :src="previewUrl" class="max-w-full max-h-[600px] object-contain rounded-2xl p-4 shadow-sm" />
-              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm">
-                 <label class="p-4 bg-white text-black rounded-2xl cursor-pointer hover:scale-105 transition-transform font-bold flex items-center gap-2 shadow-xl">
-                   <RefreshCw :size="18" :class="{ 'animate-spin': isProcessing }" />
-                   Change Image
-                   <input type="file" @change="handleFileUpload" accept="image/*" class="hidden" />
-                 </label>
+              <div class="relative group p-4">
+                <img :src="previewUrl" class="w-full h-auto max-h-[300px] object-contain rounded-2xl shadow-2xl shadow-primary/5" />
+                <div class="absolute inset-x-5 bottom-8 opacity-0 group-hover:opacity-100 transition-opacity flex justify-center">
+                   <label class="px-4 py-2 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-xl shadow-2xl cursor-pointer hover:scale-105 transition-transform flex items-center gap-2">
+                     <RefreshCw :size="12" />
+                     Change Image
+                     <input type="file" @change="handleFileUpload" accept="image/*" class="hidden" />
+                   </label>
+                </div>
               </div>
             </template>
           </div>
 
-          <div v-if="previewUrl" class="bg-card/80 backdrop-blur-md shadow-sm p-6 rounded-3xl border border-border/50 bg-card">
-            <div class="flex items-center justify-between mb-4">
-               <h3 class="text-sm font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                 <Layers :size="14" /> Settings
-               </h3>
-               <span class="px-2 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-md">{{ colorCount }} Colors</span>
+          <!-- Settings Panel -->
+          <div v-if="previewUrl" class="bg-card/50 backdrop-blur-xl p-6 rounded-3xl border border-border/40 animate-in slide-in-from-left-4 duration-500">
+            <div class="flex items-center justify-between mb-6">
+               <h3 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Configuration</h3>
+               <span class="px-2 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-md">{{ colorCount }} colors</span>
             </div>
-            <input 
-              type="range" v-model.number="colorCount" min="4" max="12" step="1" 
-              @change="processImage"
-              class="w-full h-2 bg-muted rounded-full appearance-none cursor-pointer accent-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary-foreground"
-            />
-            <div class="flex justify-between text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-tighter">
-              <span>Minimal (4)</span>
-              <span>Rich (12)</span>
-            </div>
-
-            <!-- Styles & Sorting -->
-            <div class="mt-8 pt-8 border-t border-border/50 space-y-6">
-               <div class="space-y-3">
-                  <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Palette Style</label>
-                  <div class="flex flex-wrap gap-2">
-                    <button 
-                      v-for="s in styles" :key="s.id"
-                      @click="selectedStyle = s.id as any; processImage()"
-                      class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border"
-                      :class="selectedStyle === s.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/50 border-border/50 hover:border-primary/30'"
-                    >
-                      {{ s.label }}
-                    </button>
-                  </div>
-               </div>
-
-               <div class="space-y-3">
-                  <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Sort By</label>
-                  <select 
-                    v-model="sortBy" @change="palette = sortPalette(palette)"
-                    class="w-full bg-muted/50 border border-border/50 rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-1 ring-primary/30 transition-all"
+            
+            <div class="space-y-6">
+              <input type="range" v-model.number="colorCount" min="4" max="12" step="1" @change="processImage" class="w-full" />
+              
+              <div class="space-y-4">
+                <label class="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Palette Style</label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button 
+                    v-for="s in styles" :key="s.id"
+                    @click="selectedStyle = s.id as any; processImage()"
+                    class="px-2 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border"
+                    :class="selectedStyle === s.id ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20' : 'bg-muted/30 border-border/40 hover:bg-muted/50'"
                   >
-                    <option value="none">Default (Frequency)</option>
-                    <option value="hue">Hue</option>
-                    <option value="saturation">Saturation</option>
-                    <option value="luminance">Luminance</option>
-                  </select>
-               </div>
+                    {{ s.label }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <label class="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Sort Strategy</label>
+                <div class="flex bg-muted/30 p-1 rounded-xl border border-border/40">
+                  <button 
+                    v-for="mode in (['none', 'hue', 'saturation', 'luminance'] as const)" :key="mode"
+                    @click="sortBy = mode; palette = sortPalette(palette)"
+                    class="flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-tighter transition-all"
+                    :class="sortBy === mode ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground opacity-60 hover:opacity-100'"
+                  >
+                    {{ mode === 'none' ? 'Freq' : mode }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Right: Palette Display -->
-        <div class="lg:col-span-7 space-y-6">
-          <div v-if="palette.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Right: Professional Palette Grid -->
+        <div class="lg:col-span-8 space-y-6">
+          <div v-if="palette.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div 
-              v-for="(color, index) in palette" 
-              :key="color"
+              v-for="(color, index) in palette" :key="color"
               class="animate-in fade-in slide-in-from-right-4 duration-500"
-              :style="{ animationDelay: `${index * 100}ms` }"
+              :style="{ animationDelay: `${index * 50}ms` }"
             >
-              <div class="bg-card/80 backdrop-blur-md shadow-sm group/color p-4 rounded-3xl border border-border/50 bg-card hover:border-primary/40 transition-all hover:shadow-xl cursor-pointer" @click="openHarmonyLab(color)">
+              <div 
+                class="bg-card/50 backdrop-blur-xl p-4 rounded-3xl border border-border/40 hover:border-primary/40 transition-all cursor-pointer group/card shadow-sm hover:shadow-xl"
+                @click="openHarmonyLab(color)"
+              >
                 <div class="flex gap-4">
-                  <!-- Color Swatch -->
+                  <!-- Original Large Swatch -->
                   <div 
-                    class="w-24 h-24 rounded-2xl shadow-inner relative overflow-hidden group-hover/color:scale-105 transition-transform"
+                    class="w-24 h-24 rounded-2xl shadow-inner relative overflow-hidden group-hover/card:scale-105 transition-transform shrink-0"
                     :style="{ backgroundColor: color }"
                   >
-                    <div class="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-tr from-black/10 to-transparent"></div>
                   </div>
 
                   <!-- Color Info -->
-                  <div class="flex-1 flex flex-col justify-center gap-1.5">
+                  <div class="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
                     <div class="flex items-center justify-between">
                       <span class="text-lg font-black tracking-tight">{{ color.toUpperCase() }}</span>
                       <button 
@@ -375,17 +379,15 @@ onUnmounted(() => {
                        <div class="flex items-center justify-between text-[10px] font-bold group/val p-1 hover:bg-muted/50 rounded-lg transition-all" @click.stop="copyToClipboard(getRgbString(color))">
                          <span class="text-muted-foreground uppercase opacity-50">RGB</span>
                          <div class="flex items-center gap-2">
-                           <span class="cursor-pointer group-hover/val:text-primary transition-colors">{{ getRgbString(color) }}</span>
+                           <span class="cursor-pointer group-hover/val:text-primary transition-colors">{{ getRgbString(color).replace('rgb(', '').replace(')', '') }}</span>
                            <Check v-if="copiedText === getRgbString(color)" :size="10" class="text-emerald-500" />
-                           <Copy v-else :size="10" class="opacity-0 group-hover/val:opacity-100 transition-opacity" />
                          </div>
                        </div>
                        <div class="flex items-center justify-between text-[10px] font-bold group/val p-1 hover:bg-muted/50 rounded-lg transition-all" @click.stop="copyToClipboard(hexToHsl(color))">
                          <span class="text-muted-foreground uppercase opacity-50">HSL</span>
                          <div class="flex items-center gap-2">
-                           <span class="cursor-pointer group-hover/val:text-primary transition-colors">{{ hexToHsl(color) }}</span>
+                           <span class="cursor-pointer group-hover/val:text-primary transition-colors text-right truncate max-w-[80px]">{{ hexToHsl(color).replace('hsl(', '').replace(')', '') }}</span>
                            <Check v-if="copiedText === hexToHsl(color)" :size="10" class="text-emerald-500" />
-                           <Copy v-else :size="10" class="opacity-0 group-hover/val:opacity-100 transition-opacity" />
                          </div>
                        </div>
                     </div>
@@ -394,15 +396,15 @@ onUnmounted(() => {
                     <div class="mt-2 flex gap-2">
                       <div 
                         class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter"
-                        :class="getContrastRatio(color, '#ffffff') > 4.5 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'"
+                        :class="getContrastRatio(color, '#ffffff') > 4.5 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'"
                       >
-                        WHE ON WHT: {{ getContrastRatio(color, '#ffffff').toFixed(1) }}
+                        WHT: {{ getContrastRatio(color, '#ffffff').toFixed(1) }}
                       </div>
                       <div 
                         class="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter"
-                        :class="getContrastRatio(color, '#000000') > 4.5 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'"
+                        :class="getContrastRatio(color, '#000000') > 4.5 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'"
                       >
-                        WHE ON BLK: {{ getContrastRatio(color, '#000000').toFixed(1) }}
+                        BLK: {{ getContrastRatio(color, '#000000').toFixed(1) }}
                       </div>
                     </div>
                   </div>
@@ -410,19 +412,18 @@ onUnmounted(() => {
               </div>
             </div>
           </div>
-
-          <div v-else-if="!isProcessing && !file" class="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-border/40 rounded-[2.5rem] bg-card/10">
+          <!-- No Image/Processing States -->
+          <div v-if="!file && !isProcessing" class="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-border/20 rounded-[2.5rem] bg-card/5">
             <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground/40 mb-4">
               <Palette :size="32" />
             </div>
-            <h3 class="text-lg font-bold text-muted-foreground/60">No Palette Extracted</h3>
-            <p class="text-sm text-muted-foreground/40 max-w-[200px]">Upload an image to see the color magic happen</p>
+            <h3 class="text-sm font-black uppercase tracking-widest text-muted-foreground/60">No Palette yet</h3>
+            <p class="text-[10px] text-muted-foreground/40 max-w-[200px] font-bold uppercase tracking-widest mt-2">Upload an image to start</p>
           </div>
 
-          <div v-if="isProcessing" class="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-border/40 rounded-[2.5rem] bg-card/10">
+          <div v-if="isProcessing" class="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 bg-card/5 rounded-[2.5rem]">
             <RefreshCw :size="40" class="text-primary animate-spin mb-4" />
-            <h3 class="text-lg font-bold">Analyzing Pixels...</h3>
-            <p class="text-sm text-muted-foreground">Extracting the DNA of your image</p>
+            <h3 class="text-sm font-black uppercase tracking-widest">Analyzing...</h3>
           </div>
         </div>
 
@@ -494,7 +495,7 @@ onUnmounted(() => {
                            class="w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg transition-transform active:scale-95" 
                            :style="{ 
                              backgroundColor: palette[3] || palette[0], 
-                             color: getContrastRatio(palette[3] || palette[0], '#ffffff') > 4.5 ? '#ffffff' : '#000000' 
+                             color: (palette[3] || palette[0]) && getContrastRatio(palette[3] || palette[0], '#ffffff') > 4.5 ? '#ffffff' : '#000000' 
                            }"
                          >
                            Action Button
@@ -534,6 +535,142 @@ onUnmounted(() => {
 
       </div>
     </main>
+
+    <!-- Premium Export Preview Modal -->
+    <div v-if="showExportModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 animate-in fade-in duration-300">
+       <div class="absolute inset-0 bg-black/80 backdrop-blur-xl" @click="showExportModal = false"></div>
+       
+       <div class="bg-card w-full max-w-5xl max-h-[85vh] overflow-hidden rounded-[3rem] border border-white/10 shadow-[0_0_100px_-20px_rgba(0,0,0,0.5)] relative animate-in zoom-in-95 duration-500 flex flex-col md:flex-row">
+          
+          <!-- Modal Sidebar: Actions & Formats -->
+          <div class="w-full md:w-80 border-b md:border-b-0 md:border-r border-border/40 p-8 flex flex-col justify-between bg-muted/20">
+            <div class="space-y-10">
+              <div class="space-y-2">
+                <h3 class="text-2xl font-black tracking-tight uppercase">Export</h3>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60">Professional Output</p>
+              </div>
+
+              <!-- Export Type Toggle -->
+              <div class="space-y-4">
+                <label class="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Select Mode</label>
+                <div class="flex flex-col gap-2">
+                  <button 
+                    @click="exportMode = 'code'; generateCode(codeFormat)"
+                    class="group flex items-center gap-4 p-4 rounded-2xl transition-all"
+                    :class="exportMode === 'code' ? 'bg-primary text-primary-foreground shadow-xl shadow-primary/20' : 'hover:bg-muted/50'"
+                  >
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors" :class="exportMode === 'code' ? 'bg-white/20' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'">
+                       <Layers :size="18" />
+                    </div>
+                    <div class="text-left">
+                       <p class="text-xs font-black uppercase">Code</p>
+                       <p class="text-[9px] opacity-60 font-bold uppercase">{{ codeFormat }} format</p>
+                    </div>
+                  </button>
+                  <button 
+                    @click="exportMode = 'poster'; updatePosterPreview()"
+                    class="group flex items-center gap-4 p-4 rounded-2xl transition-all"
+                    :class="exportMode === 'poster' ? 'bg-primary text-primary-foreground shadow-xl shadow-primary/20' : 'hover:bg-muted/50'"
+                  >
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors" :class="exportMode === 'poster' ? 'bg-white/20' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white'">
+                       <Layout :size="18" />
+                    </div>
+                    <div class="text-left">
+                       <p class="text-xs font-black uppercase">Poster</p>
+                       <p class="text-[9px] opacity-60 font-bold uppercase">Presentation</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Format Selector (only for code) -->
+              <div v-if="exportMode === 'code'" class="space-y-4 pt-4 animate-in slide-in-from-top-4 duration-500">
+                <label class="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Format</label>
+                <div class="grid grid-cols-2 gap-2">
+                   <button 
+                     v-for="fmt in (['json', 'css', 'tailwind', 'scss'] as const)" :key="fmt"
+                     @click="generateCode(fmt)"
+                     class="py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border"
+                     :class="codeFormat === fmt ? 'bg-primary/10 border-primary text-primary' : 'bg-transparent border-border/40 hover:border-primary/50'"
+                   >
+                     {{ fmt }}
+                   </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-4 pt-8">
+              <button 
+                @click="downloadFromPreview"
+                class="w-full py-5 bg-primary text-primary-foreground rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all active:scale-95 flex items-center justify-center gap-3"
+              >
+                <Download :size="18" />
+                Download
+              </button>
+              <button @click="showExportModal = false" class="w-full py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+                 Close Window
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal Main Area: Preview -->
+          <div class="flex-1 bg-black/90 relative flex flex-col">
+             <!-- Top bar with Copy info -->
+             <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                   <div class="flex gap-1.5">
+                      <div class="w-3 h-3 rounded-full bg-rose-500/80"></div>
+                      <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
+                      <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+                   </div>
+                   <span class="text-[10px] font-mono text-white/40 uppercase tracking-widest ml-4">{{ exportMode === 'code' ? `${codeFormat.toUpperCase()} Preview` : 'Presentation Render' }}</span>
+                </div>
+                <button 
+                  v-if="exportMode === 'code'"
+                  @click="copyToClipboard(generatedCode)"
+                  class="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/5 group"
+                >
+                   <Check v-if="copiedText === generatedCode" :size="14" class="text-emerald-400" />
+                   <Copy v-else :size="14" class="text-white/40 group-hover:text-white" />
+                   <span class="text-[10px] font-black uppercase tracking-widest text-white/40 group-hover:text-white">{{ copiedText === generatedCode ? 'Copied!' : 'Copy Snippet' }}</span>
+                </button>
+             </div>
+
+             <!-- Preview Content -->
+             <div class="flex-1 overflow-hidden flex items-center justify-center p-8 lg:p-12">
+                <!-- Code Preview -->
+                <div v-if="exportMode === 'code'" class="w-full h-full animate-in fade-in slide-in-from-right-8 duration-700">
+                   <pre class="h-full w-full font-mono text-[13px] leading-relaxed overflow-auto custom-scrollbar text-emerald-400/90 selection:bg-primary/30"><code>{{ generatedCode }}</code></pre>
+                </div>
+
+                <!-- Poster Preview with Stage -->
+                <div v-else-if="exportMode === 'poster'" class="w-full h-full flex items-center justify-center animate-in fade-in zoom-in duration-700">
+                    <div class="relative group/stage flex items-center justify-center w-full h-full">
+                       <!-- Stage Background -->
+                       <div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent rounded-3xl"></div>
+                       
+                       <div v-if="isProcessing" class="flex flex-col items-center gap-4">
+                          <RefreshCw :size="48" class="text-primary animate-spin" />
+                          <p class="text-[10px] font-black uppercase text-white/40 tracking-[0.3em]">Rendering Poster</p>
+                       </div>
+                       
+                       <img 
+                         v-else-if="posterPreviewUrl" 
+                         :src="posterPreviewUrl" 
+                         class="max-h-full max-w-full rounded-lg shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/10 transition-transform duration-700 hover:scale-[1.02]"
+                       />
+                    </div>
+                </div>
+             </div>
+             
+             <!-- Bottom Status -->
+             <div class="p-6 border-t border-white/5 flex items-center justify-between text-[9px] font-mono text-white/20 uppercase tracking-[0.2em]">
+                <span>Status: Ready for export</span>
+                <span>DataKit Graphics Engine v1.0</span>
+             </div>
+          </div>
+       </div>
+    </div>
   </div>
 </template>
 
