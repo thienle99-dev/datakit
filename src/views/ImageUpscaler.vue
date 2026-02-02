@@ -14,9 +14,16 @@ const error = ref<string | null>(null);
 const scaleFactor = ref(2);
 const upscaleMethod = ref<'bicubic' | 'lanczos' | 'nearest' | 'bilinear'>('bicubic');
 const selectedAspectRatio = ref<keyof typeof ASPECT_RATIO_PRESETS | 'original'>('original');
+const sharpenAmount = ref(15); // Default subtle sharpening
 
 const originalDimensions = ref({ width: 0, height: 0 });
 const upscaledDimensions = ref({ width: 0, height: 0 });
+
+const originalAspectRatio = computed(() => {
+  if (!originalDimensions.value.width) return 1;
+  return originalDimensions.value.width / originalDimensions.value.height;
+});
+
 const hiddenInputRef = ref<HTMLInputElement | null>(null);
 const sourceContainerRef = ref<HTMLElement | null>(null);
 
@@ -145,7 +152,8 @@ async function processUpscale() {
       upscaleMethod.value,
       aspectRatio,
       cropPosition.value,
-      cropScale.value
+      cropScale.value,
+      sharpenAmount.value
     );
     
     if (upscaledUrl.value) URL.revokeObjectURL(upscaledUrl.value);
@@ -246,7 +254,7 @@ function handlePaste(e: ClipboardEvent) {
                    <button 
                     v-for="(_, key) in ASPECT_RATIO_PRESETS" 
                     :key="key" 
-                    @click="selectedAspectRatio = key; cropPosition = { x: 50, y: 50 }" 
+                    @click="selectedAspectRatio = key" 
                     :class="['px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all', selectedAspectRatio === key ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-muted']"
                    >
                      {{ key }}
@@ -264,59 +272,59 @@ function handlePaste(e: ClipboardEvent) {
                     </div>
                     <span class="text-[9px] font-mono text-muted-foreground/40">{{ originalDimensions.width }}×{{ originalDimensions.height }}</span>
                   </div>
-                  <div 
-                    ref="sourceContainerRef"
-                    class="flex-1 min-h-0 bg-card rounded-3xl border border-border/30 overflow-hidden shadow-2xl relative select-none bg-black/5 group/original"
-                    :class="selectedAspectRatio !== 'original' ? 'cursor-move' : ''"
-                    @mousedown="startDraggingCrop"
-                    @mousemove="updateCropPosition"
-                    @touchstart="startDraggingCrop"
-                    @touchmove="updateCropPosition"
-                  >
-                    <!-- The Original Image -->
-                    <img :src="originalUrl" class="w-full h-full object-contain block image-pixelated" alt="Original" />
-                    
-                    <!-- Frame Overlay (Only visible when Aspect Ratio is NOT Auto) -->
-                    <div v-if="selectedAspectRatio !== 'original'" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                       <!-- Darkened Backdrop -->
-                       <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
-                       
-                       <!-- Clear Viewport (The Frame) -->
-                       <div 
-                        class="absolute border-2 border-primary shadow-[0_0_0_9999px_rgba(0,0,0,0.4)] pointer-events-auto cursor-grab active:cursor-grabbing"
-                        :class="[
-                          { 'transition-all duration-500': !isDraggingCrop && !isResizingCrop },
-                          isDraggingCrop ? 'scale-[1.02] shadow-[0_0_30px_rgba(var(--color-primary-rgb),0.5)] border-white' : ''
-                        ]"
-                        :style="{
-                          aspectRatio: `${ASPECT_RATIO_PRESETS[selectedAspectRatio as keyof typeof ASPECT_RATIO_PRESETS].width} / ${ASPECT_RATIO_PRESETS[selectedAspectRatio as keyof typeof ASPECT_RATIO_PRESETS].height}`,
-                          height: 'auto',
-                          maxHeight: '100%',
-                          maxWidth: '100%',
-                          width: `${cropScale}%`,
-                          left: `${cropPosition.x}%`,
-                          top: `${cropPosition.y}%`,
-                          transform: 'translate(-50%, -50%)'
-                        }"
-                        @mousedown.stop="startDraggingCrop"
-                        @touchstart.stop="startDraggingCrop"
-                       >
-                          <!-- Frame Corners/Handles -->
-                          <div class="resize-handle absolute -top-2 -left-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nwse-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
-                          <div class="resize-handle absolute -top-2 -right-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nesw-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
-                          <div class="resize-handle absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nesw-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
-                          <div class="resize-handle absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nwse-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
-                          
-                          <!-- Center Crosshair -->
-                          <div class="absolute inset-0 flex items-center justify-center opacity-20 group-hover/original:opacity-40 transition-opacity">
-                             <div class="w-4 h-px bg-white"></div>
-                             <div class="h-4 w-px bg-white absolute"></div>
-                          </div>
-
-                          <div class="absolute -top-6 left-0 right-0 text-center pointer-events-none select-none">
-                             <span class="text-[8px] font-black uppercase tracking-[0.3em] text-white bg-primary px-2 py-0.5 rounded-full shadow-lg">Active Frame</span>
-                          </div>
-                       </div>
+                  <div class="flex-1 min-h-0 bg-card rounded-3xl border border-border/30 overflow-hidden shadow-2xl relative select-none bg-black/5 flex items-center justify-center">
+                    <!-- Image-Aligned Container for the Frame -->
+                    <div 
+                      ref="sourceContainerRef"
+                      class="relative max-w-full max-h-full"
+                      :style="{ aspectRatio: originalAspectRatio }"
+                      :class="selectedAspectRatio !== 'original' ? 'cursor-move' : ''"
+                      @mousedown="startDraggingCrop"
+                      @mousemove="updateCropPosition"
+                      @touchstart="startDraggingCrop"
+                      @touchmove="updateCropPosition"
+                    >
+                      <!-- The Original Image -->
+                      <img :src="originalUrl" class="w-full h-full object-contain block image-pixelated" alt="Original" />
+                      
+                      <!-- Frame Overlay -->
+                      <div v-if="selectedAspectRatio !== 'original'" class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+                         <!-- Darkened Backdrop -->
+                         <div class="absolute inset-0 bg-black/40 backdrop-blur-[1px]"></div>
+                         
+                         <!-- Clear Viewport (The Frame) -->
+                         <div 
+                          class="absolute border-2 border-primary shadow-[0_0_0_9999px_rgba(0,0,0,0.4)] pointer-events-auto cursor-grab active:cursor-grabbing"
+                          :class="[
+                            { 'transition-all duration-500': !isDraggingCrop && !isResizingCrop },
+                            isDraggingCrop ? 'scale-[1.02] shadow-[0_0_30px_rgba(var(--color-primary-rgb),0.5)] border-white' : ''
+                          ]"
+                          :style="{
+                            aspectRatio: `${ASPECT_RATIO_PRESETS[selectedAspectRatio as keyof typeof ASPECT_RATIO_PRESETS].width} / ${ASPECT_RATIO_PRESETS[selectedAspectRatio as keyof typeof ASPECT_RATIO_PRESETS].height}`,
+                            height: 'auto',
+                            maxHeight: '100%',
+                            maxWidth: '100%',
+                            width: `${cropScale}%`,
+                            left: `${cropPosition.x}%`,
+                            top: `${cropPosition.y}%`,
+                            transform: 'translate(-50%, -50%)'
+                          }"
+                          @mousedown.stop="startDraggingCrop"
+                          @touchstart.stop="startDraggingCrop"
+                         >
+                            <!-- Frame Corners/Handles -->
+                            <div class="resize-handle absolute -top-2 -left-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nwse-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
+                            <div class="resize-handle absolute -top-2 -right-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nesw-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
+                            <div class="resize-handle absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nesw-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
+                            <div class="resize-handle absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-white border-2 border-primary shadow-lg cursor-nwse-resize pointer-events-auto z-10 transition-transform hover:scale-125"></div>
+                            
+                            <!-- Center Crosshair -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-20 transition-opacity">
+                               <div class="w-4 h-px bg-white"></div>
+                               <div class="h-4 w-px bg-white absolute"></div>
+                            </div>
+                         </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -403,13 +411,14 @@ function handlePaste(e: ClipboardEvent) {
             </div>
           </section>
 
-          <!-- Compact Group: Quality -->
+          <!-- Compact Group: Quality & Sharpening -->
           <section>
              <div class="flex items-center gap-2 mb-3">
               <Layers :size="12" class="text-primary" />
-              <h2 class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Output Quality</h2>
+              <h2 class="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">Engine & Sharpness</h2>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            
+            <div class="grid grid-cols-2 gap-2 mb-3">
               <button
                 v-for="q in qualityOptions" :key="q.value" @click="upscaleMethod = q.value as any"
                 :class="[
@@ -419,8 +428,19 @@ function handlePaste(e: ClipboardEvent) {
               >
                 <span class="text-[9px] font-black uppercase relative z-10" :class="upscaleMethod === q.value ? 'text-primary' : ''">{{ q.label }}</span>
                 <span class="text-[8px] opacity-60 group-hover:opacity-100 transition-opacity relative z-10 line-clamp-1">{{ q.desc }}</span>
-                <div v-if="upscaleMethod === q.value" class="absolute inset-0 bg-primary/5 animate-pulse"></div>
               </button>
+            </div>
+
+            <!-- Smart Sharpen Slider -->
+            <div class="flex flex-col gap-2 bg-muted/20 p-2 rounded-xl border border-border/30">
+              <div class="flex justify-between items-center px-1">
+                <div class="flex items-center gap-2">
+                   <div class="w-1 h-1 rounded-full bg-primary" :class="sharpenAmount > 0 ? 'animate-pulse' : 'opacity-20'"></div>
+                   <span class="text-[8px] font-bold uppercase text-muted-foreground/60">Smart Sharpen</span>
+                </div>
+                <span class="text-[9px] font-black" :class="sharpenAmount > 0 ? 'text-primary' : 'text-muted-foreground/40'">{{ sharpenAmount }}%</span>
+              </div>
+              <input type="range" v-model.number="sharpenAmount" min="0" max="100" step="1" class="w-full h-1 bg-muted rounded-full appearance-none accent-primary cursor-pointer" />
             </div>
           </section>
 

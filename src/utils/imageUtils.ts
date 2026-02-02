@@ -146,7 +146,8 @@ export async function upscaleImage(
   method: 'bicubic' | 'lanczos' | 'nearest' | 'bilinear' = 'bicubic',
   targetAspectRatio?: { width: number; height: number },
   cropPosition: { x: number; y: number } = { x: 50, y: 50 },
-  cropSize: number = 100
+  cropSize: number = 100,
+  sharpenAmount: number = 0
 ): Promise<Blob> {
   const dataUrl = await fileToDataURL(file);
   const img = await loadImage(dataUrl);
@@ -169,11 +170,16 @@ export async function upscaleImage(
   sourceWidth = (sourceWidth * cropSize) / 100;
   sourceHeight = (sourceHeight * cropSize) / 100;
 
-  // Calculate Source Offsets based on cropPosition (focus)
-  const maxX = img.width - sourceWidth;
-  const maxY = img.height - sourceHeight;
-  const sourceX = Math.max(0, Math.min(maxX, maxX * (cropPosition.x / 100)));
-  const sourceY = Math.max(0, Math.min(maxY, maxY * (cropPosition.y / 100)));
+  // Calculate Source Offsets based on cropPosition (center focal point)
+  const centerX = img.width * (cropPosition.x / 100);
+  const centerY = img.height * (cropPosition.y / 100);
+  
+  let sourceX = centerX - sourceWidth / 2;
+  let sourceY = centerY - sourceHeight / 2;
+
+  // Clamping within image bounds
+  sourceX = Math.max(0, Math.min(img.width - sourceWidth, sourceX));
+  sourceY = Math.max(0, Math.min(img.height - sourceHeight, sourceY));
 
   // Target dimensions
   const targetWidth = Math.round(sourceWidth * scaleFactor);
@@ -199,6 +205,11 @@ export async function upscaleImage(
     sourceX, sourceY, sourceWidth, sourceHeight, // Source
     0, 0, targetWidth, targetHeight            // Destination
   );
+
+  // Apply Smart Sharpen if amount > 0
+  if (sharpenAmount > 0) {
+    applySharpen(ctx, targetWidth, targetHeight, sharpenAmount);
+  }
   
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
@@ -206,6 +217,43 @@ export async function upscaleImage(
       else reject(new Error('Upscaling failed'));
     }, file.type, 1.0); // Maximum quality
   });
+}
+
+function applySharpen(ctx: CanvasRenderingContext2D, width: number, height: number, amount: number) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const pixels = imageData.data;
+  const originalPixels = new Uint8ClampedArray(pixels);
+  
+  // Convolution matrix for sharpening (Unsharp Mask style)
+  // [  0, -1,  0 ]
+  // [ -1,  5, -1 ]
+  // [  0, -1,  0 ]
+  // We blend this with the original based on 'amount'
+  
+  const factor = amount / 100;
+  
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = (y * width + x) * 4;
+      
+      for (let c = 0; c < 3; c++) { // R, G, B
+        const idxC = idx + c;
+        const current = originalPixels[idxC] ?? 0;
+        const top = originalPixels[idxC - width * 4] ?? 0;
+        const bottom = originalPixels[idxC + width * 4] ?? 0;
+        const left = originalPixels[idxC - 4] ?? 0;
+        const right = originalPixels[idxC + 4] ?? 0;
+        
+        // Basic sharpen formula: 5*current - (top+bottom+left+right)
+        const sharpened = 5 * current - (top + bottom + left + right);
+        
+        // Blend original with sharpened result
+        pixels[idxC] = current + (sharpened - current) * factor;
+      }
+    }
+  }
+  
+  ctx.putImageData(imageData, 0, 0);
 }
 /**
  * Renders table data (headers and rows) to a Blob representing an image.
