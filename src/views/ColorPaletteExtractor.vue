@@ -495,7 +495,7 @@ onUnmounted(() => {
                            class="w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg transition-transform active:scale-95" 
                            :style="{ 
                              backgroundColor: palette[3] || palette[0], 
-                             color: (palette[3] || palette[0]) && getContrastRatio(palette[3] || palette[0], '#ffffff') > 4.5 ? '#ffffff' : '#000000' 
+                             color: getContrastRatio(palette[3] || palette[0] || '#000000', '#ffffff') > 4.5 ? '#ffffff' : '#000000' 
                            }"
                          >
                            Action Button
