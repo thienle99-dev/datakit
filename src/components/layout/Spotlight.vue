@@ -115,6 +115,7 @@ watch(searchQuery, () => {
             class="flex-1 bg-transparent border-none focus:ring-0 text-lg md:text-xl font-medium placeholder-muted-foreground/40 px-4 outline-none text-foreground h-full"
             autocomplete="off"
             spellcheck="false"
+            aria-label="Search tools input"
           />
            <div class="flex items-center text-[10px] font-bold text-muted-foreground/40 border border-border/40 rounded px-1.5 py-0.5 pointer-events-none">
             ESC

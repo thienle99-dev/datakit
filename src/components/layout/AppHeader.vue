@@ -89,6 +89,7 @@ onUnmounted(() => {
           <button 
             @click="toggleSpotlight"
             class="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full transition-colors"
+            aria-label="Search Tools"
           >
             <Search :size="20" />
           </button>
