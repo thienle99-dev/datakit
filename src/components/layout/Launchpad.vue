@@ -167,7 +167,7 @@ onUnmounted(() => {
       <div class="flex-1 overflow-y-auto custom-scrollbar p-2 md:p-4">
         <div class="max-w-7xl mx-auto">
           <div v-for="category in categories" :key="category.name" class="mb-6 animate-in slide-in-from-bottom-2 duration-500">
-            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 mb-2 px-1">{{ category.name }}</h3>
+            <h3 class="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2 px-1">{{ category.name }}</h3>
             <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
               <button 
                 v-for="tool in category.tools" 
@@ -200,7 +200,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Footer Info -->
-      <div class="absolute bottom-6 text-muted-foreground/40 text-[10px] font-black uppercase tracking-[0.3em] pointer-events-none">
+      <div class="absolute bottom-6 text-muted-foreground text-[10px] font-black uppercase tracking-[0.3em] pointer-events-none">
         Press ESC to exit
       </div>
     </div>
