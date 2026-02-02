@@ -55,7 +55,7 @@ const toggleYAxis = (col: string) => {
     <div class="flex-1 overflow-y-auto space-y-8 pr-2 custom-scrollbar">
       <!-- Chart Type -->
       <div class="space-y-4">
-          <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Select Visual Kind</span>
+          <span class="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Select Visual Kind</span>
           <div class="grid grid-cols-5 gap-2">
               <button 
                 v-for="t in [
@@ -81,7 +81,7 @@ const toggleYAxis = (col: string) => {
       <div class="space-y-6">
          <div class="space-y-3">
             <div class="flex items-center justify-between">
-               <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Axis Labels (X)</span>
+               <span class="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Axis Labels (X)</span>
                <div class="p-1 px-2 bg-muted rounded-lg text-[8px] font-black uppercase opacity-60">Category</div>
             </div>
             <div class="flex flex-wrap gap-2">
@@ -99,7 +99,7 @@ const toggleYAxis = (col: string) => {
 
          <div class="space-y-3">
             <div class="flex items-center justify-between">
-               <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Series Values (Y)</span>
+               <span class="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Series Values (Y)</span>
                <div class="p-1 px-2 bg-primary/10 text-primary rounded-lg text-[8px] font-black uppercase">Multi-select</div>
             </div>
             <div class="flex flex-wrap gap-2">
@@ -148,7 +148,7 @@ const toggleYAxis = (col: string) => {
 
       <!-- Display Options -->
       <div class="space-y-4">
-         <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Display</span>
+         <span class="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Display</span>
          <div class="grid grid-cols-2 gap-2">
            <button @click="config.showLabels = !config.showLabels" class="p-3 rounded-xl border border-border flex items-center justify-between transition-all" :class="config.showLabels ? 'bg-primary/5 border-primary/30' : 'bg-background'">
              <span class="text-[9px] font-bold uppercase">Data labels</span>
@@ -175,7 +175,7 @@ const toggleYAxis = (col: string) => {
 
       <!-- Line style (line / area) -->
       <div v-if="['line', 'area'].includes(config.type)" class="space-y-3">
-         <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Line style</span>
+         <span class="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Line style</span>
          <div class="flex flex-wrap gap-2">
            <button v-for="c in [{ id: 'smooth', label: 'Smooth' }, { id: 'straight', label: 'Straight' }, { id: 'stepline', label: 'Step' }]" :key="c.id"
              @click="config.curve = c.id as any"
@@ -187,7 +187,7 @@ const toggleYAxis = (col: string) => {
 
       <!-- Bar corners (bar only) -->
       <div v-if="config.type === 'bar'" class="space-y-3">
-         <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Bar corners</span>
+         <span class="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Bar corners</span>
          <div class="flex flex-wrap gap-2">
            <button v-for="r in [0, 4, 8]" :key="r"
              @click="config.barBorderRadius = r"
@@ -199,7 +199,7 @@ const toggleYAxis = (col: string) => {
 
       <!-- Color Palette -->
       <div class="space-y-4">
-         <span class="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Color Aesthetic</span>
+         <span class="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Color Aesthetic</span>
          <div class="flex flex-col gap-2 max-h-[280px] overflow-y-auto overscroll-contain pr-0.5">
             <button 
               v-for="(p, idx) in palettes" 

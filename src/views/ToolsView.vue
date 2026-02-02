@@ -120,7 +120,7 @@ const filteredCategories = computed(() => {
     <!-- Categories Grid -->
     <div class="space-y-12">
         <div v-for="(category, index) in filteredCategories" :key="category.title" class="space-y-6">
-            <h2 class="text-xl font-black uppercase tracking-widest text-muted-foreground/50 border-b border-border/30 pb-2 animate-in fade-in slide-in-from-left-4 duration-700" :style="{ animationDelay: `${index * 100}ms` }">
+            <h2 class="text-xl font-black uppercase tracking-widest text-muted-foreground border-b border-border/30 pb-2 animate-in fade-in slide-in-from-left-4 duration-700" :style="{ animationDelay: `${index * 100}ms` }">
                 {{ category.title }}
             </h2>
             

@@ -500,7 +500,7 @@ onMounted(() => {
              </div>
 
              <!-- Footer Stats or Meta -->
-             <div class="mt-4 flex items-center justify-between text-muted-foreground/40">
+             <div class="mt-4 flex items-center justify-between text-muted-foreground">
                 <div class="flex items-center gap-6">
                     <div class="flex flex-col">
                         <span class="text-[8px] font-black uppercase tracking-wider">X-Axis</span>

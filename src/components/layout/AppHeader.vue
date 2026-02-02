@@ -72,7 +72,7 @@ onUnmounted(() => {
             </div>
             <div class="flex flex-col leading-none">
               <span class="font-bold text-lg tracking-tight group-hover:text-primary transition-colors">DataKit</span>
-              <span class="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Universal</span>
+              <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Universal</span>
             </div>
           </router-link>
 

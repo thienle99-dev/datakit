@@ -106,18 +106,18 @@ watch(searchQuery, () => {
         
         <!-- Search Input Area -->
         <div class="flex items-center px-4 py-4 border-b border-border/40 relative">
-          <SearchIcon class="text-muted-foreground/50 ml-1" :size="20" stroke-width="2.5" />
+          <SearchIcon class="text-muted-foreground ml-1" :size="20" stroke-width="2.5" />
           <input 
             ref="searchInput"
             v-model="searchQuery"
             type="text" 
             placeholder="Search tools..."
-            class="flex-1 bg-transparent border-none focus:ring-0 text-lg md:text-xl font-medium placeholder-muted-foreground/40 px-4 outline-none text-foreground h-full"
+            class="flex-1 bg-transparent border-none focus:ring-0 text-lg md:text-xl font-medium placeholder-muted-foreground px-4 outline-none text-foreground h-full"
             autocomplete="off"
             spellcheck="false"
             aria-label="Search tools input"
           />
-           <div class="flex items-center text-[10px] font-bold text-muted-foreground/40 border border-border/40 rounded px-1.5 py-0.5 pointer-events-none">
+           <div class="flex items-center text-[10px] font-bold text-muted-foreground border border-border/40 rounded px-1.5 py-0.5 pointer-events-none">
             ESC
           </div>
         </div>
@@ -150,9 +150,9 @@ watch(searchQuery, () => {
                      {{ tool.name }}
                    </span>
                    
-                   <ArrowRightLeft v-if="selectedIndex === index" :size="14" class="text-muted-foreground/50 animate-in fade-in slide-in-from-left-2" />
+                   <ArrowRightLeft v-if="selectedIndex === index" :size="14" class="text-muted-foreground animate-in fade-in slide-in-from-left-2" />
                 </div>
-                <p class="text-xs text-muted-foreground/70 truncate">{{ tool.description }}</p>
+                <p class="text-xs text-muted-foreground truncate">{{ tool.description }}</p>
               </div>
               
               <!-- Active Highlight Bar -->
@@ -161,7 +161,7 @@ watch(searchQuery, () => {
         </div>
 
         <!-- Empty State -->
-        <div v-else class="py-12 flex flex-col items-center justify-center text-muted-foreground/40 select-none">
+        <div v-else class="py-12 flex flex-col items-center justify-center text-muted-foreground select-none">
           <SearchIcon :size="48" class="mb-4 opacity-20 stroke-1" />
           <p class="text-sm">No results found for "{{ searchQuery }}"</p>
         </div>
