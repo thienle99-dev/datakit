@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ShieldCheck, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon, Zap, Cpu, ArrowRight, ZoomIn } from 'lucide-vue-next';
+import { Table, ArrowRightLeft, Sparkles, Columns, ListFilter, Search, ShieldCheck, Layers, Scissors, BarChart3, GitCompare, Sigma, ListOrdered, Shuffle, EyeOff, FileDown, Database, FileJson, Code2, Binary, Shield, History, Key, Code, Type, Image as ImageIcon, Zap, Cpu, ArrowRight, ZoomIn, Palette } from 'lucide-vue-next';
 import { useSpotlight } from '../composables/useSpotlight';
 
 const { openSpotlight } = useSpotlight();
@@ -294,6 +294,24 @@ const tools = [
     icon: ZoomIn,
     color: 'text-purple-600',
     bgColor: 'bg-purple-500/10'
+  },
+  {
+    id: 'color-palette-extractor',
+    name: 'Color Palette Extractor',
+    description: 'Generate stunning, professional color palettes from any image automatically.',
+    path: '/color-palette-extractor',
+    icon: Palette,
+    color: 'text-pink-600',
+    bgColor: 'bg-pink-500/10'
+  },
+  {
+    id: 'screenshot-beautifier',
+    name: 'Screenshot Beautifier',
+    description: 'Transform your raw screenshots into professional-looking marketing assets with backgrounds and shadows.',
+    path: '/screenshot-beautifier',
+    icon: Sparkles,
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-500/10'
   }
 ];
 
@@ -301,7 +319,7 @@ const tools = [
 const categories = [
     {
         title: "Image Studio",
-        tools: tools.filter(t => ['image-studio', 'image-upscaler'].includes(t.id))
+        tools: tools.filter(t => ['image-studio', 'image-upscaler', 'color-palette-extractor', 'screenshot-beautifier'].includes(t.id))
     },
     {
         title: "All-in-One Data Tools",

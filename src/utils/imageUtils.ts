@@ -316,3 +316,230 @@ export function dataToImage(headers: string[], data: any[]): Promise<Blob> {
     }, 'image/png');
   });
 }
+
+/**
+ * Trích xuất bảng màu từ ảnh bằng thuật toán K-Means Clustering để đảm bảo tính đa dạng và hài hòa.
+ */
+export async function extractPalette(
+  file: File,
+  colorCount: number = 6
+): Promise<string[]> {
+  const dataUrl = await fileToDataURL(file);
+  const img = await loadImage(dataUrl);
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) throw new Error('Could not get canvas context');
+
+  // Lấy mẫu ảnh nhỏ để tăng tốc độ xử lý
+  const sampleSize = 100;
+  canvas.width = sampleSize;
+  canvas.height = sampleSize;
+  ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+
+  const imageData = ctx.getImageData(0, 0, sampleSize, sampleSize);
+  const pixels = imageData.data;
+  
+  // Chuẩn bị dữ liệu điểm ảnh (R, G, B)
+  const points: number[][] = [];
+  for (let i = 0; i < pixels.length; i += 4) {
+    if (pixels[i + 3]! < 128) continue; // Bỏ qua pixel trong suốt
+    points.push([pixels[i]!, pixels[i + 1]!, pixels[i + 2]!]);
+  }
+
+  if (points.length === 0) return [];
+
+  // Thuật toán K-Means đơn giản
+  let centroids = points.slice(0, colorCount).map(p => [...p]);
+  const maxIterations = 10;
+  
+  for (let iter = 0; iter < maxIterations; iter++) {
+    const clusters: number[][][] = Array.from({ length: colorCount }, () => []);
+    
+    // Gán điểm vào cluster gần nhất
+    for (const point of points) {
+      let minDist = Infinity;
+      let clusterIndex = 0;
+      for (let i = 0; i < centroids.length; i++) {
+        const centroid = centroids[i]!;
+        const dist = Math.sqrt(
+          Math.pow(point[0]! - centroid[0]!, 2) +
+          Math.pow(point[1]! - centroid[1]!, 2) +
+          Math.pow(point[2]! - centroid[2]!, 2)
+        );
+        if (dist < minDist) {
+          minDist = dist;
+          clusterIndex = i;
+        }
+      }
+      clusters[clusterIndex]!.push(point);
+    }
+    
+    // Cập nhật tâm (centroids)
+    let moved = false;
+    for (let i = 0; i < centroids.length; i++) {
+      const cluster = clusters[i]!;
+      if (cluster.length === 0) continue;
+      const newCentroid = [0, 0, 0];
+      for (const p of cluster) {
+        newCentroid[0] += p[0]!;
+        newCentroid[1] += p[1]!;
+        newCentroid[2] += p[2]!;
+      }
+      newCentroid[0] /= cluster.length;
+      newCentroid[1] /= cluster.length;
+      newCentroid[2] /= cluster.length;
+      
+      const currentCentroid = centroids[i]!;
+      if (Math.abs(newCentroid[0] - currentCentroid[0]!) > 1 ||
+          Math.abs(newCentroid[1] - currentCentroid[1]!) > 1 ||
+          Math.abs(newCentroid[2] - currentCentroid[2]!) > 1) {
+        moved = true;
+      }
+      centroids[i] = newCentroid;
+    }
+    if (!moved) break;
+  }
+
+  // Chuyển đổi centroids sang Hex và loại bỏ trùng lặp/màu rác
+  return centroids.map(c => rgbToHex(Math.round(c[0]!), Math.round(c[1]!), Math.round(c[2]!)));
+}
+
+export function rgbToHex(r: number, g: number, b: number): string {
+  const clamp = (n: number) => Math.max(0, Math.min(255, n));
+  return '#' + [clamp(r), clamp(g), clamp(b)].map(x => {
+    const hex = x.toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('');
+}
+
+export function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1]!, 16),
+    g: parseInt(result[2]!, 16),
+    b: parseInt(result[3]!, 16)
+  } : { r: 0, g: 0, b: 0 };
+}
+
+export function hexToHsl(hex: string): string {
+  let { r, g, b } = hexToRgb(hex);
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0;
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+
+  return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+}
+
+/**
+ * Tính toán độ tương phản giữa màu chữ và màu nền (WCAG)
+ */
+export function getContrastRatio(hex1: string, hex2: string): number {
+  const l1 = getLuminance(hex1);
+  const l2 = getLuminance(hex2);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+
+function getLuminance(hex: string): number {
+  const { r, g, b } = hexToRgb(hex);
+  const a = [r, g, b].map(v => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  });
+  return a[0]! * 0.2126 + a[1]! * 0.7152 + a[2]! * 0.0722;
+}
+
+/**
+ * Làm đẹp ảnh (thường là ảnh chụp màn hình) bằng cách thêm background, bo góc và đổ bóng.
+ */
+export async function beautifyImage(
+  file: File,
+  options: {
+    paddingX: number;
+    paddingY: number;
+    borderRadius: number;
+    shadowBlur: number;
+    shadowColor: string;
+    background: string; // "linear-gradient(...)" hoặc "#hex"
+  }
+): Promise<Blob> {
+  const dataUrl = await fileToDataURL(file);
+  const img = await loadImage(dataUrl);
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not get canvas context');
+
+  // Kích thước cuối cùng
+  const targetWidth = img.width + options.paddingX * 2;
+  const targetHeight = img.height + options.paddingY * 2;
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+
+  // 1. Vẽ Background
+  if (options.background.includes('gradient')) {
+    const grad = ctx.createLinearGradient(0, 0, targetWidth, targetHeight);
+    const colors = options.background.match(/#[a-fA-F0-9]{6}|#[a-fA-F0-9]{3}/g) || ['#6366f1', '#a855f7'];
+    colors.forEach((color, i) => {
+      grad.addColorStop(i / (colors.length - 1), color);
+    });
+    ctx.fillStyle = grad;
+  } else {
+    ctx.fillStyle = options.background;
+  }
+  ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+  // 2. Vẽ Shadow cho ảnh
+  ctx.save();
+  ctx.shadowColor = options.shadowColor;
+  ctx.shadowBlur = options.shadowBlur;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = options.shadowBlur / 2;
+
+  // 3. Bo góc ảnh (Clipping)
+  const x = options.paddingX;
+  const y = options.paddingY;
+  const w = img.width;
+  const h = img.height;
+  const r = options.borderRadius;
+
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  
+  // Đổ bóng cho vùng path
+  ctx.fill(); 
+  
+  // Clip để vẽ ảnh bên trong bo góc
+  ctx.clip();
+  ctx.drawImage(img, x, y, w, h);
+  ctx.restore();
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('Beautification failed'));
+    }, 'image/png', 1.0);
+  });
+}

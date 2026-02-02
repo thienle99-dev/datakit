@@ -8,15 +8,15 @@
 
 **Đã triển khai:** App Vue (Vite) với đủ tools MVP + nhiều tools mở rộng.
 
-| Nhóm | Tools đã có trong app |
-|------|------------------------|
-| **MVP** | CSV/Excel Viewer, CSV↔Excel (Universal Converter), CSV Cleaner, Column Selector, Filter & Sort, CSV→JSON/SQL/Markdown (Universal Converter) |
-| **Mở rộng** | Merge, Split, Validate, Compare, Transpose, Pivot/Unpivot, Find & Replace, Column Stats, Aggregate (Summarize) |
-| **Bổ sung** | Skip Rows / Set Header, Random Sample, Mask Sensitive Data, Download Templates, Data to Chart |
+| Nhóm                | Tools đã có trong app                                                                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **MVP**             | CSV/Excel Viewer, CSV↔Excel (Universal Converter), CSV Cleaner, Column Selector, Filter & Sort, CSV→JSON/SQL/Markdown (Universal Converter)                                    |
+| **Mở rộng**         | Merge, Split, Validate, Compare, Transpose, Pivot/Unpivot, Find & Replace, Column Stats, Aggregate (Summarize)                                                                 |
+| **Bổ sung**         | Skip Rows / Set Header, Random Sample, Mask Sensitive Data, Download Templates, Data to Chart                                                                                  |
 | **Developer Tools** | UUID Generator (v1-v8), Hash Generator, Base64/URL Encode-Decode, JSON Formatter, JSON Diff, JSON Path, Regex Tester, JWT Debugger, Epoch Converter, XML Converter, Text Tools |
-| **Image Tools** | Image Editor (Compress, Resize, Convert, Crop, Rotate), Image Converter |
+| **Image Tools**     | Image Editor (Compress, Resize, Convert, Crop, Rotate), Image Converter                                                                                                        |
 
-**Backlog (chưa làm):** YAML converter, Excel→PDF, Format phone/address, Excel formula→values, Group by nâng cao, Image tools mở rộng, v.v. — xem mục 5.1 và 5.
+**Backlog (chưa làm):** YAML converter, Excel→PDF, Format phone/address, Excel formula→values, Group by nâng cao, Image tools mở rộng (EXIF Stripper, Screenshot Beautifier, Color Palette Extractor, AI Background Remover, v.v.), v.v. — xem mục 5.1 và 5.
 
 📋 **Checklist theo dõi tiến độ:** [CHECKLIST.md](./CHECKLIST.md) — danh sách tools & deliverables dạng `- [ ]` / `- [x]` để tick khi xong.
 
@@ -25,12 +25,14 @@
 ## 1. Mục tiêu & Đối tượng
 
 **Mục tiêu**
+
 - UI đơn giản, CTA rõ ràng
 - Xử lý nhanh (Web Workers cho file lớn)
 - **Client-side only** — không backend, không lưu file
 - SEO tốt, dễ mở rộng thêm tools
 
 **Đối tượng**
+
 - Developers, data analysts, business users
 - Người dùng Excel/CSV ít kỹ thuật
 
@@ -38,28 +40,30 @@
 
 ## 2. Tech Stack
 
-| Layer        | Choice                          |
-|-------------|----------------------------------|
-| Framework   | Vue.js (Nuxt hoặc Vite + Vue)         |
-| Styling     | Tailwind CSS                    |
-| CSV         | PapaParse                       |
-| Excel       | SheetJS (xlsx)                  |
-| Images      | Browser Canvas API, Sharp.js (WASM) hoặc browser-image-compression |
-| UUID        | crypto.randomUUID() (native) hoặc uuid library (npm) |
-| Xử lý nặng | Web Workers                     |
-| Deploy      | Vercel                          |
-| DB          | Không cần cho MVP               |
+| Layer      | Choice                                                             |
+| ---------- | ------------------------------------------------------------------ |
+| Framework  | Vue.js (Nuxt hoặc Vite + Vue)                                      |
+| Styling    | Tailwind CSS                                                       |
+| CSV        | PapaParse                                                          |
+| Excel      | SheetJS (xlsx)                                                     |
+| Images     | Browser Canvas API, Sharp.js (WASM) hoặc browser-image-compression |
+| UUID       | crypto.randomUUID() (native) hoặc uuid library (npm)               |
+| Xử lý nặng | Web Workers                                                        |
+| Deploy     | Vercel                                                             |
+| DB         | Không cần cho MVP                                                  |
 
 ---
 
 ## 3. Kiến trúc
 
 **Nguyên tắc**
+
 - Mỗi tool là một module độc lập, tái sử dụng
 - Core components dùng chung
 - Không upload file lên server (privacy-first)
 
 **Layout**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Header (logo, nav, theme)                              │
@@ -72,6 +76,7 @@
 ```
 
 **Shared components**
+
 - `FileUploader` — drag & drop, chọn file, validation (hỗ trợ CSV/Excel/Images)
 - `DataTable` — xem dữ liệu, sticky header, virtual scroll (file lớn)
 - `ImagePreview` — xem trước ảnh, zoom, pan, so sánh before/after
@@ -82,17 +87,18 @@
 
 ## 4. Tools MVP (ưu tiên làm trước)
 
-| # | Tool | Mô tả ngắn | Input | Output |
-|---|------|------------|--------|--------|
-| 1 | **CSV/Excel Viewer** | Xem và cuộn bảng | CSV, XLSX | — |
-| 2 | **CSV ↔ Excel** | Chuyển qua lại giữa CSV và Excel | CSV hoặc XLSX | XLSX hoặc CSV |
-| 3 | **CSV Cleaner** | Trim, bỏ trùng, chuẩn hóa encoding | CSV | CSV đã clean |
-| 4 | **Column Selector** | Chọn/bỏ cột, đổi thứ tự | CSV/Excel | CSV/Excel |
-| 5 | **Filter & Sort** | Lọc theo điều kiện, sắp xếp | CSV/Excel | CSV/Excel |
-| 6 | **CSV → JSON** | Chuyển bảng thành JSON (array of objects) | CSV | JSON |
-| 7 | **CSV → SQL** | Sinh INSERT/UPDATE theo tên bảng | CSV | `.sql` |
+| #   | Tool                 | Mô tả ngắn                                | Input         | Output        |
+| --- | -------------------- | ----------------------------------------- | ------------- | ------------- |
+| 1   | **CSV/Excel Viewer** | Xem và cuộn bảng                          | CSV, XLSX     | —             |
+| 2   | **CSV ↔ Excel**      | Chuyển qua lại giữa CSV và Excel          | CSV hoặc XLSX | XLSX hoặc CSV |
+| 3   | **CSV Cleaner**      | Trim, bỏ trùng, chuẩn hóa encoding        | CSV           | CSV đã clean  |
+| 4   | **Column Selector**  | Chọn/bỏ cột, đổi thứ tự                   | CSV/Excel     | CSV/Excel     |
+| 5   | **Filter & Sort**    | Lọc theo điều kiện, sắp xếp               | CSV/Excel     | CSV/Excel     |
+| 6   | **CSV → JSON**       | Chuyển bảng thành JSON (array of objects) | CSV           | JSON          |
+| 7   | **CSV → SQL**        | Sinh INSERT/UPDATE theo tên bảng          | CSV           | `.sql`        |
 
 **Yêu cầu chung cho mỗi tool**
+
 - User flow rõ (upload → chỉnh → download)
 - Input/output và UI layout được mô tả
 - Xử lý trong Web Worker khi ≥ ~10k dòng (data) hoặc ảnh lớn (>5MB)
@@ -104,6 +110,7 @@
 ## 5. Tools mở rộng (sau MVP)
 
 **Chuyển đổi & xuất**
+
 - **JSON → CSV** — ngược lại CSV → JSON
 - **CSV → Markdown** — bảng Markdown
 - **CSV → HTML table** — copy/paste vào email hoặc wiki
@@ -111,6 +118,7 @@
 - **CSV/Excel → Google Sheets** — mở link “tạo sheet mới từ nội dung” (nếu chỉ cần link, không cần API)
 
 **Thao tác dữ liệu**
+
 - **Merge CSV/Excel** — gộp nhiều file (theo hàng hoặc theo cột)
 - **Split CSV** — tách theo số dòng hoặc theo giá trị cột
 - **Pivot / Unpivot** — chuyển dạng dọc ↔ ngang
@@ -119,21 +127,25 @@
 - **Rename columns** — đổi tên cột hàng loạt (regex, map)
 
 **Làm sạch & chuẩn hóa**
+
 - **Find & Replace** — theo cột hoặc toàn bảng, hỗ trợ regex
 - **Normalize whitespace** — trim, collapse spaces, chuẩn line ending
 - **Change encoding** — UTF-8 ↔ UTF-16, v.v.
 - **Parse dates** — nhận dạng cột ngày, chọn format đầu ra
 
 **Phân tích nhanh (client-side)**
+
 - **Column stats** — min/max/mean/mode, null count, unique count
 - **Preview sample** — xem N dòng đầu/cuối/random
 - **Schema infer** — kiểu từng cột (number, date, string)
 
 **SQL & dev**
+
 - **SQL → CSV** — paste kết quả query dạng text → parse thành CSV (nếu có chuẩn format)
 - **Validate CSV** — kiểm tra encoding, delimiter, quoting, số cột
 
 **Developer Tools & Utilities**
+
 - **UUID Generator** ✅ — tạo UUID với nhiều version (v1, v4, v5, v6, v7, v8), batch generate, copy to clipboard, export CSV/TXT
 - **Hash Generator** ✅ — tạo hash (MD5, SHA-1, SHA-256, SHA-512) từ text/file
 - **Base64 Encode/Decode** ✅ — mã hóa/giải mã Base64
@@ -159,11 +171,13 @@
 - **API Tester** — test REST API endpoints (client-side only)
 
 **Tiện ích**
+
 - **Compare two CSVs** — diff theo hàng/cột (highlight khác biệt)
 - **Column reorder** — kéo thả đổi thứ tự cột
 - **Transpose** — hàng thành cột, cột thành hàng
 
 **Xử lý hình ảnh (Image Tools)**
+
 - **Image Compress** — nén ảnh (JPEG, PNG, WebP) giảm dung lượng, giữ chất lượng
 - **Image Resize** — thay đổi kích thước (theo pixel, %, hoặc preset: thumbnail, medium, large)
 - **Image Format Converter** — chuyển đổi PNG ↔ JPEG ↔ WebP ↔ AVIF ↔ BMP ↔ GIF
@@ -201,40 +215,44 @@
 
 Những tool hợp với data workflow nhưng **chưa nằm trong MVP**, nên ưu tiên sau phase 1:
 
-| Tool | Mô tả | Lý do nên có |
-|------|--------|----------------|
-| **JSON → CSV** | Chuyển array of objects → bảng | Cặp với CSV → JSON, dev/API hay cần |
-| **Merge CSV/Excel** | Gộp nhiều file (theo hàng/cột) | Nhu cầu gộp báo cáo, nhiều nguồn |
-| **Split CSV** | Tách theo số dòng hoặc theo giá trị cột | Chia file lớn, tách theo nhóm |
-| **Validate CSV** | Kiểm tra encoding, delimiter, quoting, số cột | Debug file lỗi, trước khi import |
-| **Compare two CSVs** | Diff hàng/cột, highlight khác biệt | So bản cũ/mới, QA data |
-| **Transpose** | Hàng ↔ cột | Chuẩn hóa dạng bảng trước khi xử lý |
-| **TSV support** | Đọc/ghi .tsv (tab-separated) | TSV phổ biến trong data/export |
-| **Excel multi-sheet** | Chọn sheet, gộp nhiều sheet thành một | File Excel thường nhiều sheet |
+| Tool                  | Mô tả                                         | Lý do nên có                        |
+| --------------------- | --------------------------------------------- | ----------------------------------- |
+| **JSON → CSV**        | Chuyển array of objects → bảng                | Cặp với CSV → JSON, dev/API hay cần |
+| **Merge CSV/Excel**   | Gộp nhiều file (theo hàng/cột)                | Nhu cầu gộp báo cáo, nhiều nguồn    |
+| **Split CSV**         | Tách theo số dòng hoặc theo giá trị cột       | Chia file lớn, tách theo nhóm       |
+| **Validate CSV**      | Kiểm tra encoding, delimiter, quoting, số cột | Debug file lỗi, trước khi import    |
+| **Compare two CSVs**  | Diff hàng/cột, highlight khác biệt            | So bản cũ/mới, QA data              |
+| **Transpose**         | Hàng ↔ cột                                    | Chuẩn hóa dạng bảng trước khi xử lý |
+| **TSV support**       | Đọc/ghi .tsv (tab-separated)                  | TSV phổ biến trong data/export      |
+| **Excel multi-sheet** | Chọn sheet, gộp nhiều sheet thành một         | File Excel thường nhiều sheet       |
 
 ### B. Có thể làm thêm (ý tưởng mở rộng)
 
 Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roadmap:
 
 **Định dạng & tích hợp**
+
 - **XML ↔ CSV/Excel** — import/export XML
 - **YAML ↔ CSV/JSON** — config / data nhẹ
 - **Excel → PDF** — in/xuất bảng ra PDF
 - **CSV → Chart** — vẽ biểu đồ đơn giản từ cột (client-side, e.g. Chart.js)
 
 **Làm sạch & chuẩn hóa nâng cao**
+
 - **Format phone/address** — chuẩn hóa theo quốc gia
 - **Mask sensitive data** — che/mask email, SĐT, theo regex
 - **Excel formula → values** — chỉ giữ giá trị, bỏ công thức
 - **Header từ dòng N / Skip rows** — chọn dòng làm header, bỏ N dòng đầu
 
 **Thao tác dữ liệu nâng cao**
+
 - **Group by + Aggregate** — sum/count/avg theo nhóm (client-side)
 - **Add computed column** — cột mới từ công thức đơn giản (ví dụ `A+B`, `UPPER(C)`)
 - **Random sample / Split %** — lấy mẫu ngẫu nhiên, chia train/test
 - **Unpivot / Pivot** — chuyển wide ↔ long
 
 **Tiện ích & trải nghiệm**
+
 - **CSV/Excel template** ✅ — tải file mẫu (template) theo mục đích
 - **Column reorder (drag)** — đổi thứ tự cột bằng kéo thả (bổ sung cho Column Selector)
 - **Preview N rows / Schema** — xem nhanh vài dòng + kiểu cột trước khi chọn tool
@@ -253,29 +271,30 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 
 ### C. Bảng ưu tiên gợi ý (sau MVP)
 
-| Ưu tiên | Nhóm | Tools |
-|---------|------|------|
-| Cao | Còn thiếu | TSV support, Excel multi-sheet, Column Rename, Fill Empty Cells, Normalize Whitespace |
-| Cao | Developer Tools | Color Converter, QR Code Generator, Password Generator, Lorem Ipsum Generator |
-| Trung bình | Data Quality | Data Profiler, Data Quality Score, CSV Validator, Date Parser, Number Formatter |
-| Trung bình | Developer Tools mở rộng | Code Minifier/Beautifier, SQL Formatter, Markdown Editor, Diff Viewer |
-| Trung bình | Data Operations | Data Sampling, Data Shuffle, Data Sort Advanced, Excel Formula Evaluator |
-| Thấp | Làm thêm | YAML converter, Excel→PDF, Format phone/address, Group by nâng cao, API Tester |
+| Ưu tiên    | Nhóm                    | Tools                                                                                 |
+| ---------- | ----------------------- | ------------------------------------------------------------------------------------- |
+| Cao        | Còn thiếu               | TSV support, Excel multi-sheet, Column Rename, Fill Empty Cells, Normalize Whitespace |
+| Cao        | Developer Tools         | Color Converter, QR Code Generator, Password Generator, Lorem Ipsum Generator         |
+| Trung bình | Data Quality            | Data Profiler, Data Quality Score, CSV Validator, Date Parser, Number Formatter       |
+| Trung bình | Developer Tools mở rộng | Code Minifier/Beautifier, SQL Formatter, Markdown Editor, Diff Viewer                 |
+| Trung bình | Data Operations         | Data Sampling, Data Shuffle, Data Sort Advanced, Excel Formula Evaluator              |
+| Thấp       | Làm thêm                | YAML converter, Excel→PDF, Format phone/address, Group by nâng cao, API Tester        |
 
 ### D. Developer Tools & Utilities — Ưu tiên triển khai
 
 **UUID Generator — Chi tiết các version**
 
-| Version | Mô tả | Use case | Implementation |
-|---------|--------|----------|----------------|
-| **UUID v1** | Time-based với MAC address | Cần timestamp + unique per machine | `uuid` library (node-uuid) |
-| **UUID v4** | Random (pseudo-random) | Phổ biến nhất, không cần timestamp | `crypto.randomUUID()` hoặc `uuid` |
-| **UUID v5** | Name-based SHA-1 (namespace + name) | Deterministic từ namespace + name | `uuid` library với namespace |
-| **UUID v6** | Time-ordered (reordered v1) | Cải thiện v1, sortable theo time | `uuid` library (nếu hỗ trợ) |
-| **UUID v7** | Time-ordered với random | Best practice mới, sortable + random | `uuid` library hoặc custom |
-| **UUID v8** | Custom/experimental | Experimental, custom format | Custom implementation |
+| Version     | Mô tả                               | Use case                             | Implementation                    |
+| ----------- | ----------------------------------- | ------------------------------------ | --------------------------------- |
+| **UUID v1** | Time-based với MAC address          | Cần timestamp + unique per machine   | `uuid` library (node-uuid)        |
+| **UUID v4** | Random (pseudo-random)              | Phổ biến nhất, không cần timestamp   | `crypto.randomUUID()` hoặc `uuid` |
+| **UUID v5** | Name-based SHA-1 (namespace + name) | Deterministic từ namespace + name    | `uuid` library với namespace      |
+| **UUID v6** | Time-ordered (reordered v1)         | Cải thiện v1, sortable theo time     | `uuid` library (nếu hỗ trợ)       |
+| **UUID v7** | Time-ordered với random             | Best practice mới, sortable + random | `uuid` library hoặc custom        |
+| **UUID v8** | Custom/experimental                 | Experimental, custom format          | Custom implementation             |
 
 **UUID Generator Features:**
+
 - Chọn version (v1, v4, v5, v6, v7, v8)
 - Batch generate (1, 10, 100, 1000 UUIDs)
 - Format options: standard (with hyphens), no hyphens, uppercase, lowercase
@@ -341,6 +360,13 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 | **Image Color Replace** | Thay thế màu | Design, branding |
 | **Image to Icon** | Tạo favicon/icon | Web development |
 | **Image QR Code Generator/Reader** | Tạo/đọc QR code | Marketing, utilities |
+| **EXIF Metadata Stripper** | Xóa metadata (GPS, Camera info) | Bảo vệ quyền riêng tư |
+| **Screenshot Beautifier** | Chèn ảnh vào khung (bo góc, shadow, gradient) | Làm đẹp ảnh chụp màn hình |
+| **Color Palette Extractor** | Trích xuất bảng màu từ ảnh | Design, UI/UX |
+| **Favicon Generator** | Tạo bộ icon (.ico, apple-touch) từ logo | Web development |
+| **AI Background Remover** | Xóa nền tự động | Marketing, E-commerce |
+| **Image to ASCII Art** | Chuyển ảnh thành ký tự văn bản | Creative, geeky |
+| **Image Splitter (Grid)** | Chia ảnh thành lưới (3x3 cho Instagram) | Social media |
 
 ---
 
@@ -359,11 +385,13 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 ## 7. Data safety & SEO
 
 **Bảo mật / quyền riêng tư**
+
 - Mọi xử lý trong browser; không gửi nội dung file lên server.
 - Không phân tích nội dung file cho mục đích tracking.
 - File chỉ tồn tại trong session; refresh/đóng tab là mất.
 
 **SEO**
+
 - Mỗi tool một route riêng (vd. `/tools/csv-to-json`).
 - Meta title/description cho từng tool.
 - Có thể dùng static page cho từng tool + hydration nhẹ.
@@ -394,27 +422,32 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 **Mục tiêu:** Giảm và thống nhất font size, weight, width/height để giao diện cân đối, dễ đọc, dễ bảo trì.
 
 **Font**
+
 - Giữ **Outfit** làm font chính. Bỏ import Inter nếu không dùng.
 - Code/data: `font-mono` (system monospace) cho textarea, preview, bảng.
 
 **Font size**
+
 - Định nghĩa scale trong `tailwind.config.js` (vd. `text-2xs`, `text-xs`, …) thay vì arbitrary `text-[8px]`–`text-[13px]`.
 - Giảm size chung: hero H1 `text-3xl md:text-5xl`; tool page title `text-base md:text-lg`; card title `text-base`.
 - Tối thiểu cho chữ đọc được: label / header bảng ≥ `text-xs` (12px); cell bảng ≥ `text-xs`. Tránh 8–9px cho nội dung đọc.
 - Mô tả card/body: `text-sm` thay cho `text-[13px]`.
 
 **Font weight**
+
 - `font-black` chỉ cho H1 hero và tên tool chính.
 - Tiêu đề section / panel: `font-bold`.
 - Label nhỏ (uppercase): `font-bold`, không dùng black.
 - Body / mô tả: `font-medium` hoặc `font-normal`.
 
 **Width / height**
+
 - Thống nhất workspace: `calc(100vh - var(--header-h, 5rem))` cho tất cả tool view; set `--header-h` ở `:root`.
 - Sidebar tool: token chung `lg:w-72`.
 - Container: giữ `max-w-screen-2xl`; có thể giảm padding hero (vd. `py-10 md:py-12`).
 
 **Checklist**
+
 - [x] Thêm/chuẩn hóa fontSize trong tailwind theme (`text-2xs`, scale xs→5xl).
 - [ ] Thay arbitrary `text-[…]` bằng class từ scale (làm dần trong từng view).
 - [x] Giảm font-black xuống bold ở label/section (ToolsView, DataTable, AppHeader).
@@ -428,18 +461,21 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 **Mục tiêu:** Tối ưu hiệu suất, giảm bundle size, cải thiện thời gian load và xử lý.
 
 **Code Splitting & Lazy Loading**
+
 - [x] Route-based code splitting (đã có với dynamic imports)
 - [ ] Component-level lazy loading cho heavy components
 - [ ] Tree-shaking unused code từ libraries
 - [ ] Preload critical routes
 
 **Bundle Optimization**
+
 - [ ] Analyze bundle size với `vite-bundle-visualizer`
 - [ ] Optimize large dependencies (xlsx, papaparse) — có thể dùng CDN hoặc dynamic import
 - [ ] Code splitting cho image processing libraries
 - [ ] Compress assets (images, fonts)
 
 **Runtime Performance**
+
 - [x] Web Workers cho heavy processing (đã có cho file lớn)
 - [ ] Virtual scrolling cho tables lớn (đã có DataTable)
 - [ ] Debounce/throttle cho user inputs
@@ -447,12 +483,14 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 - [ ] Lazy load images trong Image tools
 
 **Caching Strategy**
+
 - [ ] Service Worker cho offline support (optional)
 - [ ] Browser cache cho static assets
 - [ ] LocalStorage cho user preferences
 - [ ] IndexedDB cho large datasets (optional)
 
 **Monitoring**
+
 - [ ] Performance metrics tracking (Core Web Vitals)
 - [ ] Error tracking và reporting
 - [ ] User analytics (privacy-friendly)
@@ -464,30 +502,35 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 **Mục tiêu:** Đảm bảo ứng dụng có thể sử dụng được cho mọi người, bao gồm người dùng với disabilities.
 
 **Keyboard Navigation**
+
 - [ ] Tab order hợp lý
 - [ ] Keyboard shortcuts cho các actions chính
 - [ ] Focus indicators rõ ràng
 - [ ] Skip to main content link
 
 **Screen Reader Support**
+
 - [ ] ARIA labels cho các interactive elements
 - [ ] ARIA live regions cho dynamic content
 - [ ] Semantic HTML (headings, landmarks)
 - [ ] Alt text cho images và icons
 
 **Visual Accessibility**
+
 - [ ] Color contrast đạt WCAG AA (4.5:1 cho text)
 - [ ] Không chỉ dựa vào màu sắc để truyền đạt thông tin
 - [ ] Font size có thể scale
 - [ ] Focus indicators visible
 
 **Forms & Inputs**
+
 - [ ] Labels rõ ràng cho tất cả inputs
 - [ ] Error messages accessible
 - [ ] Validation feedback real-time
 - [ ] Required fields được đánh dấu
 
 **Checklist**
+
 - [ ] Audit với axe DevTools
 - [ ] Test với screen reader (NVDA/JAWS/VoiceOver)
 - [ ] Test keyboard-only navigation
@@ -500,30 +543,35 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 **Mục tiêu:** Đảm bảo chất lượng code và giảm bugs.
 
 **Unit Tests**
+
 - [ ] Test utilities functions (fileParser, imageUtils)
 - [ ] Test UUID generation logic
 - [ ] Test data transformation functions
 - [ ] Test validation logic
 
 **Integration Tests**
+
 - [ ] Test file upload và parsing
 - [ ] Test data conversion workflows
 - [ ] Test export functionality
 - [ ] Test error handling
 
 **E2E Tests**
+
 - [ ] Test critical user flows
 - [ ] Test với real files (CSV, Excel, Images)
 - [ ] Test cross-browser compatibility
 - [ ] Test responsive design
 
 **Performance Tests**
+
 - [ ] Test với large files (10k+ rows, 10MB+ images)
 - [ ] Test memory usage
 - [ ] Test Web Worker performance
 - [ ] Test bundle size limits
 
 **Tools**
+
 - Vitest cho unit/integration tests
 - Playwright cho E2E tests
 - Lighthouse cho performance audits
@@ -536,24 +584,28 @@ Không bắt buộc cho MVP; bổ sung khi đã ổn định nhân lực và roa
 **Mục tiêu:** Giúp developers dễ dàng contribute và maintain codebase.
 
 **Code Documentation**
+
 - [ ] JSDoc comments cho functions phức tạp
 - [ ] README cho từng major component
 - [ ] Architecture decision records (ADRs)
 - [ ] Code style guide
 
 **Developer Guides**
+
 - [ ] Setup instructions
 - [ ] How to add new tool
 - [ ] Component patterns và best practices
 - [ ] Testing guidelines
 
 **User Documentation**
+
 - [ ] Tool usage guides
 - [ ] FAQ
 - [ ] Video tutorials (optional)
 - [ ] Keyboard shortcuts reference
 
 **API Documentation**
+
 - [ ] Shared components API
 - [ ] Utilities API
 - [ ] Type definitions

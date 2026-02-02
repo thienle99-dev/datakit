@@ -194,6 +194,16 @@ const router = createRouter({
             name: 'text-tools',
             component: () => import('@views/TextTools.vue'),
         },
+        {
+            path: '/color-palette-extractor',
+            name: 'color-palette-extractor',
+            component: () => import('@views/ColorPaletteExtractor.vue'),
+        },
+        {
+            path: '/screenshot-beautifier',
+            name: 'screenshot-beautifier',
+            component: () => import('@views/ScreenshotBeautifier.vue'),
+        },
     ],
 });
 
