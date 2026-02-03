@@ -224,6 +224,11 @@ const router = createRouter({
             name: 'cron-parser',
             component: () => import('@views/CronParser.vue'),
         },
+        {
+            path: '/text-diff',
+            name: 'text-diff',
+            component: () => import('@views/TextDiff.vue'),
+        },
     ],
 });
 

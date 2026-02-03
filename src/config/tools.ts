@@ -325,6 +325,15 @@ export const tools: Tool[] = [
         bgColor: 'bg-amber-500/10'
     },
     {
+        id: 'text-diff',
+        name: 'Text Diff',
+        description: 'Compare text differences',
+        path: '/text-diff',
+        icon: GitCompare,
+        color: 'text-orange-500',
+        bgColor: 'bg-orange-500/10'
+    },
+    {
         id: 'image-upscaler',
         name: 'Image Upscaler',
         description: 'AI-powered image enlargement',
