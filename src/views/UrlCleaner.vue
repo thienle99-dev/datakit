@@ -10,7 +10,6 @@ import {
   ExternalLink,
   ClipboardPaste,
   ArrowDown,
-  Download,
   QrCode,
   X,
   FileJson,
