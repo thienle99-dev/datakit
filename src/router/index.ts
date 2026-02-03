@@ -249,6 +249,11 @@ const router = createRouter({
             name: 'markdown-editor',
             component: () => import('@views/MarkdownEditor.vue'),
         },
+        {
+            path: '/quick-table',
+            name: 'quick-table',
+            component: () => import('@views/QuickTable.vue'),
+        },
     ],
 });
 

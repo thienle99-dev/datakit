@@ -405,6 +405,15 @@ export const tools: Tool[] = [
         icon: Braces,
         color: 'text-emerald-500',
         bgColor: 'bg-emerald-500/10'
+    },
+    {
+        id: 'quick-table',
+        name: 'Quick Table',
+        description: 'Paste & edit CSV/JSON like a spreadsheet',
+        path: '/quick-table',
+        icon: Table,
+        color: 'text-sky-500',
+        bgColor: 'bg-sky-500/10'
     }
 ];
 
