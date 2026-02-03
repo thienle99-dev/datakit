@@ -13,7 +13,7 @@ const searchQuery = ref('');
 const categories = [
     {
         title: "Image Studio",
-        tools: tools.filter(t => ['image-studio', 'image-upscaler', 'color-palette-extractor', 'screenshot-beautifier'].includes(t.id))
+        tools: tools.filter(t => ['image-studio', 'image-upscaler', 'color-palette-extractor', 'screenshot-beautifier', 'image-compressor', 'color-converter'].includes(t.id))
     },
     {
         title: "All-in-One Data Tools",
@@ -21,7 +21,7 @@ const categories = [
     },
      {
         title: "Developer Utilities",
-        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools', 'array-converter', 'url-cleaner', 'cron-parser'].includes(t.id))
+        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools', 'array-converter', 'url-cleaner', 'cron-parser', 'text-diff', 'hash-generator'].includes(t.id))
     }
 ];
 

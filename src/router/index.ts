@@ -239,6 +239,11 @@ const router = createRouter({
             name: 'color-converter',
             component: () => import('@views/ColorConverter.vue'),
         },
+        {
+            path: '/image-compressor',
+            name: 'image-compressor',
+            component: () => import('@views/ImageCompressor.vue'),
+        },
     ],
 });
 

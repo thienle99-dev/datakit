@@ -353,6 +353,15 @@ export const tools: Tool[] = [
         bgColor: 'bg-pink-500/10'
     },
     {
+        id: 'image-compressor',
+        name: 'Compressor / Resizer',
+        description: 'Compress & Resize Images',
+        path: '/image-compressor',
+        icon: ImageIcon,
+        color: 'text-indigo-500',
+        bgColor: 'bg-indigo-500/10'
+    },
+    {
         id: 'image-upscaler',
         name: 'Image Upscaler',
         description: 'AI-powered image enlargement',
