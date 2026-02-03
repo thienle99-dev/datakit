@@ -344,6 +344,15 @@ export const tools: Tool[] = [
         bgColor: 'bg-orange-500/10'
     },
     {
+        id: 'color-converter',
+        name: 'Color Converter',
+        description: 'Hex ↔ RGB ↔ HSL ↔ CMYK',
+        path: '/color-converter',
+        icon: Palette,
+        color: 'text-pink-500',
+        bgColor: 'bg-pink-500/10'
+    },
+    {
         id: 'image-upscaler',
         name: 'Image Upscaler',
         description: 'AI-powered image enlargement',

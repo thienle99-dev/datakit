@@ -234,6 +234,11 @@ const router = createRouter({
             name: 'hash-generator',
             component: () => import('@views/HashGenerator.vue'),
         },
+        {
+            path: '/color-converter',
+            name: 'color-converter',
+            component: () => import('@views/ColorConverter.vue'),
+        },
     ],
 });
 
