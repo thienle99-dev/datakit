@@ -244,6 +244,11 @@ const router = createRouter({
             name: 'image-compressor',
             component: () => import('@views/ImageCompressor.vue'),
         },
+        {
+            path: '/markdown-editor',
+            name: 'markdown-editor',
+            component: () => import('@views/MarkdownEditor.vue'),
+        },
     ],
 });
 

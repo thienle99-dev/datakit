@@ -362,6 +362,15 @@ export const tools: Tool[] = [
         bgColor: 'bg-indigo-500/10'
     },
     {
+        id: 'markdown-editor',
+        name: 'Markdown Editor',
+        description: 'Edit, Preview & Export MD',
+        path: '/markdown-editor',
+        icon: FileText,
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-500/10'
+    },
+    {
         id: 'image-upscaler',
         name: 'Image Upscaler',
         description: 'AI-powered image enlargement',

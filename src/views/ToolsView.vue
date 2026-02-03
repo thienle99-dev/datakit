@@ -19,9 +19,9 @@ const categories = [
         title: "All-in-One Data Tools",
         tools: tools.filter(t => ['universal-converter', 'merge-data', 'split-data', 'compare-data', 'csv-viewer', 'csv-cleaner', 'column-selector', 'filter-sort', 'transpose-data', 'data-stats', 'mock-generator', 'data-to-chart', 'skip-rows', 'random-sample', 'mask-data', 'validate-data', 'reshape-data', 'find-replace', 'summarize-data', 'templates'].includes(t.id))
     },
-     {
+    {
         title: "Developer Utilities",
-        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools', 'array-converter', 'url-cleaner', 'cron-parser', 'text-diff', 'hash-generator'].includes(t.id))
+        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools', 'array-converter', 'url-cleaner', 'cron-parser', 'text-diff', 'hash-generator', 'markdown-editor'].includes(t.id))
     }
 ];
 
