@@ -12,17 +12,33 @@ import {
   AlertCircle,
   Play,
   Settings2,
-  RefreshCw
+  RefreshCw,
+  Globe,
+  List
 } from 'lucide-vue-next';
+
+// --- Constants ---
+const PRESETS = [
+    { label: 'Every Minute', value: '* * * * *' },
+    { label: 'Every 5 Minutes', value: '*/5 * * * *' },
+    { label: 'Every 15 Minutes', value: '*/15 * * * *' },
+    { label: 'Every Hour', value: '0 * * * *' },
+    { label: 'Every 2 Hours', value: '0 */2 * * *' },
+    { label: 'Every Day (Midnight)', value: '0 0 * * *' },
+    { label: 'Every Week (Sunday)', value: '0 0 * * 0' },
+    { label: 'Every Month (1st)', value: '0 0 1 * *' },
+];
 
 // --- State ---
 const cronExpression = ref('* * * * *');
 const nextRunsCount = ref(5);
 const copied = ref(false);
+const useUTC = ref(false);
 
 // Builder State
 const builderMode = ref<'simple' | 'advanced'>('simple');
-const simpleFrequency = ref('every_minute'); // every_minute, hourly, daily, weekly, monthly
+const simpleFrequency = ref('every_minute'); // every_minute, every_x_minute, hourly, every_x_hour, daily, weekly, monthly, yearly
+const simpleInterval = ref(5);
 const simpleTime = ref('00:00');
 const simpleWeekdays = ref<string[]>(['1']); // 1=Mon
 const simpleDayOfMonth = ref(1);
@@ -48,15 +64,45 @@ const description = computed(() => {
 const nextRuns = computed(() => {
     if (!cronExpression.value.trim()) return [];
     try {
-        const interval = parseExpression(cronExpression.value.trim());
+        const options: any = {
+            iterator: true
+        };
+        if (useUTC.value) {
+            options.tz = 'UTC';
+        }
+        
+        const interval = parseExpression(cronExpression.value.trim(), options);
+        // interval is an iterator now because iterator:true might be needed or next() returns an object with value, done
+        // Actually parseExpression returns standard object with next(). 
+        // Let's stick to standard usage: parseExpression(expr, options) -> interval.
+        // options for timezone is direct property 'tz'
+        
         const dates = [];
         for (let i = 0; i < nextRunsCount.value; i++) {
+             // interval.next() returns a CronDate
             dates.push(interval.next().toDate());
         }
         return dates;
     } catch (e) {
         return [];
     }
+});
+
+const cronParts = computed(() => {
+    const parts = cronExpression.value.trim().split(/\s+/);
+    // Standard cron has 5 parts: min, hour, dom, month, dow
+    // Some have 6 (+seconds). 
+    return parts.map((val, idx) => {
+        let label = 'Unknown';
+        if (parts.length === 5) {
+             const labels = ['Minute', 'Hour', 'Day (Month)', 'Month', 'Weekday'];
+             label = labels[idx] || '';
+        } else if (parts.length === 6) {
+             const labels = ['Second', 'Minute', 'Hour', 'Day (Month)', 'Month', 'Weekday'];
+             label = labels[idx] || '';
+        }
+        return { value: val, label };
+    });
 });
 
 const isError = computed(() => {
@@ -72,16 +118,20 @@ const generateCronFromSimple = () => {
         case 'every_minute':
             updateCron('* * * * *');
             break;
+        case 'every_x_minute':
+            updateCron(`*/${simpleInterval.value} * * * *`);
+            break;
         case 'hourly':
             updateCron(`${mm} * * * *`);
+            break;
+        case 'every_x_hour':
+            updateCron(`${mm} */${simpleInterval.value} * * *`);
             break;
         case 'daily':
             updateCron(`${mm} ${hh} * * *`);
             break;
         case 'weekly':
-            // cron weekdays: 0-6 (Sun-Sat) or 1-7 (Mon-Sun). cron-parser supports names too.
-            // Let's use 1-7 for Mon-Sun? commonly 0=Sun. 
-            // Simple check: Mon=1, Tue=2... Sun=0.
+            // cron weekdays: 0-6 (Sun-Sat) or 1-7 (Mon-Sun).
             const days = simpleWeekdays.value.join(',');
             updateCron(`${mm} ${hh} * * ${days || '*'}`);
             break;
@@ -92,6 +142,10 @@ const generateCronFromSimple = () => {
             updateCron(`${mm} ${hh} ${simpleDayOfMonth.value} 1 *`);
             break;
     }
+};
+
+const applyPreset = (presetValue: string) => {
+    updateCron(presetValue);
 };
 
 const generateCronFromAdvanced = () => {
@@ -117,7 +171,7 @@ const copyCron = () => {
 };
 
 // --- Watchers ---
-watch([simpleFrequency, simpleTime, simpleWeekdays, simpleDayOfMonth], () => {
+watch([simpleFrequency, simpleTime, simpleWeekdays, simpleDayOfMonth, simpleInterval], () => {
     if (builderMode.value === 'simple') {
         generateCronFromSimple();
     }
@@ -138,7 +192,9 @@ const formatDate = (date: Date) => {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
+        second: '2-digit',
+        timeZone: useUTC.value ? 'UTC' : undefined,
+        timeZoneName: 'short'
     }).format(date);
 };
 
@@ -170,9 +226,30 @@ const formatDate = (date: Date) => {
         <div class="flex-1 flex flex-col gap-6">
             
             <!-- Main Input Data -->
-            <div class="bg-card border border-border rounded-xl shadow-sm p-6 flex flex-col items-center justify-center gap-4 relative overflow-hidden">
-                <div class="w-full relative">
-                    <label class="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Cron Expression</label>
+            <div class="bg-card border border-border rounded-xl shadow-sm p-6 flex flex-col items-center justify-center gap-6 relative overflow-visible">
+                <!-- Presets (Absolutely positioned top-right) -->
+                <div class="absolute top-4 right-4 z-10 group">
+                    <button class="p-2 text-muted-foreground hover:text-indigo-500 bg-muted/30 hover:bg-muted rounded-lg transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+                         <List :size="16" /> <span class="hidden sm:inline">Presets</span>
+                    </button>
+                    <!-- Dropdown Menu -->
+                     <div class="absolute right-0 top-full mt-2 w-48 bg-popover border border-border rounded-xl shadow-lg shadow-black/10 overflow-hidden hidden group-hover:block animate-in fade-in zoom-in-95 duration-200 z-50">
+                        <div class="py-1">
+                            <button 
+                                v-for="preset in PRESETS" 
+                                :key="preset.value"
+                                @click="applyPreset(preset.value)"
+                                class="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted/50 transition-colors flex flex-col gap-0.5"
+                            >
+                                <span class="font-medium">{{ preset.label }}</span>
+                                <span class="text-[10px] font-mono text-muted-foreground">{{ preset.value }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full relative mt-4">
+                    <label class="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4 block text-center">Cron Expression</label>
                     <div class="relative flex items-center">
                         <input 
                             v-model="cronExpression"
@@ -190,6 +267,20 @@ const formatDate = (date: Date) => {
                         </button>
                     </div>
                 </div>
+
+                    <!-- Visual Explainer -->
+                    <div class="w-full flex flex-wrap justify-center gap-2 mt-2 mb-2">
+                        <div 
+                            v-for="(part, idx) in cronParts" 
+                            :key="idx"
+                            class="flex flex-col items-center gap-1 min-w-[60px]"
+                        >
+                             <div class="h-10 w-full min-w-[50px] px-3 bg-muted/50 border border-border/50 rounded-lg flex items-center justify-center font-mono font-bold text-foreground text-sm shadow-sm transition-all hover:border-indigo-500/50 hover:bg-muted">
+                                {{ part.value }}
+                             </div>
+                             <span class="text-[10px] uppercase font-bold text-muted-foreground tracking-tight">{{ part.label }}</span>
+                        </div>
+                    </div>
 
                 <!-- Human Readable -->
                 <div class="text-center min-h-[1.5em]">
@@ -214,11 +305,23 @@ const formatDate = (date: Date) => {
                     <span class="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                         <Play :size="14" /> Next Executions
                     </span>
-                    <select v-model="nextRunsCount" class="text-xs bg-transparent border-none outline-none text-muted-foreground font-bold hover:text-foreground cursor-pointer">
-                        <option :value="5">Next 5</option>
-                        <option :value="10">Next 10</option>
-                        <option :value="20">Next 20</option>
-                    </select>
+                    <div class="flex items-center gap-4">
+                        <!-- UTC Toggle -->
+                         <button 
+                            @click="useUTC = !useUTC"
+                            class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-background border border-border/50 shadow-sm transition-all"
+                            :class="useUTC ? 'text-indigo-500 border-indigo-500/30' : 'text-muted-foreground'"
+                         >
+                            <Globe :size="12" />
+                            {{ useUTC ? 'UTC' : 'Local' }}
+                         </button>
+
+                        <select v-model="nextRunsCount" class="text-xs bg-transparent border-none outline-none text-muted-foreground font-bold hover:text-foreground cursor-pointer">
+                            <option :value="5">Next 5</option>
+                            <option :value="10">Next 10</option>
+                            <option :value="20">Next 20</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="divide-y divide-border/40">
                     <div 
@@ -265,12 +368,22 @@ const formatDate = (date: Date) => {
                     <label class="text-xs font-bold text-muted-foreground uppercase">Frequency</label>
                      <select v-model="simpleFrequency" class="w-full bg-muted/30 border border-border/50 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500">
                         <option value="every_minute">Every Minute (* * * * *)</option>
-                        <option value="hourly">Hourly (Example: At minute 0)</option>
-                        <option value="daily">Daily (Example: At 00:00)</option>
-                        <option value="weekly">Weekly (Example: On Monday)</option>
-                        <option value="monthly">Monthly (Example: On the 1st)</option>
-                        <option value="yearly">Yearly (January 1st)</option>
+                        <option value="every_x_minute">Every X Minutes (*/x * * * *)</option>
+                        <option value="hourly">Hourly (Minute 0)</option>
+                        <option value="every_x_hour">Every X Hours (0 */x * * *)</option>
+                        <option value="daily">Daily (At specific time)</option>
+                        <option value="weekly">Weekly (Specific day & time)</option>
+                        <option value="monthly">Monthly (Specific date & time)</option>
+                        <option value="yearly">Yearly (Specific date & time)</option>
                     </select>
+                </div>
+
+                <!-- Interval Input -->
+                <div v-if="['every_x_minute', 'every_x_hour'].includes(simpleFrequency)" class="space-y-2 animate-in fade-in slide-in-from-top-2">
+                     <label class="text-xs font-bold text-muted-foreground uppercase">
+                        {{ simpleFrequency === 'every_x_minute' ? 'Minute Interval' : 'Hour Interval' }}
+                     </label>
+                     <input type="number" min="1" :max="simpleFrequency === 'every_x_minute' ? 59 : 23" v-model="simpleInterval" class="w-full bg-muted/30 border border-border/50 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500" />
                 </div>
 
                 <!-- Time Picker (for Daily/Weekly/Monthly/Yearly) -->
