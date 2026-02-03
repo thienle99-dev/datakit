@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import QrcodeVue from 'qrcode.vue';
 import { 
   ArrowLeft, 
   Link, 
@@ -8,12 +9,25 @@ import {
   Trash2,
   ExternalLink,
   ClipboardPaste,
-  ArrowDown
+  ArrowDown,
+  Download,
+  QrCode,
+  X,
+  FileJson,
+  FileSpreadsheet
 } from 'lucide-vue-next';
 
 // State
 const input = ref('');
+const customParamsInput = ref('');
 const copiedAll = ref(false);
+const copiedIndex = ref<number | null>(null);
+
+// QR Modal State
+const showQrModal = ref(false);
+const qrUrl = ref('');
+const qrSize = ref(200);
+
 const options = ref({
   utm: true,
   fbclid: true,
@@ -22,6 +36,7 @@ const options = ref({
   allParams: false,
   decode: false,
   removeHash: false,
+  sortParams: false,
 });
 
 interface CleanedResult {
@@ -55,6 +70,10 @@ const cleanLine = (url: string): CleanedResult => {
     }
 
     const removedParams: string[] = [];
+    const customBlacklist = customParamsInput.value
+        .split(',')
+        .map(p => p.trim().toLowerCase())
+        .filter(p => p.length > 0);
 
     if (options.value.allParams) {
       if (urlObj.search) {
@@ -64,20 +83,39 @@ const cleanLine = (url: string): CleanedResult => {
     } else {
       const params = urlObj.searchParams;
       const keysToRemove: string[] = [];
+      const keysToKeep: string[] = [];
 
       params.forEach((_, key) => {
         let remove = false;
-        if (options.value.utm && key.startsWith('utm_')) remove = true;
-        if (options.value.fbclid && key === 'fbclid') remove = true;
-        if (options.value.gclid && (key === 'gclid' || key.startsWith('_ga'))) remove = true;
+        const lowKey = key.toLowerCase();
         
-        if (remove) keysToRemove.push(key);
+        if (options.value.utm && lowKey.startsWith('utm_')) remove = true;
+        if (options.value.fbclid && lowKey === 'fbclid') remove = true;
+        if (options.value.gclid && (lowKey === 'gclid' || lowKey.startsWith('_ga'))) remove = true;
+        
+        if (customBlacklist.some(custom => 
+            custom.endsWith('*') 
+            ? lowKey.startsWith(custom.slice(0, -1)) 
+            : lowKey === custom
+        )) {
+            remove = true;
+        }
+        
+        if (remove) {
+            keysToRemove.push(key);
+        } else {
+            keysToKeep.push(key);
+        }
       });
 
       keysToRemove.forEach(k => {
           removedParams.push(k);
           params.delete(k);
       });
+
+      if (options.value.sortParams && keysToKeep.length > 0) {
+          params.sort();
+      }
     }
 
     if (options.value.removeHash && urlObj.hash) {
@@ -109,9 +147,9 @@ const processedResults = computed(() => {
         .map(line => cleanLine(line.trim()));
 });
 
-// For bulk copy
 const allCleanedText = computed(() => processedResults.value.map(r => r.cleaned).join('\n'));
-const copiedIndex = ref<number | null>(null);
+
+// --- Actions ---
 
 const copyAll = () => {
     if (!allCleanedText.value) return;
@@ -137,19 +175,71 @@ const paste = async () => {
     try {
         const text = await navigator.clipboard.readText();
         input.value = text;
-    } catch (e) {
-        // Fallback or permission error
-    }
+    } catch (e) {}
 };
 
 const openLink = (url: string) => {
     window.open(url, '_blank');
 };
 
+const openQr = (url: string) => {
+    qrUrl.value = url;
+    showQrModal.value = true;
+};
+
+// --- Export Features ---
+
+const exportCsv = () => {
+    const header = 'Original URL,Cleaned URL,Removed Params Count,Removed Params List\n';
+    const rows = processedResults.value.map(r => {
+        // Simple CSV escaping
+        const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
+        return `${escape(r.original)},${escape(r.cleaned)},${r.removedCount},${escape(r.removedParams.join('; '))}`;
+    }).join('\n');
+    
+    const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `cleaned_urls_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+};
+
+const exportJson = () => {
+    const data = processedResults.value.map(r => ({
+        original: r.original,
+        cleaned: r.cleaned,
+        removed_count: r.removedCount,
+        removed_params: r.removedParams
+    }));
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `cleaned_urls_${new Date().toISOString().slice(0,10)}.json`;
+    link.click();
+};
+
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto py-8 px-4">
+  <div class="max-w-4xl mx-auto py-8 px-4 relative">
+    <!-- QR Modal -->
+    <div v-if="showQrModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div class="bg-card border border-border rounded-2xl shadow-2xl p-6 md:p-8 max-w-sm w-full relative flex flex-col items-center gap-6">
+            <button @click="showQrModal = false" class="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+                <X :size="20" />
+            </button>
+            <h3 class="text-xl font-bold">Scan QR Code</h3>
+            
+            <div class="bg-white p-4 rounded-xl shadow-inner">
+                 <QrcodeVue :value="qrUrl" :size="qrSize" level="H" />
+            </div>
+            
+            <p class="text-xs text-muted-foreground text-center font-mono break-all max-w-[280px]">
+                {{ qrUrl }}
+            </p>
+        </div>
+    </div>
+
     <!-- Simple Header -->
     <div class="flex items-center gap-4 mb-8">
         <router-link to="/" class="p-2 -ml-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors">
@@ -198,8 +288,9 @@ const openLink = (url: string) => {
         </div>
 
         <!-- Options Toolbar -->
-        <div class="bg-card border border-border/60 rounded-xl p-3 flex flex-wrap gap-x-6 gap-y-3 items-center justify-between shadow-sm">
-             <div class="flex flex-wrap items-center gap-4">
+        <div class="bg-card border border-border/60 rounded-xl p-4 flex flex-col gap-4 shadow-sm">
+             <!-- Preset Filters -->
+             <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
                  <label class="flex items-center gap-2 cursor-pointer select-none">
                      <input type="checkbox" v-model="options.utm" class="rounded border-border text-indigo-500 focus:ring-0" />
                      <span class="text-sm font-medium">UTM</span>
@@ -216,11 +307,34 @@ const openLink = (url: string) => {
                      <input type="checkbox" v-model="options.removeHash" class="rounded border-border text-indigo-500 focus:ring-0" />
                      <span class="text-sm font-medium">Hash (#)</span>
                  </label>
-                 <div class="w-px h-4 bg-border"></div>
+                 <div class="w-px h-4 bg-border hidden sm:block"></div>
+                 
+                 <label class="flex items-center gap-2 cursor-pointer select-none group">
+                     <input type="checkbox" v-model="options.sortParams" class="rounded border-border text-emerald-500 focus:ring-0" />
+                     <span class="text-sm font-medium group-hover:text-emerald-600 transition-colors">Sort Params</span>
+                 </label>
+
+                 <div class="w-px h-4 bg-border hidden sm:block"></div>
                  <label class="flex items-center gap-2 cursor-pointer select-none">
                      <input type="checkbox" v-model="options.allParams" class="rounded border-border text-rose-500 focus:ring-0" />
                      <span class="text-sm font-medium text-muted-foreground hover:text-rose-500 transition-colors">Clear All Params</span>
                  </label>
+             </div>
+
+             <!-- Custom Param Input -->
+             <div class="flex items-center gap-3 pt-3 border-t border-border/50">
+                 <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">Custom:</span>
+                 <div class="relative flex-1">
+                     <input 
+                        v-model="customParamsInput"
+                        type="text" 
+                        class="w-full bg-muted/30 border border-border/50 rounded-lg px-3 py-1.5 text-sm outline-none focus:bg-background focus:border-indigo-500/50 transition-all placeholder:text-muted-foreground/50"
+                        placeholder="ref, source, track_*"
+                     />
+                 </div>
+                 <div class="text-[10px] text-muted-foreground hidden sm:block">
+                     Comma separated. Use * for wildcards.
+                 </div>
              </div>
         </div>
 
@@ -236,15 +350,27 @@ const openLink = (url: string) => {
                     <label class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cleaned Output</label>
                     <span v-if="processedResults.length > 0" class="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">{{ processedResults.length }} links</span>
                 </div>
-                <button 
-                    v-if="processedResults.length > 0"
-                    @click="copyAll" 
-                    class="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1.5 transition-colors"
-                >
-                    <Check v-if="copiedAll" :size="14" />
-                    <Copy v-else :size="14" />
-                    {{ copiedAll ? 'Copied' : 'Copy All' }}
-                </button>
+                
+                <div v-if="processedResults.length > 0" class="flex items-center gap-2">
+                    <!-- Export Actions -->
+                    <div class="flex items-center gap-1 border-r border-border/50 pr-2 mr-2">
+                        <button @click="exportCsv" class="p-1 text-muted-foreground hover:text-emerald-500 transition-colors" title="Export CSV">
+                            <FileSpreadsheet :size="16" />
+                        </button>
+                        <button @click="exportJson" class="p-1 text-muted-foreground hover:text-yellow-500 transition-colors" title="Export JSON">
+                            <FileJson :size="16" />
+                        </button>
+                    </div>
+
+                    <button 
+                        @click="copyAll" 
+                        class="text-xs font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1.5 transition-colors"
+                    >
+                        <Check v-if="copiedAll" :size="14" />
+                        <Copy v-else :size="14" />
+                        {{ copiedAll ? 'Copied' : 'Copy All' }}
+                    </button>
+                </div>
             </div>
 
             <div v-if="processedResults.length > 0" class="bg-card border border-border rounded-xl shadow-sm divide-y divide-border/40 overflow-hidden">
@@ -275,6 +401,9 @@ const openLink = (url: string) => {
                     </div>
 
                     <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity self-center">
+                         <button @click="openQr(item.cleaned)" class="p-2 text-muted-foreground hover:text-indigo-500 rounded-lg hover:bg-indigo-500/10 transition-colors" title="QR Code">
+                            <QrCode :size="16" />
+                        </button>
                          <button @click="openLink(item.cleaned)" class="p-2 text-muted-foreground hover:text-indigo-500 rounded-lg hover:bg-indigo-500/10 transition-colors" title="Open Link">
                             <ExternalLink :size="16" />
                         </button>
