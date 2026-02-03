@@ -21,7 +21,7 @@ const categories = [
     },
      {
         title: "Developer Utilities",
-        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools', 'array-converter'].includes(t.id))
+        tools: tools.filter(t => ['json-formatter', 'json-diff', 'json-path', 'xml-converter', 'encoder', 'jwt-debugger', 'epoch-converter', 'uuid-generator', 'regex-tester', 'text-tools', 'array-converter', 'url-cleaner'].includes(t.id))
     }
 ];
 

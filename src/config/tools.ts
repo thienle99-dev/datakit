@@ -4,7 +4,7 @@ import {
     BarChart3, GitCompare, Sigma, Database, ListFilter, ListOrdered,
     Shuffle, EyeOff, FileDown, Search as SearchIcon, Braces,
     Search as SearchQuery, Code2, Binary, Clock, Fingerprint, Regex,
-    Type, Image as ImageIcon, ZoomIn, Palette, FileJson, FileText
+    Type, Image as ImageIcon, ZoomIn, Palette, FileJson, FileText, Link
 } from 'lucide-vue-next';
 
 export interface Tool {
@@ -305,6 +305,15 @@ export const tools: Tool[] = [
         icon: FileText,
         color: 'text-blue-500',
         bgColor: 'bg-blue-500/10'
+    },
+    {
+        id: 'url-cleaner',
+        name: 'URL Cleaner',
+        description: 'Remove tracking parameters',
+        path: '/url-cleaner',
+        icon: Link,
+        color: 'text-indigo-500',
+        bgColor: 'bg-indigo-500/10'
     },
     {
         id: 'image-upscaler',

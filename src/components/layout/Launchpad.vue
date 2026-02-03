@@ -27,7 +27,8 @@ import {
   Binary,
   Clock,
   Fingerprint,
-  Regex
+  Regex,
+  Link
 } from 'lucide-vue-next';
 
 interface Tool {
@@ -74,6 +75,7 @@ const tools: Tool[] = [
   { id: 'json-path', name: 'JSON Query', description: 'Extract data by path', path: '/json-path', icon: SearchQuery, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
   { id: 'xml-converter', name: 'XML <> JSON', description: 'Convert XML and JSON', path: '/xml-converter', icon: FileCode, color: 'text-cyan-500', bgColor: 'bg-cyan-500/10' },
   { id: 'encoder', name: 'Encoder Suite', description: 'Base64, URL, Hash', path: '/encoder', icon: Binary, color: 'text-indigo-500', bgColor: 'bg-indigo-500/10' },
+  { id: 'url-cleaner', name: 'URL Cleaner', description: 'Remove tracking params', path: '/url-cleaner', icon: Link, color: 'text-indigo-500', bgColor: 'bg-indigo-500/10' },
   { id: 'jwt-debugger', name: 'JWT Debugger', description: 'Decode JWT Tokens', path: '/jwt-debugger', icon: ShieldCheck, color: 'text-pink-500', bgColor: 'bg-pink-500/10' },
   { id: 'epoch-converter', name: 'Epoch Time', description: 'Timestamp Converter', path: '/epoch-converter', icon: Clock, color: 'text-teal-500', bgColor: 'bg-teal-500/10' },
   { id: 'uuid-generator', name: 'UUID Gen', description: 'Generate UUIDs', path: '/uuid-generator', icon: Fingerprint, color: 'text-violet-500', bgColor: 'bg-violet-500/10' },
@@ -115,7 +117,7 @@ const categories = computed(() => {
     
     filteredTools.value.forEach(t => {
         if (['json-formatter','json-diff','json-path','xml-converter'].includes(t.id)) addToGroup('JSON & Text', t);
-        else if (['encoder','jwt-debugger','epoch-converter','uuid-generator','regex-tester'].includes(t.id)) addToGroup('Encoder & Dev', t);
+        else if (['encoder','jwt-debugger','epoch-converter','uuid-generator','regex-tester','url-cleaner'].includes(t.id)) addToGroup('Encoder & Dev', t);
         else if (t.id === 'data-to-chart') addToGroup('Charts', t);
         else if (['csv-viewer','csv-cleaner','universal-converter'].includes(t.id)) addToGroup('Core', t);
         else addToGroup('Data & CSV', t);

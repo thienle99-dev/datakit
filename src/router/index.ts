@@ -214,6 +214,11 @@ const router = createRouter({
             name: 'lorem-ipsum-generator',
             component: () => import('@views/LoremIpsumGenerator.vue'),
         },
+        {
+            path: '/url-cleaner',
+            name: 'url-cleaner',
+            component: () => import('@views/UrlCleaner.vue'),
+        },
     ],
 });
 
