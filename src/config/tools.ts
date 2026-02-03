@@ -5,6 +5,7 @@ import {
     Shuffle, EyeOff, FileDown, Search as SearchIcon, Braces,
     Search as SearchQuery, Code2, Binary, Clock, Fingerprint, Regex,
     Type, Image as ImageIcon, ZoomIn, Palette, FileJson, FileText, Link,
+    Hash
 } from 'lucide-vue-next';
 
 export interface Tool {
@@ -323,6 +324,15 @@ export const tools: Tool[] = [
         icon: Clock,
         color: 'text-amber-500',
         bgColor: 'bg-amber-500/10'
+    },
+    {
+        id: 'hash-generator',
+        name: 'Hash Generator',
+        description: 'MD5, SHA1-512 generator',
+        path: '/hash-generator',
+        icon: Hash,
+        color: 'text-green-500',
+        bgColor: 'bg-green-500/10'
     },
     {
         id: 'text-diff',

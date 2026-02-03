@@ -229,6 +229,11 @@ const router = createRouter({
             name: 'text-diff',
             component: () => import('@views/TextDiff.vue'),
         },
+        {
+            path: '/hash-generator',
+            name: 'hash-generator',
+            component: () => import('@views/HashGenerator.vue'),
+        },
     ],
 });
 
