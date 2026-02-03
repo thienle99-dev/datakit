@@ -4,7 +4,7 @@ import {
     BarChart3, GitCompare, Sigma, Database, ListFilter, ListOrdered,
     Shuffle, EyeOff, FileDown, Search as SearchIcon, Braces,
     Search as SearchQuery, Code2, Binary, Clock, Fingerprint, Regex,
-    Type, Image as ImageIcon, ZoomIn, Palette, FileJson, FileText, Link
+    Type, Image as ImageIcon, ZoomIn, Palette, FileJson, FileText, Link,
 } from 'lucide-vue-next';
 
 export interface Tool {
@@ -314,6 +314,15 @@ export const tools: Tool[] = [
         icon: Link,
         color: 'text-indigo-500',
         bgColor: 'bg-indigo-500/10'
+    },
+    {
+        id: 'cron-parser',
+        name: 'Cron Parser',
+        description: 'Decode & Build Cron Expressions',
+        path: '/cron-parser',
+        icon: Clock,
+        color: 'text-amber-500',
+        bgColor: 'bg-amber-500/10'
     },
     {
         id: 'image-upscaler',

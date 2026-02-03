@@ -12,6 +12,8 @@
     "@faker-js/faker": "^10.2.0",
     "@fontsource/outfit": "^5.2.8",
     "apexcharts": "^5.3.6",
+    "cron-parser": "^5.5.0",
+    "cronstrue": "^3.11.0",
     "js-yaml": "^4.1.1",
     "jszip": "^3.10.1",
     "lucide-vue-next": "^0.563.0",

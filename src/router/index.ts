@@ -219,6 +219,11 @@ const router = createRouter({
             name: 'url-cleaner',
             component: () => import('@views/UrlCleaner.vue'),
         },
+        {
+            path: '/cron-parser',
+            name: 'cron-parser',
+            component: () => import('@views/CronParser.vue'),
+        },
     ],
 });
 

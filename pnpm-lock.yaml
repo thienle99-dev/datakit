@@ -17,6 +17,12 @@ importers:
       apexcharts:
         specifier: ^5.3.6
         version: 5.3.6
+      cron-parser:
+        specifier: ^5.5.0
+        version: 5.5.0
+      cronstrue:
+        specifier: ^3.11.0
+        version: 3.11.0
       js-yaml:
         specifier: ^4.1.1
         version: 4.1.1
@@ -508,6 +514,14 @@ packages:
     engines: {node: '>=0.8'}
     hasBin: true
 
+  cron-parser@5.5.0:
+    resolution: {integrity: sha512-oML4lKUXxizYswqmxuOCpgFS8BNUJpIu6k/2HVHyaL8Ynnf3wdf9tkns0yRdJLSIjkJ+b0DXHMZEHGpMwjnPww==}
+    engines: {node: '>=18'}
+
+  cronstrue@3.11.0:
+    resolution: {integrity: sha512-nXST7NEkjPF6loOTJtCwbLHB6cOVR5Ofuq/VZ4UGsZw/0HTvxy6mRCrDHOJ4xoLPcuS3ooruBLyUk3INaidKwg==}
+    hasBin: true
+
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
@@ -744,6 +758,10 @@ packages:
     resolution: {integrity: sha512-zsE/lCKtmaa7bGfhSpN84br1K9YoQ5pCN+2oKWjQQG3Lo6ufUUKBuHSjNFI6RvUevxaajNXb8XwFUKeTXG3sIA==}
     peerDependencies:
       vue: '>=3.0.1'
+
+  luxon@3.7.2:
+    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
+    engines: {node: '>=12'}
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -1324,6 +1342,12 @@ snapshots:
 
   crc-32@1.2.2: {}
 
+  cron-parser@5.5.0:
+    dependencies:
+      luxon: 3.7.2
+
+  cronstrue@3.11.0: {}
+
   csstype@3.2.3: {}
 
   debug@4.4.3:
@@ -1496,6 +1520,8 @@ snapshots:
   lucide-vue-next@0.563.0(vue@3.5.27(typescript@5.9.3)):
     dependencies:
       vue: 3.5.27(typescript@5.9.3)
+
+  luxon@3.7.2: {}
 
   magic-string@0.30.21:
     dependencies:

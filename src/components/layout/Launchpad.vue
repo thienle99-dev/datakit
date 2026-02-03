@@ -117,7 +117,7 @@ const categories = computed(() => {
     
     filteredTools.value.forEach(t => {
         if (['json-formatter','json-diff','json-path','xml-converter'].includes(t.id)) addToGroup('JSON & Text', t);
-        else if (['encoder','jwt-debugger','epoch-converter','uuid-generator','regex-tester','url-cleaner'].includes(t.id)) addToGroup('Encoder & Dev', t);
+        else if (['encoder','jwt-debugger','epoch-converter','uuid-generator','regex-tester','url-cleaner','cron-parser'].includes(t.id)) addToGroup('Encoder & Dev', t);
         else if (t.id === 'data-to-chart') addToGroup('Charts', t);
         else if (['csv-viewer','csv-cleaner','universal-converter'].includes(t.id)) addToGroup('Core', t);
         else addToGroup('Data & CSV', t);
